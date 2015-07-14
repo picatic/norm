@@ -4,18 +4,31 @@ import (
 	"errors"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/go-api/norm/field"
+	"reflect"
 )
 
 // All models have to implement this
 type Model interface {
-	TableName() string                         // table name within the database this model is associated to
-	GetField(name field.FieldName) interface{} // return a norm.field by name
-	IsNew() bool                               // Is this model new or not
+	TableName() string // table name within the database this model is associated to
+	IsNew() bool       // Is this model new or not
 }
 
 // Fetch list of fields on this model via reflection of fields that are from norm/field
 func ModelFields(model Model) []field.FieldName {
-	// reflect ?
+	typeOfField := reflect.TypeOf((*field.Field)(nil)).Elem()
+	r := reflect.TypeOf(model).Elem()
+	fields := make([]field.FieldName, 1)
+	for i := 0; i < r.NumField(); i++ {
+		f := r.Field(i)
+		if f.Type.Implements(typeOfField) == true {
+			fields = append(fields, field.FieldName(f.Name))
+		}
+	}
+	return fields
+}
+
+// Get a field on a model by name
+func ModelGetField(model Model, field field.FieldName) interface{} {
 	panic(errors.New("NotImplemented"))
 	return nil
 }
