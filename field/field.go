@@ -14,6 +14,9 @@ type FieldShadow interface {
 // FieldName, mapped to model
 type FieldName string
 
+// FieldNames
+type FieldNames []FieldName
+
 type Field interface {
 	sql.Scanner // we require Scanner implementations
 	FieldShadow // we require FieldShadow

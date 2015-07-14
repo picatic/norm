@@ -9,12 +9,13 @@ import (
 
 // All models have to implement this
 type Model interface {
-	TableName() string // table name within the database this model is associated to
-	IsNew() bool       // Is this model new or not
+	TableName() string                    // table name within the database this model is associated to
+	PrimaryKeyFieldName() field.FieldName // primary key for this model
+	IsNew() bool                          // Is this model new or not
 }
 
 // Fetch list of fields on this model via reflection of fields that are from norm/field
-func ModelFields(model Model) []field.FieldName {
+func ModelFields(model Model) field.FieldNames {
 	typeOfField := reflect.TypeOf((*field.Field)(nil)).Elem()
 	r := reflect.TypeOf(model).Elem()
 	fields := make([]field.FieldName, 1)
@@ -38,9 +39,10 @@ func ModelGetField(model Model, field field.FieldName) (interface{}, error) {
 // This is kind of an ActiveRecord/RemoteProxy/RecordGateway pattern
 //
 
-//NewSelect builds a select from the Model and Fields
-func NewSelect(s *dbr.Session, m Model, f Fields) *dbr.SelectBuilder {
-	return s.Select(defaultFieldsEscaped(m, f)...).From(m.Table())
+// NewSelect builds a select from the Model and Fields
+// Selects all fields if no fields provided
+func NewSelect(s *dbr.Session, m Model, f field.FieldNames) *dbr.SelectBuilder {
+	return s.Select(defaultFieldsEscaped(m, f)...).From(m.TableName())
 }
 
 // load a model from a SelectBuilder
@@ -53,18 +55,20 @@ func ModelLoadMany(dbrSess *dbr.Session, model []Model) error {
 }
 
 //NewUpdate builds an update from the Model and Fields
-func NewUpdate(s *dbr.Session, m Model, f Fields) *dbr.UpdateBuilder {
-	return s.Update(m.Table()).SetMap(defaultUpdate(m, f))
+func NewUpdate(s *dbr.Session, m Model, f field.FieldNames) *dbr.UpdateBuilder {
+	panic("NotImplemented")
+	//return s.Update(m.TableName()).SetMap(defaultUpdate(m, f))
+	return nil
 }
 
 //NewInsert create an insert from the Model and Fields
-func NewInsert(s *dbr.Session, m Model, f Fields) *dbr.InsertBuilder {
-	return s.InsertInto(m.Table()).Columns(defaultFieldsEscaped(m, f)...)
+func NewInsert(s *dbr.Session, m Model, f field.FieldNames) *dbr.InsertBuilder {
+	return s.InsertInto(m.TableName()).Columns(defaultFieldsEscaped(m, f)...)
 }
 
 //NewDelete creates a delete from the Model
 func NewDelete(s *dbr.Session, m Model) *dbr.DeleteBuilder {
-	return s.DeleteFrom(m.Table())
+	return s.DeleteFrom(m.TableName())
 }
 
 // Save a model

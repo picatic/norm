@@ -21,6 +21,10 @@ func (MockModel) IsNew() bool {
 	return false
 }
 
+func (MockModel) PrimaryKeyFieldName() field.FieldName {
+	return "Id"
+}
+
 func TestModel(t *testing.T) {
 	Convey("Model", t, func() {
 		model := &MockModel{}
