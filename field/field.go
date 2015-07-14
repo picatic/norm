@@ -184,12 +184,179 @@ func (ns *NullTime) ShadowValue() (interface{}, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
+//
+// Int64
+//
+type Int64 struct {
+	Int64 int64
+	shadow int64
+	ShadowInit
+}
+
+func (s *Int64) Scan(value interface{}) error {
+	sv, ok := value.(int64)
+	if !ok {
+		// TODO: maybe nil should be simply allowed to be empty int64?
+		return errors.New("value should be a int64 and not nil")
+	}
+	s.Int64 = sv
+
+	s.DoInit(func() {
+		s.shadow = sv
+	})
+
+	return nil
+}
+
+func (ns *Int64) Value() (interface{}, error) {
+	return ns.Int64, nil
+}
+
+func (ns *Int64) ShadowValue() (interface{}, error) {
+	if ns.InitDone() {
+		return ns.shadow, nil
+	}
+
+	return nil, errors.New("Shadow Wasn't Created")
+}
+
+func (ns *Int64) IsDirty() bool {
+	return ns.Int64 != ns.shadow
+}
+
+
+//
+// NullInt64
+//
+type NullInt64 struct {
+	dbr.NullInt64
+	shadow dbr.NullInt64
+	ShadowInit
+}
+
+func (ns *NullInt64) Scan(value interface{}) error {
+
+	err := ns.NullInt64.Scan(value)
+	if err != nil {
+		return err
+	}
+
+	// load shadow on first scan only
+	ns.DoInit(func() {
+		_ = ns.shadow.Scan(value)
+	})
+	return nil
+}
+
+func (ns *NullInt64) Value() (interface{}, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return ns.Int64, nil
+}
+
+func (ns *NullInt64) IsDirty() bool {
+	return ns.Valid != ns.shadow.Valid || ns.Int64 != ns.shadow.Int64
+}
+
+func (ns *NullInt64) ShadowValue() (interface{}, error) {
+	if ns.InitDone() {
+		return ns.shadow.Value()
+	}
+	return nil, errors.New("Shadow Wasn't Created")
+}
+
+//
+// Bool
+//
+type Bool struct {
+	Bool bool
+	shadow bool
+	ShadowInit
+}
+
+func (s *Bool) Scan(value interface{}) error {
+	sv, ok := value.(bool)
+	if !ok {
+		return errors.New("value should be a bool and not nil")
+	}
+	s.Bool = sv
+
+	s.DoInit(func() {
+		s.shadow = sv
+	})
+
+	return nil
+}
+
+func (ns *Bool) Value() (interface{}, error) {
+	return ns.Bool, nil
+}
+
+func (ns *Bool) ShadowValue() (interface{}, error) {
+	if ns.InitDone() {
+		return ns.shadow, nil
+	}
+
+	return nil, errors.New("Shadow Wasn't Created")
+}
+
+func (ns *Bool) IsDirty() bool {
+	return ns.Bool != ns.shadow
+}
+
+
+//
+// NullBool
+//
+type NullBool struct {
+	dbr.NullBool
+	shadow dbr.NullBool
+	ShadowInit
+}
+
+func (ns *NullBool) Scan(value interface{}) error {
+
+	err := ns.NullBool.Scan(value)
+	if err != nil {
+		return err
+	}
+
+	// load shadow on first scan only
+	ns.DoInit(func() {
+		_ = ns.shadow.Scan(value)
+	})
+	return nil
+}
+
+func (ns *NullBool) Value() (interface{}, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return ns.Bool, nil
+}
+
+func (ns *NullBool) IsDirty() bool {
+	return ns.Valid != ns.shadow.Valid || ns.Bool != ns.shadow.Bool
+}
+
+func (ns *NullBool) ShadowValue() (interface{}, error) {
+	if ns.InitDone() {
+		return ns.shadow.Value()
+	}
+	return nil, errors.New("Shadow Wasn't Created")
+}
+
 // compile time check
 var _ []sql.Scanner = []sql.Scanner{
 	&String{},
 	&NullString{},
 	&Time{},
 	&NullTime{},
+	&Int64{},
+	&NullInt64{},
+	&Bool{},
+	&NullBool{},
 }
 
 var _ []Field = []Field{
@@ -197,5 +364,9 @@ var _ []Field = []Field{
 	&NullString{},
 	&Time{},
 	&NullTime{},
+	&Int64{},
+	&NullInt64{},
+	&Bool{},
+	&NullBool{},
 }
 
