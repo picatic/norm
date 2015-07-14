@@ -33,5 +33,22 @@ func TestModel(t *testing.T) {
 			So(fields, ShouldContain, field.FieldName("Name"))
 			So(len(fields), ShouldEqual, 2)
 		})
+
+		Convey("ModelGetField", func() {
+
+			Convey("When field exists", func() {
+				rawModelField, err := ModelGetField(model, "Id")
+				So(err, ShouldBeNil)
+				modelField, ok := rawModelField.(field.NullString)
+				So(ok, ShouldBeTrue)
+				So(modelField.String, ShouldEqual, "1")
+			})
+
+			Convey("When field does not exist", func() {
+				rawModelField, err := ModelGetField(model, "NotAField")
+				So(rawModelField, ShouldBeNil)
+				So(err, ShouldNotBeNil)
+			})
+		})
 	})
 }

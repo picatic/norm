@@ -28,9 +28,9 @@ func ModelFields(model Model) []field.FieldName {
 }
 
 // Get a field on a model by name
-func ModelGetField(model Model, field field.FieldName) interface{} {
+func ModelGetField(model Model, field field.FieldName) (interface{}, error) {
 	panic(errors.New("NotImplemented"))
-	return nil
+	return nil, nil
 }
 
 //
