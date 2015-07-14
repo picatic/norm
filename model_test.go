@@ -8,8 +8,9 @@ import (
 
 // Mock Model for testing
 type MockModel struct {
-	Id   field.NullString
-	Name field.NullString
+	Id     field.NullString
+	Name   field.NullString
+	Ignore string
 }
 
 func (MockModel) TableName() string {
@@ -28,7 +29,9 @@ func TestModel(t *testing.T) {
 
 		Convey("ModelFields", func() {
 			fields := ModelFields(model)
-			So(fields, ShouldEqual, []string{"Id", "Name"})
+			So(fields, ShouldContain, field.FieldName("Id"))
+			So(fields, ShouldContain, field.FieldName("Name"))
+			So(len(fields), ShouldEqual, 2)
 		})
 	})
 }
