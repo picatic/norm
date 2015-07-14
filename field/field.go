@@ -15,7 +15,8 @@ type FieldShadow interface {
 type FieldName string
 
 type Field interface {
-	FieldShadow
+	sql.Scanner // we require Scanner implementations
+	FieldShadow // we require FieldShadow
 }
 
 //

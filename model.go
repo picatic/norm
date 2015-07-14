@@ -37,12 +37,34 @@ func ModelGetField(model Model, field field.FieldName) (interface{}, error) {
 // TODO: Would be nice to have the dbr.Session reliant code in a sub package...maybe.
 // This is kind of an ActiveRecord/RemoteProxy/RecordGateway pattern
 //
+
+//NewSelect builds a select from the Model and Fields
+func NewSelect(s *dbr.Session, m Model, f Fields) *dbr.SelectBuilder {
+	return s.Select(defaultFieldsEscaped(m, f)...).From(m.Table())
+}
+
+// load a model from a SelectBuilder
 func ModelLoad(dbrSess *dbr.Session, model Model) error {
 	return errors.New("NotImplemented")
 }
 
 func ModelLoadMany(dbrSess *dbr.Session, model []Model) error {
 	return errors.New("NotImplemented")
+}
+
+//NewUpdate builds an update from the Model and Fields
+func NewUpdate(s *dbr.Session, m Model, f Fields) *dbr.UpdateBuilder {
+	return s.Update(m.Table()).SetMap(defaultUpdate(m, f))
+}
+
+//NewInsert create an insert from the Model and Fields
+func NewInsert(s *dbr.Session, m Model, f Fields) *dbr.InsertBuilder {
+	return s.InsertInto(m.Table()).Columns(defaultFieldsEscaped(m, f)...)
+}
+
+//NewDelete creates a delete from the Model
+func NewDelete(s *dbr.Session, m Model) *dbr.DeleteBuilder {
+	return s.DeleteFrom(m.Table())
 }
 
 // Save a model
