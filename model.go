@@ -1,28 +1,20 @@
 package norm
 
 import (
-	"github.com/gocraft/dbr"
 	"errors"
+	"github.com/gocraft/dbr"
+	"github.com/picatic/go-api/norm/field"
 )
 
-type FieldName string
-
-type Fields interface {
-	Fields() []FieldName // go field camel case name
-	GetField(name FieldName) interface{} // return a field
-}
-
-type Table interface {
-	TableName() string
-}
-
+// All models have to implement this
 type Model interface {
-	Table
-	Fields
-	IsNew() bool
+	TableName() string                         // table name within the database this model is associated to
+	GetField(name field.FieldName) interface{} // return a norm.field by name
+	IsNew() bool                               // Is this model new or not
 }
 
-func ModelFields(model Model) []FieldName {
+// Fetch list of fields on this model via reflection of fields that are from norm/field
+func ModelFields(model Model) []field.FieldName {
 	// reflect ?
 	panic(errors.New("NotImplemented"))
 	return nil
@@ -32,15 +24,15 @@ func ModelFields(model Model) []FieldName {
 // TODO: Would be nice to have the dbr.Session reliant code in a sub package...maybe.
 // This is kind of an ActiveRecord/RemoteProxy/RecordGateway pattern
 //
-func ModelLoad(dbrSess *dbr.Session, model Model) (error ) {
+func ModelLoad(dbrSess *dbr.Session, model Model) error {
 	return errors.New("NotImplemented")
 }
 
-func ModelLoadMany(dbrSess *dbr.Session, model []Model) (error) {
+func ModelLoadMany(dbrSess *dbr.Session, model []Model) error {
 	return errors.New("NotImplemented")
 }
 
-func ModelSave(dbrSess *dbr.Session, model Model) (error) {
+func ModelSave(dbrSess *dbr.Session, model Model) error {
 	if model.IsNew() == true {
 		return modelCreate(dbrSess, model, model)
 	} else {
@@ -48,8 +40,8 @@ func ModelSave(dbrSess *dbr.Session, model Model) (error) {
 	}
 }
 
-func modelCreate(dbrSess *dbr.Session, model Model, fields Fields) (error) {
-//	return NewInsert(dbrSess, model, model.Fields()).Record(model).Exec()
+func modelCreate(dbrSess *dbr.Session, model Model, fields []field.FieldName) error {
+	//	return NewInsert(dbrSess, model, model.Fields()).Record(model).Exec()
 	return errors.New("NotImplemented")
 }
 
@@ -57,6 +49,6 @@ func modelUpdate() {
 
 }
 
-func ModelSaveFields(dbrSess *dbr.Session, model Model, fields []Fields) (error) {
+func ModelSaveFields(dbrSess *dbr.Session, model Model, fields []field.FieldName) error {
 	return errors.New("NotImplemented")
 }

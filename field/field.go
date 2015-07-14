@@ -1,15 +1,18 @@
 package field
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/gocraft/dbr"
-	"database/sql"
 )
 
 type FieldShadow interface {
 	ShadowValue() (interface{}, error)
 	IsDirty() bool
 }
+
+// FieldName, mapped to model
+type FieldName string
 
 type Field interface {
 	FieldShadow
@@ -19,8 +22,8 @@ type Field interface {
 // String
 //
 type String struct {
-	String     string
-	shadow     string
+	String string
+	shadow string
 	ShadowInit
 }
 
@@ -56,13 +59,12 @@ func (ns *String) IsDirty() bool {
 var _ sql.Scanner = &String{}
 var _ Field = &String{}
 
-
 //
 // NullString
 //
 type NullString struct {
 	dbr.NullString
-	shadow     dbr.NullString
+	shadow dbr.NullString
 	ShadowInit
 }
 
