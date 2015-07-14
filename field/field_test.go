@@ -1,4 +1,4 @@
-package norm
+package field
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
