@@ -1,4 +1,4 @@
-package norm
+package field
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
@@ -11,18 +11,18 @@ func TestOnceDone(t *testing.T) {
 	Convey("OnceDone Do", t, func() {
 
 		counter := 0
-		once1 := new(OnceDone)
+		once1 := new(ShadowInit)
 
 		Convey("Once Should be called first time", func() {
 			// increment counter on first call
-			once1.Do(func() { counter++ })
+			once1.DoInit(func() { counter++ })
 			So(counter, ShouldEqual, 1)
 
 		})
 
 		Convey("Incrementer should not be incremented on subsequent calls", func() {
 			// do not increment counter on next call
-			once1.Do(func() { counter++ })
+			once1.DoInit(func() { counter++ })
 			So(counter, ShouldEqual, 1)
 
 		})
@@ -31,19 +31,19 @@ func TestOnceDone(t *testing.T) {
 	Convey("OnceDone Done", t, func() {
 
 		counter := 0
-		once1 := new(OnceDone)
+		once1 := new(ShadowInit)
 
 		Convey("Done Should return false if Do has not been called", func() {
 			// increment counter on first call
 
-			So(once1.Done(), ShouldBeFalse)
+			So(once1.InitDone(), ShouldBeFalse)
 
 		})
 
 		Convey("Done should return true if Do has been called", func() {
 			// do not increment counter on next call
-			once1.Do(func() { counter++ })
-			So(once1.Done(), ShouldBeTrue)
+			once1.DoInit(func() { counter++ })
+			So(once1.InitDone(), ShouldBeTrue)
 
 		})
 

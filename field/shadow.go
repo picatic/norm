@@ -1,4 +1,4 @@
-package norm
+package field
 
 import (
 	"sync/atomic"
@@ -6,12 +6,12 @@ import (
 )
 
 // Once is an object that will perform exactly one action.
-type OnceDone struct {
+type ShadowInit struct {
 	m    sync.Mutex
 	done uint32
 }
 
-func (o *OnceDone) Do(f func()) {
+func (o *ShadowInit) DoInit(f func()) {
 	if atomic.LoadUint32(&o.done) == 1 {
 		return
 	}
@@ -27,7 +27,7 @@ func (o *OnceDone) Do(f func()) {
 // Return
 // added Done to the sync.Once implementation
 //
-func (o *OnceDone) Done() bool {
+func (o *ShadowInit) InitDone() bool {
 	return atomic.LoadUint32(&o.done) == 1
 }
 

@@ -2,7 +2,6 @@ package field
 
 import (
 	"errors"
-	"github.com/picatic/go-api/norm"
 	"github.com/gocraft/dbr"
 	"database/sql"
 )
@@ -22,7 +21,7 @@ type Field interface {
 type String struct {
 	String     string
 	shadow     string
-	shadowInit norm.OnceDone
+	ShadowInit
 }
 
 func (s *String) Scan(value interface{}) error {
@@ -31,7 +30,7 @@ func (s *String) Scan(value interface{}) error {
 		return errors.New("value should be a string and not nil")
 	}
 
-	s.shadowInit.Do(func() {
+	s.DoInit(func() {
 		s.shadow = sv
 	})
 
@@ -43,7 +42,7 @@ func (ns *String) Value() (interface{}, error) {
 }
 
 func (ns *String) ShadowValue() (interface{}, error) {
-	if ns.shadowInit.Done() {
+	if ns.InitDone() {
 		return ns.shadow, nil
 	}
 
@@ -64,7 +63,7 @@ var _ Field = &String{}
 type NullString struct {
 	dbr.NullString
 	shadow     dbr.NullString
-	shadowInit norm.OnceDone
+	ShadowInit
 }
 
 func (ns *NullString) Scan(value interface{}) error {
@@ -75,7 +74,7 @@ func (ns *NullString) Scan(value interface{}) error {
 	}
 
 	// load shadow on first scan only
-	ns.shadowInit.Do(func() {
+	ns.DoInit(func() {
 		_ = ns.shadow.Scan(value)
 	})
 	return nil
@@ -94,7 +93,7 @@ func (ns *NullString) IsDirty() bool {
 }
 
 func (ns *NullString) ShadowValue() (interface{}, error) {
-	if ns.shadowInit.Done() {
+	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
 
