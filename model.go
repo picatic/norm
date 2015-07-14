@@ -32,11 +32,12 @@ func ModelLoadMany(dbrSess *dbr.Session, model []Model) error {
 	return errors.New("NotImplemented")
 }
 
+// Save a model
 func ModelSave(dbrSess *dbr.Session, model Model) error {
 	if model.IsNew() == true {
-		return modelCreate(dbrSess, model, model)
+		return modelCreate(dbrSess, model, ModelFields(model))
 	} else {
-		return errors.New("NotImplemented")
+		return modelUpdate(dbrSess, model, ModelFields(model))
 	}
 }
 
@@ -45,10 +46,15 @@ func modelCreate(dbrSess *dbr.Session, model Model, fields []field.FieldName) er
 	return errors.New("NotImplemented")
 }
 
-func modelUpdate() {
-
+func modelUpdate(dbrSess *dbr.Session, model Model, fields []field.FieldName) error {
+	return errors.New("NotImplemented")
 }
 
+// Save specific fields on a model
 func ModelSaveFields(dbrSess *dbr.Session, model Model, fields []field.FieldName) error {
-	return errors.New("NotImplemented")
+	if model.IsNew() == true {
+		return modelCreate(dbrSess, model, fields)
+	} else {
+		return modelUpdate(dbrSess, model, fields)
+	}
 }
