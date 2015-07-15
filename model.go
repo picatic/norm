@@ -16,22 +16,46 @@ type Model interface {
 
 // Fetch list of fields on this model via reflection of fields that are from norm/field
 func ModelFields(model Model) field.FieldNames {
-	typeOfField := reflect.TypeOf((*field.Field)(nil)).Elem()
-	r := reflect.TypeOf(model).Elem()
-	fields := make([]field.FieldName, 1)
-	for i := 0; i < r.NumField(); i++ {
-		f := r.Field(i)
-		if f.Type.Implements(typeOfField) == true {
-			fields = append(fields, field.FieldName(f.Name))
+	modelType := reflect.TypeOf(model)
+	if modelType.Kind() != reflect.Ptr {
+		panic("Expected a Ptr")
+	}
+
+	if modelType.Elem().Kind() != reflect.Struct {
+		panic("Expected struct")
+	}
+	modelValue := reflect.ValueOf(model).Elem()
+	fieldType := reflect.TypeOf((*field.Field)(nil)).Elem()
+
+	fields := make(field.FieldNames, 0)
+
+	for i := 0; i < modelValue.NumField(); i++ {
+		_field := modelValue.Field(i)
+		if _field.CanAddr() == true && _field.Addr().Type().Implements(fieldType) == true {
+			fields = append(fields, field.FieldName(modelType.Elem().Field(i).Name))
 		}
 	}
+
 	return fields
 }
 
 // Get a field on a model by name
-func ModelGetField(model Model, field field.FieldName) (interface{}, error) {
-	panic(errors.New("NotImplemented"))
-	return nil, nil
+func ModelGetField(model Model, fieldName field.FieldName) (field.Field, error) {
+	modelType := reflect.TypeOf(model)
+	if modelType.Kind() != reflect.Ptr {
+		panic("Expected a Ptr")
+	}
+
+	if modelType.Elem().Kind() != reflect.Struct {
+		panic("Expected struct")
+	}
+
+	if _, ok := modelType.Elem().FieldByName(string(fieldName)); ok == true {
+		modelValue := reflect.ValueOf(model).Elem().FieldByName(string(fieldName)).Addr().Interface()
+		return modelValue.(field.Field), nil
+	} else {
+		return nil, errors.New("FieldName not found")
+	}
 }
 
 //
@@ -41,8 +65,8 @@ func ModelGetField(model Model, field field.FieldName) (interface{}, error) {
 
 // NewSelect builds a select from the Model and Fields
 // Selects all fields if no fields provided
-func NewSelect(s *dbr.Session, m Model, f field.FieldNames) *dbr.SelectBuilder {
-	return s.Select(defaultFieldsEscaped(m, f)...).From(m.TableName())
+func NewSelect(s *dbr.Session, m Model, fields field.FieldNames) *dbr.SelectBuilder {
+	return s.Select(defaultFieldsEscaped(m, fields)...).From(m.TableName())
 }
 
 // load a model from a SelectBuilder
@@ -62,8 +86,10 @@ func NewUpdate(s *dbr.Session, m Model, f field.FieldNames) *dbr.UpdateBuilder {
 }
 
 //NewInsert create an insert from the Model and Fields
-func NewInsert(s *dbr.Session, m Model, f field.FieldNames) *dbr.InsertBuilder {
-	return s.InsertInto(m.TableName()).Columns(defaultFieldsEscaped(m, f)...)
+func NewInsert(s *dbr.Session, m Model, fields field.FieldNames) *dbr.InsertBuilder {
+	panic("NotImplemented")
+	// return s.InsertInto(m.TableName()).Columns(defaultFieldsEscaped(m, f)...)
+	return nil
 }
 
 //NewDelete creates a delete from the Model
@@ -80,17 +106,17 @@ func ModelSave(dbrSess *dbr.Session, model Model) error {
 	}
 }
 
-func modelCreate(dbrSess *dbr.Session, model Model, fields []field.FieldName) error {
+func modelCreate(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
 	//	return NewInsert(dbrSess, model, model.Fields()).Record(model).Exec()
 	return errors.New("NotImplemented")
 }
 
-func modelUpdate(dbrSess *dbr.Session, model Model, fields []field.FieldName) error {
+func modelUpdate(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
 	return errors.New("NotImplemented")
 }
 
 // Save specific fields on a model
-func ModelSaveFields(dbrSess *dbr.Session, model Model, fields []field.FieldName) error {
+func ModelSaveFields(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
 	if model.IsNew() == true {
 		return modelCreate(dbrSess, model, fields)
 	} else {

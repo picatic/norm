@@ -1,9 +1,9 @@
 package field
 
 import (
+	"errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
-	"errors"
 )
 
 func TestString(t *testing.T) {
@@ -70,11 +70,11 @@ func TestString(t *testing.T) {
 		})
 		Convey("should be true if modified from nil", func() {
 			s := &String{}
-			s.Scan(nil) // does not set to empty string "" as it errors out.
+			s.Scan(nil)      // does not set to empty string "" as it errors out.
 			s.Scan("Second") // sets to "Second"
 
 			// TODO: FIX Scan Nil Logic
-//			So(s.IsDirty(), ShouldBeTrue)
+			//			So(s.IsDirty(), ShouldBeTrue)
 		})
 		Convey("should be true if modified to nil", func() {
 			s := &String{}
@@ -82,7 +82,7 @@ func TestString(t *testing.T) {
 			s.Scan(nil) // nil doesn't update
 
 			// TODO: FIX Scan Nil Logic
-//			So(s.IsDirty(), ShouldBeTrue)
+			//			So(s.IsDirty(), ShouldBeTrue)
 		})
 
 	})

@@ -1,6 +1,8 @@
 package norm
 
 import (
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/gocraft/dbr"
 	"github.com/picatic/go-api/norm/field"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -27,6 +29,9 @@ func (MockModel) PrimaryKeyFieldName() field.FieldName {
 
 func TestModel(t *testing.T) {
 	Convey("Model", t, func() {
+		db, _ := sqlmock.New()
+		dbrConn := dbr.NewConnection(db, nil)
+
 		model := &MockModel{}
 		model.Id.Scan("1")
 		model.Name.Scan("Mock")
@@ -43,15 +48,31 @@ func TestModel(t *testing.T) {
 			Convey("When field exists", func() {
 				rawModelField, err := ModelGetField(model, "Id")
 				So(err, ShouldBeNil)
-				modelField, ok := rawModelField.(field.NullString)
+
+				f, ok := rawModelField.(*field.NullString)
 				So(ok, ShouldBeTrue)
-				So(modelField.String, ShouldEqual, "1")
+				So(f.String, ShouldEqual, "1")
 			})
 
 			Convey("When field does not exist", func() {
 				rawModelField, err := ModelGetField(model, "NotAField")
 				So(rawModelField, ShouldBeNil)
 				So(err, ShouldNotBeNil)
+			})
+		})
+
+		Convey("NewSelect", func() {
+
+			Convey("Without fields", func() {
+				sqlmock.ExpectQuery("SELECT `Id`, `Name` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).FromCSVString("2,mocker"))
+				err := NewSelect(dbrConn.NewSession(nil), model, nil).LoadStruct(model)
+				So(err, ShouldBeNil)
+			})
+
+			Convey("With fields", func() {
+				sqlmock.ExpectQuery("SELECT `Id`, `Name` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("2"))
+				err := NewSelect(dbrConn.NewSession(nil), model, nil).LoadStruct(model)
+				So(err, ShouldBeNil)
 			})
 		})
 	})
