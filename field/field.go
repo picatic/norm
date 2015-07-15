@@ -145,7 +145,7 @@ func (ns *Time) Value() (driver.Value, error) {
 	return ns.Time, nil
 }
 
-func (ns *Time) ShadowValue() (drive.Value, error) {
+func (ns *Time) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -191,7 +191,7 @@ func (ns *NullTime) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Time != ns.shadow.Time
 }
 
-func (ns *NullTime) ShadowValue() (drive.Value, error) {
+func (ns *NullTime) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
