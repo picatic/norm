@@ -62,11 +62,11 @@ func (s *String) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *String) Value() (driver.Value, error) {
+func (ns String) Value() (driver.Value, error) {
 	return ns.String, nil
 }
 
-func (ns *String) ShadowValue() (driver.Value, error) {
+func (ns String) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -101,7 +101,7 @@ func (ns *NullString) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullString) Value() (driver.Value, error) {
+func (ns NullString) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -112,7 +112,7 @@ func (ns *NullString) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.String != ns.shadow.String
 }
 
-func (ns *NullString) ShadowValue() (driver.Value, error) {
+func (ns NullString) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
@@ -141,11 +141,11 @@ func (s *Time) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *Time) Value() (driver.Value, error) {
+func (ns Time) Value() (driver.Value, error) {
 	return ns.Time, nil
 }
 
-func (ns *Time) ShadowValue() (driver.Value, error) {
+func (ns Time) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -180,7 +180,7 @@ func (ns *NullTime) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullTime) Value() (driver.Value, error) {
+func (ns NullTime) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -191,7 +191,7 @@ func (ns *NullTime) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Time != ns.shadow.Time
 }
 
-func (ns *NullTime) ShadowValue() (driver.Value, error) {
+func (ns NullTime) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
@@ -222,11 +222,11 @@ func (s *Int64) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *Int64) Value() (driver.Value, error) {
+func (ns Int64) Value() (driver.Value, error) {
 	return ns.Int64, nil
 }
 
-func (ns *Int64) ShadowValue() (driver.Value, error) {
+func (ns Int64) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -261,7 +261,7 @@ func (ns *NullInt64) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullInt64) Value() (driver.Value, error) {
+func (ns NullInt64) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -272,7 +272,7 @@ func (ns *NullInt64) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Int64 != ns.shadow.Int64
 }
 
-func (ns *NullInt64) ShadowValue() (driver.Value, error) {
+func (ns NullInt64) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
@@ -302,11 +302,11 @@ func (s *Bool) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *Bool) Value() (driver.Value, error) {
+func (ns Bool) Value() (driver.Value, error) {
 	return ns.Bool, nil
 }
 
-func (ns *Bool) ShadowValue() (driver.Value, error) {
+func (ns Bool) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -341,7 +341,7 @@ func (ns *NullBool) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullBool) Value() (driver.Value, error) {
+func (ns NullBool) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -352,7 +352,7 @@ func (ns *NullBool) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Bool != ns.shadow.Bool
 }
 
-func (ns *NullBool) ShadowValue() (driver.Value, error) {
+func (ns NullBool) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
