@@ -1,8 +1,8 @@
 package field
 
 import (
-	"sync/atomic"
 	"sync"
+	"sync/atomic"
 )
 
 // Once is an object that will perform exactly one action.
@@ -30,5 +30,3 @@ func (o *ShadowInit) DoInit(f func()) {
 func (o *ShadowInit) InitDone() bool {
 	return atomic.LoadUint32(&o.done) == 1
 }
-
-

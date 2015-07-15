@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/go-api/norm/field"
+	"github.com/picatic/go-api/norm/valid"
 	"reflect"
 )
 
@@ -99,4 +100,19 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) error
 	} else {
 		return nil
 	}
+}
+
+// Validate fields provided on model, if no fields validate all fields
+func ModelValidate(model Model, fields field.FieldNames) chan<- error {
+	err := make(chan error, 1)
+
+	if fields == nil {
+		fields = ModelFields(model)
+	}
+	validatable, ok := model.(valid.Validatable)
+	if ok == true {
+		return validatable.ValidatorList().Validate(model, fields)
+	}
+	err <- nil
+	return err
 }
