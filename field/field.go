@@ -15,8 +15,21 @@ type FieldShadow interface {
 // FieldName, mapped to model
 type FieldName string
 
+func (fn FieldName) SnakeCase() string {
+	return dbr.NameMapping(string(fn))
+}
+
 // FieldNames
 type FieldNames []FieldName
+
+// Return []string of snake_case field names for database map
+func (fn FieldNames) SnakeCase() []string {
+	snakes := make([]string, len(fn))
+	for i := 0; i < len(fn); i++ {
+		snakes[i] = fn[i].SnakeCase()
+	}
+	return snakes
+}
 
 type Field interface {
 	sql.Scanner // we require Scanner implementations
@@ -108,7 +121,7 @@ func (ns *NullString) ShadowValue() (interface{}, error) {
 // Time
 //
 type Time struct {
-	Time time.Time
+	Time   time.Time
 	shadow time.Time
 	ShadowInit
 }
@@ -141,7 +154,6 @@ func (ns *Time) ShadowValue() (interface{}, error) {
 func (ns *Time) IsDirty() bool {
 	return ns.Time != ns.shadow
 }
-
 
 //
 // NullTime
@@ -188,7 +200,7 @@ func (ns *NullTime) ShadowValue() (interface{}, error) {
 // Int64
 //
 type Int64 struct {
-	Int64 int64
+	Int64  int64
 	shadow int64
 	ShadowInit
 }
@@ -223,7 +235,6 @@ func (ns *Int64) ShadowValue() (interface{}, error) {
 func (ns *Int64) IsDirty() bool {
 	return ns.Int64 != ns.shadow
 }
-
 
 //
 // NullInt64
@@ -270,7 +281,7 @@ func (ns *NullInt64) ShadowValue() (interface{}, error) {
 // Bool
 //
 type Bool struct {
-	Bool bool
+	Bool   bool
 	shadow bool
 	ShadowInit
 }
@@ -304,7 +315,6 @@ func (ns *Bool) ShadowValue() (interface{}, error) {
 func (ns *Bool) IsDirty() bool {
 	return ns.Bool != ns.shadow
 }
-
 
 //
 // NullBool
@@ -369,4 +379,3 @@ var _ []Field = []Field{
 	&Bool{},
 	&NullBool{},
 }
-
