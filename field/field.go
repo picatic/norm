@@ -2,13 +2,14 @@ package field
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"github.com/gocraft/dbr"
 	"time"
 )
 
 type FieldShadow interface {
-	ShadowValue() (interface{}, error)
+	ShadowValue() (driver.Value, error)
 	IsDirty() bool
 }
 
@@ -32,8 +33,9 @@ func (fn FieldNames) SnakeCase() []string {
 }
 
 type Field interface {
-	sql.Scanner // we require Scanner implementations
-	FieldShadow // we require FieldShadow
+	sql.Scanner   // we require Scanner implementations
+	driver.Valuer // our values stand and guard for thee
+	FieldShadow   // we require FieldShadow
 }
 
 //
@@ -60,11 +62,11 @@ func (s *String) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *String) Value() (interface{}, error) {
+func (ns *String) Value() (driver.Value, error) {
 	return ns.String, nil
 }
 
-func (ns *String) ShadowValue() (interface{}, error) {
+func (ns *String) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -99,7 +101,7 @@ func (ns *NullString) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullString) Value() (interface{}, error) {
+func (ns *NullString) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -110,7 +112,7 @@ func (ns *NullString) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.String != ns.shadow.String
 }
 
-func (ns *NullString) ShadowValue() (interface{}, error) {
+func (ns *NullString) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
@@ -139,11 +141,11 @@ func (s *Time) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *Time) Value() (interface{}, error) {
+func (ns *Time) Value() (driver.Value, error) {
 	return ns.Time, nil
 }
 
-func (ns *Time) ShadowValue() (interface{}, error) {
+func (ns *Time) ShadowValue() (drive.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -178,7 +180,7 @@ func (ns *NullTime) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullTime) Value() (interface{}, error) {
+func (ns *NullTime) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -189,7 +191,7 @@ func (ns *NullTime) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Time != ns.shadow.Time
 }
 
-func (ns *NullTime) ShadowValue() (interface{}, error) {
+func (ns *NullTime) ShadowValue() (drive.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
@@ -220,11 +222,11 @@ func (s *Int64) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *Int64) Value() (interface{}, error) {
+func (ns *Int64) Value() (driver.Value, error) {
 	return ns.Int64, nil
 }
 
-func (ns *Int64) ShadowValue() (interface{}, error) {
+func (ns *Int64) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -259,7 +261,7 @@ func (ns *NullInt64) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullInt64) Value() (interface{}, error) {
+func (ns *NullInt64) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -270,7 +272,7 @@ func (ns *NullInt64) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Int64 != ns.shadow.Int64
 }
 
-func (ns *NullInt64) ShadowValue() (interface{}, error) {
+func (ns *NullInt64) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
@@ -300,11 +302,11 @@ func (s *Bool) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *Bool) Value() (interface{}, error) {
+func (ns *Bool) Value() (driver.Value, error) {
 	return ns.Bool, nil
 }
 
-func (ns *Bool) ShadowValue() (interface{}, error) {
+func (ns *Bool) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
 	}
@@ -339,7 +341,7 @@ func (ns *NullBool) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *NullBool) Value() (interface{}, error) {
+func (ns *NullBool) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
@@ -350,7 +352,7 @@ func (ns *NullBool) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Bool != ns.shadow.Bool
 }
 
-func (ns *NullBool) ShadowValue() (interface{}, error) {
+func (ns *NullBool) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
