@@ -70,8 +70,8 @@ func TestModel(t *testing.T) {
 			})
 
 			Convey("With fields", func() {
-				sqlmock.ExpectQuery("SELECT `Id`, `Name` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("2"))
-				err := NewSelect(dbrConn.NewSession(nil), model, nil).LoadStruct(model)
+				sqlmock.ExpectQuery("SELECT `Id` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("2"))
+				err := NewSelect(dbrConn.NewSession(nil), model, field.FieldNames{"Id"}).LoadStruct(model)
 				So(err, ShouldBeNil)
 			})
 		})

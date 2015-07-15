@@ -69,15 +69,6 @@ func NewSelect(s *dbr.Session, m Model, fields field.FieldNames) *dbr.SelectBuil
 	return s.Select(defaultFieldsEscaped(m, fields)...).From(m.TableName())
 }
 
-// load a model from a SelectBuilder
-func ModelLoad(dbrSess *dbr.Session, model Model) error {
-	return errors.New("NotImplemented")
-}
-
-func ModelLoadMany(dbrSess *dbr.Session, model []Model) error {
-	return errors.New("NotImplemented")
-}
-
 //NewUpdate builds an update from the Model and Fields
 func NewUpdate(s *dbr.Session, m Model, f field.FieldNames) *dbr.UpdateBuilder {
 	panic("NotImplemented")
