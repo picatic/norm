@@ -2,8 +2,7 @@ package norm
 
 import (
 	"fmt"
-	_ "github.com/AlekSi/reflector"
-	"github.com/gocraft/dbr"
+	"github.com/AlekSi/reflector"
 	"github.com/picatic/go-api/norm/field"
 )
 
@@ -33,17 +32,17 @@ func defaultFieldsEscaped(model Model, fields field.FieldNames) []string {
 // 	return dbMap
 // }
 
-// func defaultUpdate(m Model, fields field.FieldNames) map[string]interface{} {
-// 	kv := make(map[string]interface{})
-// 	reflector.StructToMap(m, kv, "db")
-// 	if fields == nil {
-// 		return kv
-// 	}
-// 	fv := make(map[string]interface{})
-// 	for _, k := range fields {
-// 		if val, ok := kv[string(k)]; ok {
-// 			fv[string(k)] = val
-// 		}
-// 	}
-// 	return fv
-// }
+func defaultUpdate(m Model, fields field.FieldNames) map[string]interface{} {
+	kv := make(map[string]interface{})
+	reflector.StructToMap(m, kv, "db")
+	if fields == nil {
+		return kv
+	}
+	fv := make(map[string]interface{})
+	for _, k := range fields {
+		if val, ok := kv[string(k)]; ok {
+			fv[k.SnakeCase()] = val
+		}
+	}
+	return fv
+}

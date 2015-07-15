@@ -82,13 +82,28 @@ func TestModel(t *testing.T) {
 				sqlmock.ExpectExec("INSERT INTO mocks \\(`id`,`first_name`\\) VALUES \\('1','Mock'\\)").WillReturnResult(sqlmock.NewResult(2, 1))
 
 				_, err := NewInsert(dbrConn.NewSession(nil), model, nil).Record(model).Exec()
-				// log.Printf("%+v\n", ib.Cols)
 				So(err, ShouldBeNil)
 			})
 
 			Convey("With fields", func() {
 				sqlmock.ExpectExec("INSERT INTO mocks \\(`first_name`\\) VALUES \\('Mock'\\)").WillReturnResult(sqlmock.NewResult(3, 1))
 				_, err := NewInsert(dbrConn.NewSession(nil), model, field.FieldNames{"FirstName"}).Record(model).Exec()
+				So(err, ShouldBeNil)
+			})
+		})
+
+		Convey("NewUpdate", func() {
+
+			Convey("Without fields", func() {
+				sqlmock.ExpectExec("UPDATE mocks SET `id` = '1', `first_name` = 'Mock' WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
+
+				_, err := NewUpdate(dbrConn.NewSession(nil), model, nil).Where("id = ?", model.Id.String).Exec()
+				So(err, ShouldBeNil)
+			})
+
+			Convey("With fields", func() {
+				sqlmock.ExpectExec("UPDATE mocks SET `first_name` = 'Mock' WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
+				_, err := NewUpdate(dbrConn.NewSession(nil), model, field.FieldNames{"FirstName"}).Where("id = ?", model.Id.String).Exec()
 				So(err, ShouldBeNil)
 			})
 		})

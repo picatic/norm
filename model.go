@@ -71,9 +71,11 @@ func NewSelect(s *dbr.Session, m Model, fields field.FieldNames) *dbr.SelectBuil
 
 //NewUpdate builds an update from the Model and Fields
 func NewUpdate(s *dbr.Session, m Model, f field.FieldNames) *dbr.UpdateBuilder {
-	panic("NotImplemented")
-	//return s.Update(m.TableName()).SetMap(defaultUpdate(m, f))
-	return nil
+	if f == nil {
+		f = ModelFields(m)
+	}
+	setMap := defaultUpdate(m, f)
+	return s.Update(m.TableName()).SetMap(setMap)
 }
 
 //NewInsert create an insert from the Model and Fields
