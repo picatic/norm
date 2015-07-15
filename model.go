@@ -78,9 +78,11 @@ func NewUpdate(s *dbr.Session, m Model, f field.FieldNames) *dbr.UpdateBuilder {
 
 //NewInsert create an insert from the Model and Fields
 func NewInsert(s *dbr.Session, m Model, fields field.FieldNames) *dbr.InsertBuilder {
-	panic("NotImplemented")
-	// return s.InsertInto(m.TableName()).Columns(defaultFieldsEscaped(m, f)...)
-	return nil
+	if fields == nil {
+		fields = ModelFields(m)
+	}
+	return s.InsertInto(m.TableName()).Columns(fields.SnakeCase()...)
+	// return s.InsertInto(m.TableName()).Columns(fields.SnakeCase()...)
 }
 
 //NewDelete creates a delete from the Model
@@ -88,29 +90,11 @@ func NewDelete(s *dbr.Session, m Model) *dbr.DeleteBuilder {
 	return s.DeleteFrom(m.TableName())
 }
 
-// Save a model
-func ModelSave(dbrSess *dbr.Session, model Model) error {
+// Save a model, calls appropriate Insert or Update based on Model.IsNew()
+func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
 	if model.IsNew() == true {
-		return modelCreate(dbrSess, model, ModelFields(model))
+		return nil
 	} else {
-		return modelUpdate(dbrSess, model, ModelFields(model))
-	}
-}
-
-func modelCreate(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
-	//	return NewInsert(dbrSess, model, model.Fields()).Record(model).Exec()
-	return errors.New("NotImplemented")
-}
-
-func modelUpdate(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
-	return errors.New("NotImplemented")
-}
-
-// Save specific fields on a model
-func ModelSaveFields(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
-	if model.IsNew() == true {
-		return modelCreate(dbrSess, model, fields)
-	} else {
-		return modelUpdate(dbrSess, model, fields)
+		return nil
 	}
 }
