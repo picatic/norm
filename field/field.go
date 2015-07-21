@@ -3,6 +3,7 @@ package field
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"github.com/gocraft/dbr"
 	"time"
@@ -212,15 +213,17 @@ type Int64 struct {
 }
 
 func (s *Int64) Scan(value interface{}) error {
-	sv, ok := value.(int64)
-	if !ok {
+	tmp := sql.NullInt64{}
+	tmp.Scan(value)
+
+	if tmp.Valid == false {
 		// TODO: maybe nil should be simply allowed to be empty int64?
 		return errors.New("value should be a int64 and not nil")
 	}
-	s.Int64 = sv
+	s.Int64 = tmp.Int64
 
 	s.DoInit(func() {
-		s.shadow = sv
+		s.shadow = tmp.Int64
 	})
 
 	return nil
@@ -297,14 +300,16 @@ type Bool struct {
 }
 
 func (s *Bool) Scan(value interface{}) error {
-	sv, ok := value.(bool)
-	if !ok {
+	tmp := sql.NullBool{}
+	tmp.Scan(value)
+
+	if tmp.Valid == false {
 		return errors.New("value should be a bool and not nil")
 	}
-	s.Bool = sv
+	s.Bool = tmp.Bool
 
 	s.DoInit(func() {
-		s.shadow = sv
+		s.shadow = tmp.Bool
 	})
 
 	return nil
