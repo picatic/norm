@@ -157,6 +157,10 @@ func (ns *Time) IsDirty() bool {
 	return ns.Time != ns.shadow
 }
 
+func (n *Time) MarshalJSON() ([]byte, error) {
+	return json.Marshal(n.Time)
+}
+
 //
 // NullTime
 //
@@ -238,6 +242,10 @@ func (ns *Int64) IsDirty() bool {
 	return ns.Int64 != ns.shadow
 }
 
+func (n *Int64) MarshalJSON() ([]byte, error) {
+	return json.Marshal(n.Int64)
+}
+
 //
 // NullInt64
 //
@@ -316,6 +324,10 @@ func (ns Bool) ShadowValue() (driver.Value, error) {
 
 func (ns *Bool) IsDirty() bool {
 	return ns.Bool != ns.shadow
+}
+
+func (ns *Bool) MarshalJSON() ([]byte, error) {
+	return json.Marshal(ns.Bool)
 }
 
 //
