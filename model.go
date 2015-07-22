@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/go-api/norm/field"
-	"github.com/picatic/go-api/norm/valid"
 	"reflect"
 )
 
@@ -16,17 +15,21 @@ type Model interface {
 }
 
 // Fetch list of fields on this model via reflection of fields that are from norm/field
+// If model fails to be a Ptr to a Struct we return an error
 func ModelFields(model Model) field.FieldNames {
+	fieldType := reflect.TypeOf((*field.Field)(nil)).Elem()
+
 	modelType := reflect.TypeOf(model)
+
 	if modelType.Kind() != reflect.Ptr {
-		panic("Expected a Ptr")
+		panic("Expected Model to be a Ptr")
 	}
 
 	if modelType.Elem().Kind() != reflect.Struct {
-		panic("Expected struct")
+		panic("Expected Model to be a Ptr to a Struct")
 	}
+
 	modelValue := reflect.ValueOf(model).Elem()
-	fieldType := reflect.TypeOf((*field.Field)(nil)).Elem()
 
 	fields := make(field.FieldNames, 0)
 
@@ -44,11 +47,11 @@ func ModelFields(model Model) field.FieldNames {
 func ModelGetField(model Model, fieldName field.FieldName) (field.Field, error) {
 	modelType := reflect.TypeOf(model)
 	if modelType.Kind() != reflect.Ptr {
-		panic("Expected a Ptr")
+		panic("Expected Model to be a Ptr")
 	}
 
 	if modelType.Elem().Kind() != reflect.Struct {
-		panic("Expected struct")
+		panic("Expected Model to be a Ptr to Struct")
 	}
 
 	if _, ok := modelType.Elem().FieldByName(string(fieldName)); ok == true {
@@ -100,19 +103,4 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) error
 	} else {
 		return nil
 	}
-}
-
-// Validate fields provided on model, if no fields validate all fields
-func ModelValidate(model Model, fields field.FieldNames) chan<- error {
-	err := make(chan error, 1)
-
-	if fields == nil {
-		fields = ModelFields(model)
-	}
-	validatable, ok := model.(valid.Validatable)
-	if ok == true {
-		return validatable.ValidatorList().Validate(model, fields)
-	}
-	err <- nil
-	return err
 }

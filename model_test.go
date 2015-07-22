@@ -37,10 +37,17 @@ func TestModel(t *testing.T) {
 		model.FirstName.Scan("Mock")
 
 		Convey("ModelFields", func() {
-			fields := ModelFields(model)
-			So(fields, ShouldContain, field.FieldName("Id"))
-			So(fields, ShouldContain, field.FieldName("FirstName"))
-			So(len(fields), ShouldEqual, 2)
+			Convey("On Ptr to Struct", func() {
+				fields := ModelFields(model)
+				So(fields, ShouldContain, field.FieldName("Id"))
+				So(fields, ShouldContain, field.FieldName("FirstName"))
+				So(len(fields), ShouldEqual, 2)
+			})
+
+			Convey("On Struct", func() {
+				m := MockModel{}
+				So(func() { ModelFields(m) }, ShouldPanic)
+			})
 		})
 
 		Convey("ModelGetField", func() {
@@ -73,6 +80,7 @@ func TestModel(t *testing.T) {
 				sqlmock.ExpectQuery("SELECT `id` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("2"))
 				err := NewSelect(dbrConn.NewSession(nil), model, field.FieldNames{"Id"}).LoadStruct(model)
 				So(err, ShouldBeNil)
+				So(model.Id.String, ShouldEqual, "2")
 			})
 		})
 

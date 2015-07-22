@@ -63,6 +63,14 @@ func (vf *ValidatorFunc) Validate() {
 	return err != nil, err
 }
 
+// Validate fields provided on model, if no fields validate all fields
+func ValidateModel(model Validatable, fields field.FieldNames) chan<- error {
+	if fields == nil {
+		fields = norm.ModelFields(model)
+	}
+	return model.ValidatorList().Validate(model, fields)
+}
+
 var IsString ValidatorFunc = func(model ValidatableModel, field field.FieldName, args ...interface{}) <-chan error {
 	e := make(<-chan error)
 	return e
