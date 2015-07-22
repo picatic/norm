@@ -27,77 +27,65 @@ Because we wanted something like an ORM, but got out of our way and let us drive
 done by humans (for now...). Most ORM's try to do too much, and eventually block you from doing the complex business 
 logic you end up needing to do 6 months from now.
 
-# ORM
+Examples
+========
 
-## Resources
+Model
+-----
+```golang
+type Post struct {
+  Id field.Int64
+  Title field.String
+  Content field.String
+  AuthorId field.Int64
+  Created field.Time
+}
+```
 
-- https://github.com/lann/squirrel
+Select a Model
+--------------
 
-## milestone targets
-- Norm (Spike Interfaces)
-- Data Validation (Spike Interfaces)
-- Controller Input
-- Controller Output 
-- Authorization
-- Implement Some Email Templating Endpoint
-- Formalize Norm
-- Generate types
+```golang
+var post Post = Post{}
+post.Id.Scan(4384)
 
+err := norm.NewSelect(dbrSession, post, nil).Where("id = ?", post.Id.Int64).LoadStruct(&post) // select all defined fields
 
-## TODO
-- validators
-  - default validators
-  - validate method interface
-  - explicitly call validate
-  - model validate, valdiateFields([]string), validateAll()
-  - validator state interface/struct
-  - async validators
+err = norm.NewSelect(dbrSession, post, field.FieldNames{"id", "title"}).Where("id = ?", post.Id.Int64).LoadStruct(&post) // only those fields
+```
 
-- sparse
-  - dirty model flag on model
-  - method on model to indicate changed fields
-  - track origional values and changed values, condolidate on insert/update
-  - fields specifically requested/set vs not
+Select Models
+-------------
 
-- generator
-  - Set<FieldName>/<FieldName>
+```golang
+var posts []Post = make([]Post, 0)
 
-- package level functions for common functionality
-  - IsDirty
-  - ValidateAll
-  - ValidateFields
-  - etc
+err := norm.NewSelect(dbrSession, post, nil).Where("created > '2015-01-01").LoadStructs(&posts)
+```
 
-- Interfaces on Shadow Models
-  - Valdiation default fields e.g. map[string][]Validators
-  - Validation custom method
+Insert Model
+------------
 
-- types
-  - DBR/sql NullWrappers
+```golang
+var post Post = Post{}
+post.Title.Scan("First Post")
+post.Context.Scan("...")
+post.AuthorId.Scan(1)
+post.Created.Scan(time.Time.Now())
 
-- Controllers
-  - Convention named actions: <ModelPlural><Action>?
+result, err := norm.NewInsert(dbrSession, post, nil).Exec()
 
-- permissions
-  - filter output results (to be confirmed)
+fmt.Printf("InsertId: %s", result.Value())
+```
 
-- pre-select filter on select fields to reduce wire loads
+Update Model
+------------
 
-- auth
-  - header: x-picatic-access-key
-    - user specific access_key
-  - query param: x-picatic-access-key
-    - user specific access key
-  - oauth2 by auth bearer
+```golang
 
+// continued from Insert
+post.Content.Scan("modified content")
 
-- input format
-  - single model post/save/insert 
-  - future feature: noonce
+result, err := norm.NewUpdate(dbrSession, post, nil).Exec()
 
-- output formats
-  - object: "list" for multiple items
-  - url: '/v2/users'
-  - if set, is_more: bool
-  - data -> [{...}...]
-  - relations, do not return relations for now
+```
