@@ -1,12 +1,11 @@
 package norm
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 	"errors"
+	. "github.com/smartystreets/goconvey/convey"
 	"reflect"
+	"testing"
 )
-
 
 //var IsString ValidatorFunc = func(model ValidatableModel, field field.FieldName, args ...interface{}) <-chan error {
 //	e := make(<-chan error)
@@ -22,11 +21,11 @@ func (tv *MockValidator) Validate(model interface{}) error {
 	return tv.ValidateFunc(model)
 }
 
-var ErrorValidator = &MockValidator{ func(model interface{}) error {
-  return MockedError
+var ErrorValidator = &MockValidator{func(model interface{}) error {
+	return MockedError
 }}
 
-var ValidValidator = &MockValidator{ func(model interface{}) error {
+var ValidValidator = &MockValidator{func(model interface{}) error {
 	return nil
 }}
 
@@ -34,7 +33,7 @@ type ModelDouble interface {
 	Name() string
 }
 
-type ModelOne struct {}
+type ModelOne struct{}
 
 func (mo *ModelOne) Name() string { return "Model One" }
 
@@ -46,10 +45,10 @@ var ValidatorMapDouble = ValidatorMap{
 
 func TestValidator(t *testing.T) {
 	Convey("Validator", t, func() {
-		Convey("ErrorValidator", func(){
+		Convey("ErrorValidator", func() {
 			So(ErrorValidator.Validate(nil), ShouldEqual, MockedError)
 		})
-		Convey("ValidValidator", func(){
+		Convey("ValidValidator", func() {
 			So(ValidValidator.Validate(nil), ShouldBeNil)
 		})
 	})
@@ -57,7 +56,7 @@ func TestValidator(t *testing.T) {
 
 func TestValidatorMap(t *testing.T) {
 	Convey("ValidatorMap", t, func() {
-		Convey("Clone", func(){
+		Convey("Clone", func() {
 			So(ValidatorMapDouble.Clone(), ShouldResemble, ValidatorMapDouble)
 		})
 	})

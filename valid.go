@@ -2,11 +2,10 @@ package norm
 
 import "fmt"
 import (
+	"errors"
 	"github.com/picatic/go-api/norm/field"
 	"reflect"
-	"errors"
 )
-
 
 type Validator interface {
 	Validate(interface{}) error
@@ -45,7 +44,7 @@ func (vm ValidatorMap) Validate(model interface{}, fields field.FieldNames) erro
 	errs := ValidationErrors{}
 	for _, validator := range vm.Get(model) {
 		switch v := validator.(type) {
-			case FieldValidator:
+		case FieldValidator:
 			for _, field := range fields {
 				if fieldName, ok := string(field); ok && fieldName == v.Field {
 					if err := v.Validate(model); err != nil {
@@ -82,8 +81,8 @@ func NewFieldValidator(
 	return FieldValidator{
 		Field: field,
 		Alias: alias,
-		Func: vFunc,
-		Args: args,
+		Func:  vFunc,
+		Args:  args,
 	}
 }
 
@@ -91,11 +90,9 @@ func NewFieldValidator(
 //	return fmt.Sprintf("%s %s %s(%s)", v.Field, v.Alias, "func", v.Args)
 //}
 
-
 //func NewValidator(field field.FieldName, alias string, fn ValidatorFunc, args ...interface{}) Validator {
 //	return Validator{field, alias, fn, args}
 //}
-
 
 //func (fv *FieldValidator) Validate(m Model, fields []field.FieldName) error {
 //	return fv.Func(m, field, fv.Args...)
@@ -142,8 +139,6 @@ func NewFieldValidator(
 // Complex Async with args
 type FieldValidatorFunc func(value interface{}, args ...interface{}) error
 
-
-
 //var vMap ValidatorMap = &ValidatorMap{"Id":{"IsString": IsString}}
 
 type ValidationError struct {
@@ -180,4 +175,3 @@ func ValidEmail(value interface{}, args ...interface{}) error {
 	}
 	return nil
 }
-
