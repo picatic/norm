@@ -4,8 +4,11 @@ import (
 	"errors"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/go-api/norm/field"
+	"github.com/picatic/go-api/norm"
 	"reflect"
 )
+
+var Validators = norm.ValidatorMap{}
 
 // All models have to implement this
 type Model interface {
@@ -103,4 +106,23 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) error
 	} else {
 		return nil
 	}
+}
+
+// Validate fields provided on model, if no fields validate all fields
+func ModelValidate(model Model, fields field.FieldNames) chan <- error {
+	err := make(chan error, 1)
+
+	go func() {
+		if fields == nil {
+			fields = ModelFields(model)
+		}
+		validationErrors := Validators.Validate(model, fields)
+		if errors, ok := norm.ValidationErrors(validationErrors); ok {
+			for _, validationError := range errors {
+				err <- validationError
+			}
+		}
+		err <- nil
+	}()
+	return err
 }
