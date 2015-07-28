@@ -1,8 +1,8 @@
 package norm
 
-import "fmt"
 import (
 	"errors"
+	"fmt"
 	"github.com/picatic/go-api/norm/field"
 	"reflect"
 )
@@ -40,13 +40,13 @@ func (vm ValidatorMap) Clone() ValidatorMap {
 	return newMap
 }
 
-func (vm ValidatorMap) Validate(model interface{}, fields field.FieldNames) error {
-	errs := ValidationErrors{}
+func (vm ValidatorMap) Validate(model interface{}, fields field.FieldNames) *ValidationErrors {
+	errs := &ValidationErrors{}
 	for _, validator := range vm.Get(model) {
 		switch v := validator.(type) {
 		case FieldValidator:
 			for _, field := range fields {
-				if fieldName, ok := string(field); ok && fieldName == v.Field {
+				if field == v.Field {
 					if err := v.Validate(model); err != nil {
 						errs.Add(err)
 						break
@@ -68,7 +68,7 @@ type FieldValidator struct {
 	Args  []interface{}
 }
 
-func (fv *FieldValidator) Validate(model interface{}) error {
+func (fv FieldValidator) Validate(model interface{}) error {
 	return fv.Func(model, fv.Field, fv.Args)
 }
 
@@ -78,7 +78,7 @@ func NewFieldValidator(
 	vFunc FieldValidatorFunc,
 	args ...interface{},
 ) Validator {
-	return FieldValidator{
+	return &FieldValidator{
 		Field: field,
 		Alias: alias,
 		Func:  vFunc,

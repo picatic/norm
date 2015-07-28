@@ -3,12 +3,11 @@ package norm
 import (
 	"errors"
 	"github.com/gocraft/dbr"
-	"github.com/picatic/go-api/norm"
 	"github.com/picatic/go-api/norm/field"
 	"reflect"
 )
 
-var Validators = norm.ValidatorMap{}
+var Validators = ValidatorMap{}
 
 // All models have to implement this
 type Model interface {
