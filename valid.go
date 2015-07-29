@@ -86,6 +86,19 @@ func NewFieldValidator(
 	}
 }
 
+func NewGovalidator(
+	field field.FieldName,
+	alias string,
+	vFunc StringValidator,
+) Validator {
+	return &FieldValidator{
+		Field: field,
+		Alias: alias,
+		Func:  NewStringValidatorFunc(vFunc),
+		Args:  make([]interface{}, 0),
+	}
+}
+
 //func (v Validator) String() string {
 //	return fmt.Sprintf("%s %s %s(%s)", v.Field, v.Alias, "func", v.Args)
 //}
@@ -147,7 +160,7 @@ type ValidationError struct {
 	Model   Model
 }
 
-func (ve *ValidationError) Error() string {
+func (ve ValidationError) Error() string {
 	return fmt.Sprintf("Field: %s Error: %s", ve.Field, ve.Message)
 }
 
@@ -160,13 +173,28 @@ func (ve *ValidationErrors) Add(err error) {
 	ve.Errors = append(ve.Errors, err)
 }
 
-func (ve *ValidationErrors) Error() string {
-	fe := ValidationError(ve.Errors[0])
+func (ve ValidationErrors) Error() string {
+	fe := ve.Errors[0].(ValidationError)
 	return fmt.Sprintf("First of multiple errors, Field: %s Error: %s", fe.Field, fe.Message)
 }
 
 func AddValidator(modelType reflect.Type, validators ...Validator) {
 	Validators.Set(modelType, append(Validators.Get(modelType), validators...))
+}
+
+type StringValidator func(str string) bool
+
+func NewStringValidatorFunc(v StringValidator) FieldValidatorFunc {
+	return func(value interface{}, args ...interface{}) error {
+		str, ok := value.(string)
+		if !ok {
+			return errors.New(fmt.Sprintf("Value is not a string, %v", value))
+		}
+		if v(str) {
+			return errors.New(fmt.Sprintf("Value does not satisfy, %v, %v", v, str))
+		}
+		return nil
+	}
 }
 
 func ValidEmail(value interface{}, args ...interface{}) error {
