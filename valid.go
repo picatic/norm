@@ -174,8 +174,13 @@ func (ve *ValidationErrors) Add(err error) {
 }
 
 func (ve ValidationErrors) Error() string {
-	fe := ve.Errors[0].(ValidationError)
-	return fmt.Sprintf("First of multiple errors, Field: %s Error: %s", fe.Field, fe.Message)
+	if len(ve.Errors) == 0 {
+		return fmt.Sprintf("Empty errors")
+	}
+	if fe, ok := ve.Errors[0].(*ValidationError); ok == true {
+		return fmt.Sprintf("First of multiple errors, Field: %s Error: %s", fe.Field, fe.Message)
+	}
+	return fmt.Sprintf("First of multiple errors is not a Validation error")
 }
 
 func AddValidator(modelType reflect.Type, validators ...Validator) {
