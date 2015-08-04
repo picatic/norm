@@ -3,6 +3,7 @@ package norm
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/go-api/norm/field"
 	"reflect"
@@ -104,7 +105,8 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) (sql.
 	if model.IsNew() == true {
 		return nil, errors.New("ModelSave for when IsNew Not Implement")
 	} else {
-		idField, err := ModelGetField(model, model.PrimaryKeyFieldName())
+		primaryFieldName := model.PrimaryKeyFieldName()
+		idField, err := ModelGetField(model, primaryFieldName)
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +114,7 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) (sql.
 		if err != nil {
 			return nil, err
 		}
-		return NewUpdate(dbrSess, model, fields).Where("`id`=?", id).Exec()
+		return NewUpdate(dbrSess, model, fields).Where(fmt.Sprintf("`%s`=?", primaryFieldName.SnakeCase()), id).Exec()
 	}
 }
 
