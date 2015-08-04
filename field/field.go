@@ -49,15 +49,17 @@ type String struct {
 }
 
 func (s *String) Scan(value interface{}) error {
-	sv, ok := value.(string)
-	if !ok {
+	tmp := sql.NullString{}
+	tmp.Scan(value)
+
+	if tmp.Valid == false {
 		// TODO: maybe nil should be simply allowed to be empty string?
-		return errors.New("value should be a string and not nil")
+		return errors.New("norm.field.String: value should be a string and not nil")
 	}
-	s.String = sv
+	s.String = tmp.String
 
 	s.DoInit(func() {
-		s.shadow = sv
+		s.shadow = tmp.String
 	})
 
 	return nil
