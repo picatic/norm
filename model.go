@@ -1,6 +1,7 @@
 package norm
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/go-api/norm/field"
@@ -99,11 +100,19 @@ func NewDelete(s *dbr.Session, m Model) *dbr.DeleteBuilder {
 }
 
 // Save a model, calls appropriate Insert or Update based on Model.IsNew()
-func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) error {
+func ModelSave(dbrSess *dbr.Session, model Model, fields field.FieldNames) (sql.Result, error) {
 	if model.IsNew() == true {
-		return nil
+		return nil, errors.New("ModelSave for when IsNew Not Implement")
 	} else {
-		return nil
+		idField, err := ModelGetField(model, model.PrimaryKeyFieldName())
+		if err != nil {
+			return nil, err
+		}
+		id, err := idField.Value()
+		if err != nil {
+			return nil, err
+		}
+		return NewUpdate(dbrSess, model, fields).Where("`id`=?", id).Exec()
 	}
 }
 
