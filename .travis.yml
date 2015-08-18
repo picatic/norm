@@ -1,10 +1,9 @@
-anguage: go
+language: go
 
 go:
   - 1.4
   - tip
 install:
-  - go get github.com/AlekSi/reflector
-  - go get github.com/gocraft/dbr
+
 script:
   - go test -v -covermode=count  -bench . -cpu 1,4
