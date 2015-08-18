@@ -1,3 +1,6 @@
+[![GoDoc](https://godoc.org/github.com/picatic/norm?status.png)](https://godoc.org/github.com/picatic/norm)
+[![Build Status](https://travis-ci.org/picatic/norm.svg?branch=master)](https://travis-ci.org/picatic/norm)
+
 ```
   _   _  ____  _____  __  __ 
  | \ | |/ __ \|  __ \|  \/  |
