@@ -3,7 +3,7 @@ package norm
 import (
 	"fmt"
 	"github.com/AlekSi/reflector"
-	"github.com/picatic/go-api/norm/field"
+	"github.com/picatic/norm/field"
 )
 
 func escapeFields(fields field.FieldNames) []string {

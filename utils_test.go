@@ -1,7 +1,7 @@
 package norm
 
 import (
-	"github.com/picatic/go-api/norm/field"
+	"github.com/picatic/norm/field"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )

@@ -3,7 +3,7 @@ package norm
 import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/gocraft/dbr"
-	"github.com/picatic/go-api/norm/field"
+	"github.com/picatic/norm/field"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )

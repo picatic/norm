@@ -3,7 +3,7 @@ package norm
 import (
 	"errors"
 	"fmt"
-	"github.com/picatic/go-api/norm/field"
+	"github.com/picatic/norm/field"
 	"reflect"
 )
 
