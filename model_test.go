@@ -23,7 +23,7 @@ func (MockModel) IsNew() bool {
 	return false
 }
 
-func (MockModel) PrimaryKeyFieldName() field.FieldName {
+func (MockModel) PrimaryKeyFieldName() field.Name {
 	return "Id"
 }
 
@@ -39,8 +39,8 @@ func TestModel(t *testing.T) {
 		Convey("ModelFields", func() {
 			Convey("On Ptr to Struct", func() {
 				fields := ModelFields(model)
-				So(fields, ShouldContain, field.FieldName("Id"))
-				So(fields, ShouldContain, field.FieldName("FirstName"))
+				So(fields, ShouldContain, field.Name("Id"))
+				So(fields, ShouldContain, field.Name("FirstName"))
 				So(len(fields), ShouldEqual, 2)
 			})
 
@@ -78,7 +78,7 @@ func TestModel(t *testing.T) {
 
 			Convey("With fields", func() {
 				sqlmock.ExpectQuery("SELECT `id` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("2"))
-				err := NewSelect(dbrConn.NewSession(nil), model, field.FieldNames{"Id"}).LoadStruct(model)
+				err := NewSelect(dbrConn.NewSession(nil), model, field.Names{"Id"}).LoadStruct(model)
 				So(err, ShouldBeNil)
 				So(model.Id.String, ShouldEqual, "2")
 			})
@@ -95,7 +95,7 @@ func TestModel(t *testing.T) {
 
 			Convey("With fields", func() {
 				sqlmock.ExpectExec("INSERT INTO mocks \\(`first_name`\\) VALUES \\('Mock'\\)").WillReturnResult(sqlmock.NewResult(3, 1))
-				_, err := NewInsert(dbrConn.NewSession(nil), model, field.FieldNames{"FirstName"}).Record(model).Exec()
+				_, err := NewInsert(dbrConn.NewSession(nil), model, field.Names{"FirstName"}).Record(model).Exec()
 				So(err, ShouldBeNil)
 			})
 		})
@@ -111,7 +111,7 @@ func TestModel(t *testing.T) {
 
 			Convey("With fields", func() {
 				sqlmock.ExpectExec("UPDATE mocks SET `first_name` = 'Mock' WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
-				_, err := NewUpdate(dbrConn.NewSession(nil), model, field.FieldNames{"FirstName"}).Where("id = ?", model.Id.String).Exec()
+				_, err := NewUpdate(dbrConn.NewSession(nil), model, field.Names{"FirstName"}).Where("id = ?", model.Id.String).Exec()
 				So(err, ShouldBeNil)
 			})
 		})

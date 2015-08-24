@@ -13,14 +13,14 @@ func TestUtils(t *testing.T) {
 		model.FirstName.Scan("A First Name")
 
 		Convey("escapeFields", func() {
-			fns := field.FieldNames{"Id", "FirstName"}
+			fns := field.Names{"Id", "FirstName"}
 			So(escapeFields(fns), ShouldResemble, []string{"`id`", "`first_name`"})
 		})
 
 		Convey("defaultFieldEscaped", nil)
 
 		Convey("defaultUpdate", func() {
-			fns := field.FieldNames{"FirstName"}
+			fns := field.Names{"FirstName"}
 			mapSet := defaultUpdate(model, fns)
 			ns := field.NullString{}
 			ns.Scan("A First Name")

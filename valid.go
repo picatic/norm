@@ -50,7 +50,7 @@ func (vm ValidatorMap) Clone() ValidatorMap {
 }
 
 // Validate a model and specified fields.
-func (vm ValidatorMap) Validate(model interface{}, fields field.FieldNames) *ValidationErrors {
+func (vm ValidatorMap) Validate(model interface{}, fields field.Names) *ValidationErrors {
 	errs := &ValidationErrors{}
 	for _, validator := range vm.Get(model) {
 		switch v := validator.(type) {
@@ -73,7 +73,7 @@ func (vm ValidatorMap) Validate(model interface{}, fields field.FieldNames) *Val
 
 // Wrapper for a standard field validation
 type FieldValidator struct {
-	Field field.FieldName
+	Field field.Name
 	Alias string
 	Func  FieldValidatorFunc
 	Args  []interface{}
@@ -87,7 +87,7 @@ func (fv FieldValidator) Validate(model interface{}) error {
 // Create a new FieldValidator, providing a FieldName, alias for the error,
 // a function to run to validate and any args required for that validator.
 func NewFieldValidator(
-	field field.FieldName,
+	field field.Name,
 	alias string,
 	vFunc FieldValidatorFunc,
 	args ...interface{},
@@ -102,7 +102,7 @@ func NewFieldValidator(
 
 // New FieldValidator based on go validators
 func NewGovalidator(
-	field field.FieldName,
+	field field.Name,
 	alias string,
 	vFunc StringValidator,
 ) Validator {
@@ -118,11 +118,11 @@ func NewGovalidator(
 //	return fmt.Sprintf("%s %s %s(%s)", v.Field, v.Alias, "func", v.Args)
 //}
 
-//func NewValidator(field field.FieldName, alias string, fn ValidatorFunc, args ...interface{}) Validator {
+//func NewValidator(field field.Name, alias string, fn ValidatorFunc, args ...interface{}) Validator {
 //	return Validator{field, alias, fn, args}
 //}
 
-//func (fv *FieldValidator) Validate(m Model, fields []field.FieldName) error {
+//func (fv *FieldValidator) Validate(m Model, fields []field.Name) error {
 //	return fv.Func(m, field, fv.Args...)
 //}
 //
@@ -132,7 +132,7 @@ func NewGovalidator(
 //	Args []interface{}
 //}
 //
-//func (mv *ModelValidator) Validate(m Model, fields []field.FieldName) error {
+//func (mv *ModelValidator) Validate(m Model, fields []field.Name) error {
 //	return mv.Func(m, fields, mv.Args...)
 //}
 //
@@ -156,7 +156,7 @@ func NewGovalidator(
 //}
 //
 // Validate a model with this map for all fields indicated. Nil returned if no validator errors
-//func (vl *ValidatorList) Validate(model Model, fields field.FieldNames) <-chan error {
+//func (vl *ValidatorList) Validate(model Model, fields field.Names) <-chan error {
 //	err := make(chan error, 1)
 //	err <- nil
 //	return err

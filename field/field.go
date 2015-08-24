@@ -10,24 +10,24 @@ import (
 )
 
 // FeildShadow Support for shadow fields. Allows us to determine if a field has been altered or not.
-type FieldShadow interface {
+type Shadower interface {
 	ShadowValue() (driver.Value, error)
 	IsDirty() bool
 }
 
-// FieldName Name of a field on a model
-type FieldName string
+// Name The name of a field on a model
+type Name string
 
 // Returns a field as SnakeCase
-func (fn FieldName) SnakeCase() string {
+func (fn Name) SnakeCase() string {
 	return dbr.NameMapping(string(fn))
 }
 
-// FieldNames
-type FieldNames []FieldName
+// Names A set of Names
+type Names []Name
 
 // Return []string of snake_case field names for database map
-func (fn FieldNames) SnakeCase() []string {
+func (fn Names) SnakeCase() []string {
 	snakes := make([]string, len(fn))
 	for i := 0; i < len(fn); i++ {
 		snakes[i] = fn[i].SnakeCase()
@@ -39,7 +39,7 @@ func (fn FieldNames) SnakeCase() []string {
 type Field interface {
 	sql.Scanner   // we require Scanner implementations
 	driver.Valuer // our values stand and guard for thee
-	FieldShadow   // we require FieldShadow
+	Shadower      // we require Shadower
 }
 
 // String field type, does not allow nil

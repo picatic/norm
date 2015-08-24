@@ -6,21 +6,21 @@ import (
 	"testing"
 )
 
-func TestFieldName(t *testing.T) {
-	Convey("FieldName", t, func() {
+func TestName(t *testing.T) {
+	Convey("Name", t, func() {
 
 		Convey("SnakeCase", func() {
-			fn := FieldName("FirstName")
+			fn := Name("FirstName")
 			So(fn.SnakeCase(), ShouldEqual, "first_name")
 		})
 	})
 }
 
-func TestFieldNames(t *testing.T) {
-	Convey("FieldNames", t, func() {
+func TestNames(t *testing.T) {
+	Convey("Names", t, func() {
 
 		Convey("SnakeCase", func() {
-			fns := &FieldNames{"Id", "FirstName"}
+			fns := &Names{"Id", "FirstName"}
 			So(fns.SnakeCase(), ShouldResemble, []string{"id", "first_name"})
 		})
 	})

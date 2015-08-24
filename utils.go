@@ -7,7 +7,7 @@ import (
 )
 
 // escape fields for queries
-func escapeFields(fields field.FieldNames) []string {
+func escapeFields(fields field.Names) []string {
 	var newFields []string = make([]string, len(fields))
 	for i := 0; i < len(fields); i++ {
 		newFields[i] = fmt.Sprintf("`%s`", fields[i].SnakeCase())
@@ -16,7 +16,7 @@ func escapeFields(fields field.FieldNames) []string {
 }
 
 // Get the fieldNames as a []string escaped field names
-func defaultFieldsEscaped(model Model, fields field.FieldNames) []string {
+func defaultFieldsEscaped(model Model, fields field.Names) []string {
 	if fields == nil {
 		fields = ModelFields(model)
 	}
@@ -24,9 +24,9 @@ func defaultFieldsEscaped(model Model, fields field.FieldNames) []string {
 	return escapeFields(fields)
 }
 
-// func fieldToDbMap(m Model) map[field.FieldName]string {
+// func fieldToDbMap(m Model) map[field.Name]string {
 // 	fields := ModelFields(m)
-// 	dbMap := make(map[field.FieldName]string)
+// 	dbMap := make(map[field.Name]string)
 // 	for i := 0; i < len(fields); i++ {
 // 		dbMap[fields[i]] = dbr.NameMapping(string(fields[i]))
 // 	}
@@ -35,7 +35,7 @@ func defaultFieldsEscaped(model Model, fields field.FieldNames) []string {
 // }
 
 // Create a map of strings and values from the model to work with dbr's interfaces
-func defaultUpdate(m Model, fields field.FieldNames) map[string]interface{} {
+func defaultUpdate(m Model, fields field.Names) map[string]interface{} {
 	kv := make(map[string]interface{})
 	reflector.StructToMap(m, kv, "db")
 	if fields == nil {
