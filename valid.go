@@ -1,7 +1,6 @@
 package norm
 
 import (
-	"errors"
 	"fmt"
 	"github.com/picatic/norm/field"
 	"reflect"
