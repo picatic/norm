@@ -97,12 +97,15 @@ FAQ
 ===
 
 Q: Why did you wrap all types?
+
 A: That was the only way to get dirty model detection without generating Getter/Setters. It also happens to allow us to pretend to do sparse models.
 
 Q: Why do I have to `Scan` values when I could set their value directy. e.g. model.Id.Int64 = 1 vs model.Id.Scan(1)
+
 A: Scan currently contains logic to mark the shadow value if not already set. This is key in determining if we are working with dirty fields and thus dirty models.
 
 Q: Why do I have to set the LastInsertId of an UPDATE to my model manually?
+
 A: NORM does not persume you care of want that functionality. A simple utility function can wrap that logic for you to meet your needs.
 
 ```golang
@@ -123,13 +126,17 @@ func InsertAndUpdateId(sess dbr.ConnSession, model Model, fields field.FieldName
 ```
 
 Q: Have you considered implementing before and after hooks for models?
+
 A: Yes, but given how we use dbr and imagined NORM as a lazy ORM it is not something will will build in the ORM. We may provide an example that suggests a pattern of interfaces to do hooks, but ultimately you would need to call those hooks by convention.
 
 Q: I want feature XYZ?
+
 A: Post an issue as a proposal. Outline what the feature is, how it would work and be implemented and how it fits into NORM. We will discuss and go from there.
 
 Q: I found a bug!
+
 A: Not a question, but submit an issue with the details. Ideally a test that triggers the bug. Even more ideally, a test and patch for the bug.
 
 Q: Why did you use dbr?
+
 A: Flexability of programatically building queries or just making raw queries.

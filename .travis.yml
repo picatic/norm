@@ -1,8 +1,9 @@
-anguage: go
+language: go
 
 go:
   - 1.4
   - tip
 install:
+
 script:
   - go test -v -covermode=count  -bench . -cpu 1,4
