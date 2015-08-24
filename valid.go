@@ -7,6 +7,9 @@ import (
 	"reflect"
 )
 
+// Validators global static map of validators for models
+var Validators = ValidatorMap{}
+
 // Models can implement a custom validator, which is expected to return ValidationError/ValidationErrors
 type Validator interface {
 	Validate(interface{}) error

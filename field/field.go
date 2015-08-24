@@ -9,14 +9,16 @@ import (
 	"time"
 )
 
+// FeildShadow Support for shadow fields. Allows us to determine if a field has been altered or not.
 type FieldShadow interface {
 	ShadowValue() (driver.Value, error)
 	IsDirty() bool
 }
 
-// FieldName, mapped to model
+// FieldName Name of a field on a model
 type FieldName string
 
+// Returns a field as SnakeCase
 func (fn FieldName) SnakeCase() string {
 	return dbr.NameMapping(string(fn))
 }
@@ -33,21 +35,21 @@ func (fn FieldNames) SnakeCase() []string {
 	return snakes
 }
 
+// Field Implementation required to get the basic norm features for field mapping and dirty
 type Field interface {
 	sql.Scanner   // we require Scanner implementations
 	driver.Valuer // our values stand and guard for thee
 	FieldShadow   // we require FieldShadow
 }
 
-//
-// String
-//
+// String field type, does not allow nil
 type String struct {
 	String string
 	shadow string
 	ShadowInit
 }
 
+// Scan a value into the string, error on nil
 func (s *String) Scan(value interface{}) error {
 	tmp := sql.NullString{}
 	tmp.Scan(value)
@@ -65,10 +67,12 @@ func (s *String) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns String) Value() (driver.Value, error) {
 	return ns.String, nil
 }
 
+// ShadowValue return the initial value of this field
 func (ns String) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
@@ -77,19 +81,19 @@ func (ns String) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ns *String) IsDirty() bool {
 	return ns.String != ns.shadow
 }
 
-//
-// NullString
-//
+// NullString string that allows nil
 type NullString struct {
 	dbr.NullString
 	shadow dbr.NullString
 	ShadowInit
 }
 
+// Scan a value into the string
 func (ns *NullString) Scan(value interface{}) error {
 
 	err := ns.NullString.Scan(value)
@@ -104,6 +108,7 @@ func (ns *NullString) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns NullString) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
@@ -111,10 +116,12 @@ func (ns NullString) Value() (driver.Value, error) {
 	return ns.String, nil
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ns *NullString) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.String != ns.shadow.String
 }
 
+// ShadowValue return the initial value of this field
 func (ns NullString) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
@@ -131,6 +138,7 @@ type Time struct {
 	ShadowInit
 }
 
+// Scan a value into the Time, error on nil or unparsable
 func (s *Time) Scan(value interface{}) error {
 	sv, ok := value.(time.Time)
 	if !ok {
@@ -144,10 +152,12 @@ func (s *Time) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns Time) Value() (driver.Value, error) {
 	return ns.Time, nil
 }
 
+// ShadowValue return the initial value of this field
 func (ns Time) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
@@ -156,6 +166,7 @@ func (ns Time) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ns *Time) IsDirty() bool {
 	return ns.Time != ns.shadow
 }
@@ -164,15 +175,14 @@ func (n *Time) MarshalJSON() ([]byte, error) {
 	return json.Marshal(n.Time)
 }
 
-//
 // NullTime
-//
 type NullTime struct {
 	dbr.NullTime
 	shadow dbr.NullTime
 	ShadowInit
 }
 
+// Scan a value into the Time, error on unparsable
 func (ns *NullTime) Scan(value interface{}) error {
 
 	err := ns.NullTime.Scan(value)
@@ -187,6 +197,7 @@ func (ns *NullTime) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns NullTime) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
@@ -194,10 +205,12 @@ func (ns NullTime) Value() (driver.Value, error) {
 	return ns.Time, nil
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ns *NullTime) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Time != ns.shadow.Time
 }
 
+// ShadowValue return the initial value of this field
 func (ns NullTime) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
@@ -205,15 +218,14 @@ func (ns NullTime) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
-//
 // Int64
-//
 type Int64 struct {
 	Int64  int64
 	shadow int64
 	ShadowInit
 }
 
+// Scan a value into the Int64, error on nil or unparsable
 func (s *Int64) Scan(value interface{}) error {
 	tmp := sql.NullInt64{}
 	tmp.Scan(value)
@@ -231,10 +243,12 @@ func (s *Int64) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns Int64) Value() (driver.Value, error) {
 	return ns.Int64, nil
 }
 
+// ShadowValue return the initial value of this field
 func (ns Int64) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
@@ -243,6 +257,7 @@ func (ns Int64) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ns *Int64) IsDirty() bool {
 	return ns.Int64 != ns.shadow
 }
@@ -251,15 +266,14 @@ func (n *Int64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(n.Int64)
 }
 
-//
 // NullInt64
-//
 type NullInt64 struct {
 	dbr.NullInt64
 	shadow dbr.NullInt64
 	ShadowInit
 }
 
+// Scan a value into the Int64, error on unparsable
 func (ns *NullInt64) Scan(value interface{}) error {
 
 	err := ns.NullInt64.Scan(value)
@@ -274,6 +288,7 @@ func (ns *NullInt64) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns NullInt64) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
@@ -285,6 +300,7 @@ func (ns *NullInt64) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Int64 != ns.shadow.Int64
 }
 
+// ShadowValue return the initial value of this field
 func (ns NullInt64) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
@@ -301,6 +317,7 @@ type Bool struct {
 	ShadowInit
 }
 
+// Scan a value into the Bool, error on nil or unparsable
 func (s *Bool) Scan(value interface{}) error {
 	tmp := sql.NullBool{}
 	tmp.Scan(value)
@@ -317,10 +334,12 @@ func (s *Bool) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns Bool) Value() (driver.Value, error) {
 	return ns.Bool, nil
 }
 
+// ShadowValue return the initial value of this field
 func (ns Bool) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow, nil
@@ -329,6 +348,7 @@ func (ns Bool) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ns *Bool) IsDirty() bool {
 	return ns.Bool != ns.shadow
 }
@@ -346,6 +366,7 @@ type NullBool struct {
 	ShadowInit
 }
 
+// Scan a value into the Bool, error on unparsable
 func (ns *NullBool) Scan(value interface{}) error {
 
 	err := ns.NullBool.Scan(value)
@@ -360,6 +381,7 @@ func (ns *NullBool) Scan(value interface{}) error {
 	return nil
 }
 
+// Value return the value of this field
 func (ns NullBool) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
@@ -367,10 +389,12 @@ func (ns NullBool) Value() (driver.Value, error) {
 	return ns.Bool, nil
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ns *NullBool) IsDirty() bool {
 	return ns.Valid != ns.shadow.Valid || ns.Bool != ns.shadow.Bool
 }
 
+// ShadowValue return the initial value of this field
 func (ns NullBool) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()

@@ -11,6 +11,7 @@ type ShadowInit struct {
 	done uint32
 }
 
+// DoInit set a value by func
 func (o *ShadowInit) DoInit(f func()) {
 	if atomic.LoadUint32(&o.done) == 1 {
 		return
@@ -24,9 +25,7 @@ func (o *ShadowInit) DoInit(f func()) {
 	}
 }
 
-// Return
-// added Done to the sync.Once implementation
-//
+// InitDone return a value
 func (o *ShadowInit) InitDone() bool {
 	return atomic.LoadUint32(&o.done) == 1
 }

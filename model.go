@@ -9,8 +9,6 @@ import (
 	"reflect"
 )
 
-var Validators = ValidatorMap{}
-
 // Models use this interface to communicate some basic information to help with building queries
 // and determining the state of the model.
 type Model interface {
