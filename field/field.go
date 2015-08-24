@@ -68,22 +68,22 @@ func (s *String) Scan(value interface{}) error {
 }
 
 // Value return the value of this field
-func (ns String) Value() (driver.Value, error) {
-	return ns.String, nil
+func (s String) Value() (driver.Value, error) {
+	return s.String, nil
 }
 
 // ShadowValue return the initial value of this field
-func (ns String) ShadowValue() (driver.Value, error) {
-	if ns.InitDone() {
-		return ns.shadow, nil
+func (s String) ShadowValue() (driver.Value, error) {
+	if s.InitDone() {
+		return s.shadow, nil
 	}
 
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
 // IsDirty if the shadow value does not match the field value
-func (ns *String) IsDirty() bool {
-	return ns.String != ns.shadow
+func (s *String) IsDirty() bool {
+	return s.String != s.shadow
 }
 
 // NullString string that allows nil
@@ -139,40 +139,40 @@ type Time struct {
 }
 
 // Scan a value into the Time, error on nil or unparsable
-func (s *Time) Scan(value interface{}) error {
+func (t *Time) Scan(value interface{}) error {
 	sv, ok := value.(time.Time)
 	if !ok {
 		return errors.New("value should be a time and not nil")
 	}
 
-	s.DoInit(func() {
-		s.shadow = sv
+	t.DoInit(func() {
+		t.shadow = sv
 	})
 
 	return nil
 }
 
 // Value return the value of this field
-func (ns Time) Value() (driver.Value, error) {
-	return ns.Time, nil
+func (t Time) Value() (driver.Value, error) {
+	return t.Time, nil
 }
 
 // ShadowValue return the initial value of this field
-func (ns Time) ShadowValue() (driver.Value, error) {
-	if ns.InitDone() {
-		return ns.shadow, nil
+func (t Time) ShadowValue() (driver.Value, error) {
+	if t.InitDone() {
+		return t.shadow, nil
 	}
 
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
 // IsDirty if the shadow value does not match the field value
-func (ns *Time) IsDirty() bool {
-	return ns.Time != ns.shadow
+func (t *Time) IsDirty() bool {
+	return t.Time != t.shadow
 }
 
-func (n *Time) MarshalJSON() ([]byte, error) {
-	return json.Marshal(n.Time)
+func (t *Time) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.Time)
 }
 
 // NullTime
@@ -183,37 +183,37 @@ type NullTime struct {
 }
 
 // Scan a value into the Time, error on unparsable
-func (ns *NullTime) Scan(value interface{}) error {
+func (nt *NullTime) Scan(value interface{}) error {
 
-	err := ns.NullTime.Scan(value)
+	err := nt.NullTime.Scan(value)
 	if err != nil {
 		return err
 	}
 
 	// load shadow on first scan only
-	ns.DoInit(func() {
-		_ = ns.shadow.Scan(value)
+	nt.DoInit(func() {
+		_ = nt.shadow.Scan(value)
 	})
 	return nil
 }
 
 // Value return the value of this field
-func (ns NullTime) Value() (driver.Value, error) {
-	if !ns.Valid {
+func (nt NullTime) Value() (driver.Value, error) {
+	if !nt.Valid {
 		return nil, nil
 	}
-	return ns.Time, nil
+	return nt.Time, nil
 }
 
 // IsDirty if the shadow value does not match the field value
-func (ns *NullTime) IsDirty() bool {
-	return ns.Valid != ns.shadow.Valid || ns.Time != ns.shadow.Time
+func (nt *NullTime) IsDirty() bool {
+	return nt.Valid != nt.shadow.Valid || nt.Time != nt.shadow.Time
 }
 
 // ShadowValue return the initial value of this field
-func (ns NullTime) ShadowValue() (driver.Value, error) {
-	if ns.InitDone() {
-		return ns.shadow.Value()
+func (nt NullTime) ShadowValue() (driver.Value, error) {
+	if nt.InitDone() {
+		return nt.shadow.Value()
 	}
 	return nil, errors.New("Shadow Wasn't Created")
 }
@@ -226,7 +226,7 @@ type Int64 struct {
 }
 
 // Scan a value into the Int64, error on nil or unparsable
-func (s *Int64) Scan(value interface{}) error {
+func (i *Int64) Scan(value interface{}) error {
 	tmp := sql.NullInt64{}
 	tmp.Scan(value)
 
@@ -234,36 +234,36 @@ func (s *Int64) Scan(value interface{}) error {
 		// TODO: maybe nil should be simply allowed to be empty int64?
 		return errors.New("value should be a int64 and not nil")
 	}
-	s.Int64 = tmp.Int64
+	i.Int64 = tmp.Int64
 
-	s.DoInit(func() {
-		s.shadow = tmp.Int64
+	i.DoInit(func() {
+		i.shadow = tmp.Int64
 	})
 
 	return nil
 }
 
 // Value return the value of this field
-func (ns Int64) Value() (driver.Value, error) {
-	return ns.Int64, nil
+func (i Int64) Value() (driver.Value, error) {
+	return i.Int64, nil
 }
 
 // ShadowValue return the initial value of this field
-func (ns Int64) ShadowValue() (driver.Value, error) {
-	if ns.InitDone() {
-		return ns.shadow, nil
+func (i Int64) ShadowValue() (driver.Value, error) {
+	if i.InitDone() {
+		return i.shadow, nil
 	}
 
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
 // IsDirty if the shadow value does not match the field value
-func (ns *Int64) IsDirty() bool {
-	return ns.Int64 != ns.shadow
+func (i *Int64) IsDirty() bool {
+	return i.Int64 != i.shadow
 }
 
-func (n *Int64) MarshalJSON() ([]byte, error) {
-	return json.Marshal(n.Int64)
+func (i *Int64) MarshalJSON() ([]byte, error) {
+	return json.Marshal(i.Int64)
 }
 
 // NullInt64
@@ -274,36 +274,36 @@ type NullInt64 struct {
 }
 
 // Scan a value into the Int64, error on unparsable
-func (ns *NullInt64) Scan(value interface{}) error {
+func (ni *NullInt64) Scan(value interface{}) error {
 
-	err := ns.NullInt64.Scan(value)
+	err := ni.NullInt64.Scan(value)
 	if err != nil {
 		return err
 	}
 
 	// load shadow on first scan only
-	ns.DoInit(func() {
-		_ = ns.shadow.Scan(value)
+	ni.DoInit(func() {
+		_ = ni.shadow.Scan(value)
 	})
 	return nil
 }
 
 // Value return the value of this field
-func (ns NullInt64) Value() (driver.Value, error) {
-	if !ns.Valid {
+func (ni NullInt64) Value() (driver.Value, error) {
+	if !ni.Valid {
 		return nil, nil
 	}
-	return ns.Int64, nil
+	return ni.Int64, nil
 }
 
-func (ns *NullInt64) IsDirty() bool {
-	return ns.Valid != ns.shadow.Valid || ns.Int64 != ns.shadow.Int64
+func (ni *NullInt64) IsDirty() bool {
+	return ni.Valid != ni.shadow.Valid || ni.Int64 != ni.shadow.Int64
 }
 
 // ShadowValue return the initial value of this field
-func (ns NullInt64) ShadowValue() (driver.Value, error) {
-	if ns.InitDone() {
-		return ns.shadow.Value()
+func (ni NullInt64) ShadowValue() (driver.Value, error) {
+	if ni.InitDone() {
+		return ni.shadow.Value()
 	}
 	return nil, errors.New("Shadow Wasn't Created")
 }
@@ -318,43 +318,43 @@ type Bool struct {
 }
 
 // Scan a value into the Bool, error on nil or unparsable
-func (s *Bool) Scan(value interface{}) error {
+func (b *Bool) Scan(value interface{}) error {
 	tmp := sql.NullBool{}
 	tmp.Scan(value)
 
 	if tmp.Valid == false {
 		return errors.New("value should be a bool and not nil")
 	}
-	s.Bool = tmp.Bool
+	b.Bool = tmp.Bool
 
-	s.DoInit(func() {
-		s.shadow = tmp.Bool
+	b.DoInit(func() {
+		b.shadow = tmp.Bool
 	})
 
 	return nil
 }
 
 // Value return the value of this field
-func (ns Bool) Value() (driver.Value, error) {
-	return ns.Bool, nil
+func (b Bool) Value() (driver.Value, error) {
+	return b.Bool, nil
 }
 
 // ShadowValue return the initial value of this field
-func (ns Bool) ShadowValue() (driver.Value, error) {
-	if ns.InitDone() {
-		return ns.shadow, nil
+func (b Bool) ShadowValue() (driver.Value, error) {
+	if b.InitDone() {
+		return b.shadow, nil
 	}
 
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
 // IsDirty if the shadow value does not match the field value
-func (ns *Bool) IsDirty() bool {
-	return ns.Bool != ns.shadow
+func (b *Bool) IsDirty() bool {
+	return b.Bool != b.shadow
 }
 
-func (ns *Bool) MarshalJSON() ([]byte, error) {
-	return json.Marshal(ns.Bool)
+func (b *Bool) MarshalJSON() ([]byte, error) {
+	return json.Marshal(b.Bool)
 }
 
 //
@@ -367,37 +367,37 @@ type NullBool struct {
 }
 
 // Scan a value into the Bool, error on unparsable
-func (ns *NullBool) Scan(value interface{}) error {
+func (nb *NullBool) Scan(value interface{}) error {
 
-	err := ns.NullBool.Scan(value)
+	err := nb.NullBool.Scan(value)
 	if err != nil {
 		return err
 	}
 
 	// load shadow on first scan only
-	ns.DoInit(func() {
-		_ = ns.shadow.Scan(value)
+	nb.DoInit(func() {
+		_ = nb.shadow.Scan(value)
 	})
 	return nil
 }
 
 // Value return the value of this field
-func (ns NullBool) Value() (driver.Value, error) {
-	if !ns.Valid {
+func (nb NullBool) Value() (driver.Value, error) {
+	if !nb.Valid {
 		return nil, nil
 	}
-	return ns.Bool, nil
+	return nb.Bool, nil
 }
 
 // IsDirty if the shadow value does not match the field value
-func (ns *NullBool) IsDirty() bool {
-	return ns.Valid != ns.shadow.Valid || ns.Bool != ns.shadow.Bool
+func (nb *NullBool) IsDirty() bool {
+	return nb.Valid != nb.shadow.Valid || nb.Bool != nb.shadow.Bool
 }
 
 // ShadowValue return the initial value of this field
-func (ns NullBool) ShadowValue() (driver.Value, error) {
-	if ns.InitDone() {
-		return ns.shadow.Value()
+func (nb NullBool) ShadowValue() (driver.Value, error) {
+	if nb.InitDone() {
+		return nb.shadow.Value()
 	}
 	return nil, errors.New("Shadow Wasn't Created")
 }
