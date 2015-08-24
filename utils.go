@@ -6,6 +6,7 @@ import (
 	"github.com/picatic/norm/field"
 )
 
+// escape fields for queries
 func escapeFields(fields field.FieldNames) []string {
 	var newFields []string = make([]string, len(fields))
 	for i := 0; i < len(fields); i++ {
@@ -14,6 +15,7 @@ func escapeFields(fields field.FieldNames) []string {
 	return newFields
 }
 
+// Get the fieldNames as a []string escaped field names
 func defaultFieldsEscaped(model Model, fields field.FieldNames) []string {
 	if fields == nil {
 		fields = ModelFields(model)
@@ -32,6 +34,7 @@ func defaultFieldsEscaped(model Model, fields field.FieldNames) []string {
 // 	return dbMap
 // }
 
+// Create a map of strings and values from the model to work with dbr's interfaces
 func defaultUpdate(m Model, fields field.FieldNames) map[string]interface{} {
 	kv := make(map[string]interface{})
 	reflector.StructToMap(m, kv, "db")

@@ -7,12 +7,15 @@ import (
 	"reflect"
 )
 
+// Models can implement a custom validator, which is expected to return ValidationError/ValidationErrors
 type Validator interface {
 	Validate(interface{}) error
 }
 
+// Store validators for models
 type ValidatorMap map[reflect.Type][]Validator
 
+// Fetch the validators registered to a Model
 func (vm ValidatorMap) Get(model interface{}) []Validator {
 	modelType := reflect.TypeOf(model)
 	validators, ok := vm[modelType]
@@ -23,14 +26,17 @@ func (vm ValidatorMap) Get(model interface{}) []Validator {
 	return validators
 }
 
+// Set a validator
 func (vm ValidatorMap) Set(modelType reflect.Type, validators []Validator) {
 	vm[modelType] = validators
 }
 
+// Delete a validator
 func (vm ValidatorMap) Del(modelType reflect.Type) {
 	delete(vm, modelType)
 }
 
+// Clone the validators
 func (vm ValidatorMap) Clone() ValidatorMap {
 	newMap := ValidatorMap{}
 	for k, v := range vm {
@@ -40,6 +46,7 @@ func (vm ValidatorMap) Clone() ValidatorMap {
 	return newMap
 }
 
+// Validate a model and specified fields.
 func (vm ValidatorMap) Validate(model interface{}, fields field.FieldNames) *ValidationErrors {
 	errs := &ValidationErrors{}
 	for _, validator := range vm.Get(model) {
@@ -61,6 +68,7 @@ func (vm ValidatorMap) Validate(model interface{}, fields field.FieldNames) *Val
 	return nil
 }
 
+// Wrapper for a standard field validation
 type FieldValidator struct {
 	Field field.FieldName
 	Alias string
@@ -68,10 +76,13 @@ type FieldValidator struct {
 	Args  []interface{}
 }
 
+// Validate a field on a model
 func (fv FieldValidator) Validate(model interface{}) error {
 	return fv.Func(model, fv.Field, fv.Args)
 }
 
+// Create a new FieldValidator, providing a FieldName, alias for the error,
+// a function to run to validate and any args required for that validator.
 func NewFieldValidator(
 	field field.FieldName,
 	alias string,
@@ -86,6 +97,7 @@ func NewFieldValidator(
 	}
 }
 
+// New FieldValidator based on go validators
 func NewGovalidator(
 	field field.FieldName,
 	alias string,
@@ -154,6 +166,7 @@ type FieldValidatorFunc func(value interface{}, args ...interface{}) error
 
 //var vMap ValidatorMap = &ValidatorMap{"Id":{"IsString": IsString}}
 
+// Represent a single validation error
 type ValidationError struct {
 	Field   string
 	Message string
@@ -164,6 +177,7 @@ func (ve ValidationError) Error() string {
 	return fmt.Sprintf("Field: %s Error: %s", ve.Field, ve.Message)
 }
 
+// Represent a set of ValidationError
 type ValidationErrors struct {
 	Errors []error
 	Model  Model

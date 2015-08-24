@@ -11,7 +11,8 @@ import (
 
 var Validators = ValidatorMap{}
 
-// All models have to implement this
+// Models use this interface to communicate some basic information to help with building queries
+// and determining the state of the model.
 type Model interface {
 	TableName() string                    // table name within the database this model is associated to
 	PrimaryKeyFieldName() field.FieldName // primary key for this model
