@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// FeildShadow Support for shadow fields. Allows us to determine if a field has been altered or not.
+// Shadower Support for shadow fields. Allows us to determine if a field has been altered or not.
 type Shadower interface {
 	ShadowValue() (driver.Value, error)
 	IsDirty() bool
@@ -18,7 +18,7 @@ type Shadower interface {
 // Name The name of a field on a model
 type Name string
 
-// Returns a field as SnakeCase
+// SnakeCase Returns a field as SnakeCase
 func (fn Name) SnakeCase() string {
 	return dbr.NameMapping(string(fn))
 }
@@ -26,7 +26,7 @@ func (fn Name) SnakeCase() string {
 // Names A set of Names
 type Names []Name
 
-// Return []string of snake_case field names for database map
+// SnakeCase Return []string of snake_case field names for database map
 func (fn Names) SnakeCase() []string {
 	snakes := make([]string, len(fn))
 	for i := 0; i < len(fn); i++ {
@@ -129,9 +129,7 @@ func (ns NullString) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
-//
-// Time
-//
+// Time field that does not accept nil
 type Time struct {
 	Time   time.Time
 	shadow time.Time
@@ -171,11 +169,12 @@ func (t *Time) IsDirty() bool {
 	return t.Time != t.shadow
 }
 
+// MarshalJSON Marshal just the value of Time
 func (t *Time) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.Time)
 }
 
-// NullTime
+// NullTime time that can be nil
 type NullTime struct {
 	dbr.NullTime
 	shadow dbr.NullTime
@@ -218,7 +217,7 @@ func (nt NullTime) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
-// Int64
+// Int64 that cannot be nil
 type Int64 struct {
 	Int64  int64
 	shadow int64
@@ -262,11 +261,12 @@ func (i *Int64) IsDirty() bool {
 	return i.Int64 != i.shadow
 }
 
+// MarshalJSON Marshal just the value of Int64
 func (i *Int64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(i.Int64)
 }
 
-// NullInt64
+// NullInt64 that can be nil
 type NullInt64 struct {
 	dbr.NullInt64
 	shadow dbr.NullInt64
@@ -296,6 +296,7 @@ func (ni NullInt64) Value() (driver.Value, error) {
 	return ni.Int64, nil
 }
 
+// IsDirty if the shadow value does not match the field value
 func (ni *NullInt64) IsDirty() bool {
 	return ni.Valid != ni.shadow.Valid || ni.Int64 != ni.shadow.Int64
 }
@@ -308,9 +309,7 @@ func (ni NullInt64) ShadowValue() (driver.Value, error) {
 	return nil, errors.New("Shadow Wasn't Created")
 }
 
-//
-// Bool
-//
+// Bool that cannot be nil
 type Bool struct {
 	Bool   bool
 	shadow bool
@@ -353,13 +352,12 @@ func (b *Bool) IsDirty() bool {
 	return b.Bool != b.shadow
 }
 
+// MarshalJSON Marshal just the value of Bool
 func (b *Bool) MarshalJSON() ([]byte, error) {
 	return json.Marshal(b.Bool)
 }
 
-//
-// NullBool
-//
+// NullBool that can be nil
 type NullBool struct {
 	dbr.NullBool
 	shadow dbr.NullBool

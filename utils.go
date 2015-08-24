@@ -8,7 +8,7 @@ import (
 
 // escape fields for queries
 func escapeFields(fields field.Names) []string {
-	var newFields []string = make([]string, len(fields))
+	var newFields = make([]string, len(fields))
 	for i := 0; i < len(fields); i++ {
 		newFields[i] = fmt.Sprintf("`%s`", fields[i].SnakeCase())
 	}

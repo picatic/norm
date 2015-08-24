@@ -10,15 +10,15 @@ import (
 // Validators global static map of validators for models
 var Validators = ValidatorMap{}
 
-// Models can implement a custom validator, which is expected to return ValidationError/ValidationErrors
+// Validator Models can implement a custom validator, which is expected to return ValidationError/ValidationErrors
 type Validator interface {
 	Validate(interface{}) error
 }
 
-// Store validators for models
+// ValidatorMap Store validators for models
 type ValidatorMap map[reflect.Type][]Validator
 
-// Fetch the validators registered to a Model
+// Get Fetch the validators registered to a Model
 func (vm ValidatorMap) Get(model interface{}) []Validator {
 	modelType := reflect.TypeOf(model)
 	validators, ok := vm[modelType]
@@ -34,7 +34,7 @@ func (vm ValidatorMap) Set(modelType reflect.Type, validators []Validator) {
 	vm[modelType] = validators
 }
 
-// Delete a validator
+// Del Delete a validator
 func (vm ValidatorMap) Del(modelType reflect.Type) {
 	delete(vm, modelType)
 }
@@ -71,7 +71,7 @@ func (vm ValidatorMap) Validate(model interface{}, fields field.Names) *Validati
 	return nil
 }
 
-// Wrapper for a standard field validation
+// FieldValidator Wrapper for a standard field validation
 type FieldValidator struct {
 	Field field.Name
 	Alias string
@@ -84,7 +84,7 @@ func (fv FieldValidator) Validate(model interface{}) error {
 	return fv.Func(model, fv.Field, fv.Args)
 }
 
-// Create a new FieldValidator, providing a FieldName, alias for the error,
+// NewFieldValidator Create a new FieldValidator, providing a FieldName, alias for the error,
 // a function to run to validate and any args required for that validator.
 func NewFieldValidator(
 	field field.Name,
@@ -100,7 +100,7 @@ func NewFieldValidator(
 	}
 }
 
-// New FieldValidator based on go validators
+// NewGovalidator FieldValidator based on go validators
 func NewGovalidator(
 	field field.Name,
 	alias string,
@@ -165,31 +165,36 @@ func NewGovalidator(
 // Simple
 // Complex with args
 // Complex Async with args
+
+// FieldValidatorFunc What a validator must implement
 type FieldValidatorFunc func(value interface{}, args ...interface{}) error
 
 //var vMap ValidatorMap = &ValidatorMap{"Id":{"IsString": IsString}}
 
-// Represent a single validation error
+//ValidationError Represent a single validation error
 type ValidationError struct {
 	Field   string
 	Message string
 	Model   Model
 }
 
+// Error String the error
 func (ve ValidationError) Error() string {
 	return fmt.Sprintf("Field: %s Error: %s", ve.Field, ve.Message)
 }
 
-// Represent a set of ValidationError
+// ValidationErrors Represent a set of ValidationError
 type ValidationErrors struct {
 	Errors []error
 	Model  Model
 }
 
+// Add an error to this set
 func (ve *ValidationErrors) Add(err error) {
 	ve.Errors = append(ve.Errors, err)
 }
 
+// Error string the error
 func (ve ValidationErrors) Error() string {
 	if len(ve.Errors) == 0 {
 		return fmt.Sprintf("Empty errors")
@@ -200,28 +205,32 @@ func (ve ValidationErrors) Error() string {
 	return fmt.Sprintf("First of multiple errors is not a Validation error")
 }
 
+// AddValidator add a validator to a model
 func AddValidator(modelType reflect.Type, validators ...Validator) {
 	Validators.Set(modelType, append(Validators.Get(modelType), validators...))
 }
 
+// StringValidator generic string valiator pattern
 type StringValidator func(str string) bool
 
+// NewStringValidatorFunc Create a basic string validator
 func NewStringValidatorFunc(v StringValidator) FieldValidatorFunc {
 	return func(value interface{}, args ...interface{}) error {
 		str, ok := value.(string)
 		if !ok {
-			return errors.New(fmt.Sprintf("Value is not a string, %v", value))
+			return fmt.Errorf("Value is not a string, %v", value)
 		}
 		if v(str) {
-			return errors.New(fmt.Sprintf("Value does not satisfy, %v, %v", v, str))
+			return fmt.Errorf("Value does not satisfy, %v, %v", v, str)
 		}
 		return nil
 	}
 }
 
+// ValidEmail Email Validator
 func ValidEmail(value interface{}, args ...interface{}) error {
 	if _, ok := value.(string); !ok {
-		return errors.New(fmt.Sprintf("Email not a string, %v", value))
+		return fmt.Errorf("Email not a string, %v", value)
 	}
 	return nil
 }

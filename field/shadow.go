@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-// Once is an object that will perform exactly one action.
+// ShadowInit Making a shadowValue only settable once
 type ShadowInit struct {
 	m    sync.Mutex
 	done uint32

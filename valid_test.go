@@ -11,7 +11,7 @@ import (
 //	e := make(<-chan error)
 //	return e
 //}
-var MockedError = errors.New("Mocked Error")
+var ErrMocked = errors.New("Mocked Error")
 
 type MockValidator struct {
 	ValidateFunc func(interface{}) error
@@ -22,7 +22,7 @@ func (tv *MockValidator) Validate(model interface{}) error {
 }
 
 var ErrorValidator = &MockValidator{func(model interface{}) error {
-	return MockedError
+	return ErrMocked
 }}
 
 var ValidValidator = &MockValidator{func(model interface{}) error {
@@ -46,7 +46,7 @@ var ValidatorMapDouble = ValidatorMap{
 func TestValidator(t *testing.T) {
 	Convey("Validator", t, func() {
 		Convey("ErrorValidator", func() {
-			So(ErrorValidator.Validate(nil), ShouldEqual, MockedError)
+			So(ErrorValidator.Validate(nil), ShouldEqual, ErrMocked)
 		})
 		Convey("ValidValidator", func() {
 			So(ValidValidator.Validate(nil), ShouldBeNil)
