@@ -9,3 +9,8 @@ import:
   - package: github.com/go-sql-driver/mysql
     repo:    https://github.com/go-sql-driver/mysql
     vcs:     git
+  - package: github.com/smartystreets/goconvey
+    repo:    https://github.com/smartystreets/goconvey
+    vcs:     git
+    subpackages:
+      - /convey
