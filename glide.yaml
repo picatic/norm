@@ -1,0 +1,16 @@
+package: github.com/picatic/norm
+import:
+  - package: github.com/gocraft/dbr
+  - package: github.com/AlekSi/reflector
+  - package: github.com/DATA-DOG/go-sqlmock
+    ref:     v1.0.0
+    repo:    https://github.com/DATA-DOG/go-sqlmock
+    vcs:     git
+  - package: github.com/go-sql-driver/mysql
+    repo:    https://github.com/go-sql-driver/mysql
+    vcs:     git
+  - package: github.com/smartystreets/goconvey
+    repo:    https://github.com/smartystreets/goconvey
+    vcs:     git
+    subpackages:
+      - /convey
