@@ -5,10 +5,10 @@ import (
 )
 
 type User struct {
-	Id        field.NullInt64
-	FirstName field.String
-	LastName  field.String
-	Email     field.String
+	Id        field.NullInt64  `json:"id"`
+	FirstName field.NullString `json:"first_name"`
+	LastName  field.String     `json:"last_name"`
+	Email     field.String     `json:"email"`
 }
 
 func (u *User) TableName() string {
