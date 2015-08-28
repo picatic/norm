@@ -86,6 +86,11 @@ func (s *String) IsDirty() bool {
 	return s.String != s.shadow
 }
 
+// MarshalJSON Marshal just the value of String
+func (s String) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String)
+}
+
 // NullString string that allows nil
 type NullString struct {
 	dbr.NullString
@@ -170,7 +175,7 @@ func (t *Time) IsDirty() bool {
 }
 
 // MarshalJSON Marshal just the value of Time
-func (t *Time) MarshalJSON() ([]byte, error) {
+func (t Time) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.Time)
 }
 
@@ -262,7 +267,7 @@ func (i *Int64) IsDirty() bool {
 }
 
 // MarshalJSON Marshal just the value of Int64
-func (i *Int64) MarshalJSON() ([]byte, error) {
+func (i Int64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(i.Int64)
 }
 
@@ -353,7 +358,7 @@ func (b *Bool) IsDirty() bool {
 }
 
 // MarshalJSON Marshal just the value of Bool
-func (b *Bool) MarshalJSON() ([]byte, error) {
+func (b Bool) MarshalJSON() ([]byte, error) {
 	return json.Marshal(b.Bool)
 }
 

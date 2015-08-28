@@ -1,6 +1,7 @@
 package field
 
 import (
+	"encoding/json"
 	"errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -131,6 +132,13 @@ func TestString(t *testing.T) {
 			So(value, ShouldEqual, "First")
 			So(err, ShouldBeNil)
 		})
+	})
+
+	Convey("MarshalJSON", t, func() {
+		s := String{}
+		s.Scan("Cat")
+		data, _ := json.Marshal(s)
+		So(string(data), ShouldEqual, "\"Cat\"")
 	})
 }
 
