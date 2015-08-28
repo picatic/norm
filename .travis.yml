@@ -3,7 +3,7 @@ language: go
 go:
   - 1.5
 install:
-  - go install github.com/Masterminds/glide
+  - go get github.com/Masterminds/glide
   - glide install
 script:
   - go test -v -covermode=count  -bench . -cpu 1,4
