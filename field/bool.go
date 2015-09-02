@@ -22,7 +22,7 @@ func (b *Bool) Scan(value interface{}) error {
 	tmp.Scan(value)
 
 	if tmp.Valid == false {
-		return errors.New("value should be a bool and not nil")
+		return errors.New("Value should be a bool and not nil")
 	}
 	b.valid = true
 	b.Bool = tmp.Bool

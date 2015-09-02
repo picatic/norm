@@ -23,7 +23,7 @@ func (i *Int64) Scan(value interface{}) error {
 
 	if tmp.Valid == false {
 		// TODO: maybe nil should be simply allowed to be empty int64?
-		return errors.New("value should be a int64 and not nil")
+		return errors.New("Value should be a int64 and not nil")
 	}
 	i.valid = true
 	i.Int64 = tmp.Int64
