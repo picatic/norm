@@ -11,9 +11,9 @@ import (
 
 // Model This interface provides basic information to help with building queries and behaviours in dbr.
 type Model interface {
-	TableName() string               // table name within the database this model is associated to
-	PrimaryKeyFieldName() field.Name // primary key for this model
-	IsNew() bool                     // Is this model new or not
+	TableName() string        // table name within the database this model is associated to
+	PrimaryKey() PrimaryKeyer // primary key for this model
+	IsNew() bool              // Is this model new or not
 }
 
 // ModelFields Fetch list of fields on this model via reflection of fields that are from norm/field
@@ -75,11 +75,11 @@ func NewSelect(s *dbr.Session, m Model, fields field.Names) *dbr.SelectBuilder {
 }
 
 // NewUpdate builds an update from the Model and Fields
-func NewUpdate(s *dbr.Session, m Model, f field.Names) *dbr.UpdateBuilder {
-	if f == nil {
-		f = ModelFields(m)
+func NewUpdate(s *dbr.Session, m Model, fields field.Names) *dbr.UpdateBuilder {
+	if fields == nil {
+		fields = ModelFields(m)
 	}
-	setMap := defaultUpdate(m, f)
+	setMap := defaultUpdate(m, fields)
 	return s.Update(m.TableName()).SetMap(setMap)
 }
 
@@ -88,8 +88,8 @@ func NewInsert(s *dbr.Session, m Model, fields field.Names) *dbr.InsertBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
+	// fields = fields.Remove(m.PrimaryKey().Fields())
 	return s.InsertInto(m.TableName()).Columns(fields.SnakeCase()...)
-	// return s.InsertInto(m.TableName()).Columns(fields.SnakeCase()...)
 }
 
 // NewDelete creates a delete from the Model
@@ -102,7 +102,8 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.Names) (sql.Resul
 	if model.IsNew() == true {
 		return nil, errors.New("ModelSave for when IsNew Not Implement")
 	}
-	primaryFieldName := model.PrimaryKeyFieldName()
+	primaryFieldName := model.PrimaryKey().Fields()[0]
+
 	idField, err := ModelGetField(model, primaryFieldName)
 	if err != nil {
 		return nil, err

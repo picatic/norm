@@ -22,5 +22,16 @@ func TestNames(t *testing.T) {
 			fns := &Names{"Id", "FirstName"}
 			So(fns.SnakeCase(), ShouldResemble, []string{"id", "first_name"})
 		})
+
+		Convey("Has", func() {
+			fns := &Names{"Id", "FirstName", "LastName", "Created"}
+			So(fns.Has(Name("Id")), ShouldBeTrue)
+			So(fns.Has(Name("Email")), ShouldBeFalse)
+		})
+
+		Convey("Remove", func() {
+			fns := &Names{"Id", "FirstName", "LastName", "Created"}
+			So(fns.Remove(Names{"Id", "Created"}), ShouldResemble, Names{"FirstName", "LastName"})
+		})
 	})
 }
