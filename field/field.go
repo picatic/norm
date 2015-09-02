@@ -32,6 +32,30 @@ func (fn Names) SnakeCase() []string {
 	return snakes
 }
 
+// Has determines if the name is in the slice
+func (fn Names) Has(name Name) bool {
+	for _, i := range fn {
+		if i == name {
+			return true
+		}
+	}
+	return false
+}
+
+// Remove Returns a new Names with the names provided removed
+func (fn Names) Remove(names Names) Names {
+	if len(names) == 0 {
+		return names
+	}
+	newNames := Names{}
+	for _, i := range fn {
+		if names.Has(i) == false {
+			newNames = append(newNames, i)
+		}
+	}
+	return newNames
+}
+
 // Field Implementation required to get the basic norm features for field mapping and dirty
 type Field interface {
 	sql.Scanner   // we require Scanner implementations
