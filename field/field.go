@@ -48,9 +48,8 @@ func (fn Names) Remove(names Names) Names {
 		return names
 	}
 	newNames := Names{}
-	for _, i := range names {
-
-		if fn.Has(i) == false {
+	for _, i := range fn {
+		if names.Has(i) == false {
 			newNames = append(newNames, i)
 		}
 	}

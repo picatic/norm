@@ -79,6 +79,7 @@ func NewUpdate(s *dbr.Session, m Model, fields field.Names) *dbr.UpdateBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
+	fields = fields.Remove(m.PrimaryKey().Fields())
 	setMap := defaultUpdate(m, fields)
 	return s.Update(m.TableName()).SetMap(setMap)
 }
@@ -88,7 +89,7 @@ func NewInsert(s *dbr.Session, m Model, fields field.Names) *dbr.InsertBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
-	// fields = fields.Remove(m.PrimaryKey().Fields())
+	fields = fields.Remove(m.PrimaryKey().Fields())
 	return s.InsertInto(m.TableName()).Columns(fields.SnakeCase()...)
 }
 

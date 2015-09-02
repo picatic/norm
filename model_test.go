@@ -103,7 +103,7 @@ func TestModel(t *testing.T) {
 		Convey("NewUpdate", func() {
 
 			Convey("Without fields", func() {
-				mock.ExpectExec("UPDATE mocks SET .* WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
+				mock.ExpectExec("UPDATE mocks SET `first_name` = 'Mock' WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
 
 				_, err := NewUpdate(dbrConn.NewSession(nil), model, nil).Where("id = ?", model.Id.String).Exec()
 				So(err, ShouldBeNil)
