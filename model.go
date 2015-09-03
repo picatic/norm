@@ -133,6 +133,23 @@ func ModelLoadMap(model Model, data map[string]interface{}) error {
 	return nil
 }
 
+// ModelDirtyFields return Names of the fields that are dirty
+func ModelDirtyFields(model Model) (field.Names, error) {
+	dirtyFields := make(field.Names, 0)
+	fields := ModelFields(model)
+
+	for _, fieldName := range fields {
+		mf, err := ModelGetField(model, fieldName)
+		if err != nil {
+			return nil, err
+		}
+		if mf.IsDirty() == true {
+			dirtyFields = append(dirtyFields, fieldName)
+		}
+	}
+	return dirtyFields, nil
+}
+
 // ModelValidate fields provided on model, if no fields validate all fields
 func ModelValidate(model Model, fields field.Names) chan error {
 	err := make(chan error, 1)

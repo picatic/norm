@@ -127,13 +127,20 @@ func TestModel(t *testing.T) {
 		})
 
 		Convey("ModelChangedFields", func() {
-
+			model := &MockModel{}
+			model.Id.Scan("1")
+			model.FirstName.Scan("James James James")
 			Convey("No changed fields", func() {
-
+				f, err := ModelDirtyFields(model)
+				So(len(f), ShouldEqual, 0)
+				So(err, ShouldBeNil)
 			})
 
 			Convey("Changed", func() {
-
+				model.FirstName.Scan("Santa")
+				f, err := ModelDirtyFields(model)
+				So(len(f), ShouldEqual, 1)
+				So(err, ShouldBeNil)
 			})
 		})
 	})
