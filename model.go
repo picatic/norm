@@ -89,7 +89,11 @@ func NewInsert(s *dbr.Session, m Model, fields field.Names) *dbr.InsertBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
-	fields = fields.Remove(m.PrimaryKey().Fields())
+	pk := m.PrimaryKey()
+	fields = fields.Remove(pk.Fields())
+	// TODO do not eat this error
+	setFields, _ := pk.Generator(m)
+	fields = fields.Add(setFields)
 	return s.InsertInto(m.TableName()).Columns(fields.SnakeCase()...)
 }
 
@@ -113,6 +117,7 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.Names) (sql.Resul
 	if err != nil {
 		return nil, err
 	}
+
 	return NewUpdate(dbrSess, model, fields).Where(fmt.Sprintf("`%s`=?", primaryFieldName.SnakeCase()), id).Exec()
 }
 

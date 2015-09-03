@@ -64,11 +64,25 @@ func (fn Names) Has(name Name) bool {
 // Remove Returns a new Names with the names provided removed
 func (fn Names) Remove(names Names) Names {
 	if len(names) == 0 {
-		return names
+		return fn
 	}
 	newNames := Names{}
 	for _, i := range fn {
 		if names.Has(i) == false {
+			newNames = append(newNames, i)
+		}
+	}
+	return newNames
+}
+
+// Add returns a new Names with the names provided added, no duplicates
+func (fn Names) Add(names Names) Names {
+	if len(names) == 0 {
+		return fn
+	}
+	newNames := fn
+	for _, i := range names {
+		if fn.Has(i) == false {
 			newNames = append(newNames, i)
 		}
 	}
