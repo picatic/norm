@@ -15,6 +15,25 @@ type Shadower interface {
 // Name The name of a field on a model
 type Name string
 
+// NewNameFromSnakeCase snake_case to CamelCase
+func NewNameFromSnakeCase(name string) Name {
+	var newstr []rune
+	nextCap := true
+
+	for _, chr := range name {
+		if nextCap == true && chr != '_' {
+			chr += ('A' - 'a')
+			newstr = append(newstr, chr)
+			nextCap = false
+		} else if chr == '_' {
+			nextCap = true
+		} else {
+			newstr = append(newstr, chr)
+		}
+	}
+	return Name(string(newstr))
+}
+
 // SnakeCase Returns a field as SnakeCase
 func (fn Name) SnakeCase() string {
 	return dbr.NameMapping(string(fn))
