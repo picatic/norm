@@ -37,8 +37,15 @@ func TestNames(t *testing.T) {
 		})
 
 		Convey("Remove", func() {
-			fns := &Names{"Id", "FirstName", "LastName", "Created"}
+			fns := Names{"Id", "FirstName", "LastName", "Created"}
 			So(fns.Remove(Names{"Id", "Created"}), ShouldResemble, Names{"FirstName", "LastName"})
+			So(fns.Remove(Names{}), ShouldResemble, fns)
+		})
+
+		Convey("Add", func() {
+			fns := Names{"FirstName", "LastName", "Created"}
+			So(fns.Add(Names{"Id"}), ShouldResemble, Names{"FirstName", "LastName", "Created", "Id"})
+			So(fns.Add(Names{}), ShouldResemble, fns)
 		})
 	})
 }
