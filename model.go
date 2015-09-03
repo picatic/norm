@@ -60,7 +60,7 @@ func ModelGetField(model Model, fieldName field.Name) (field.Field, error) {
 		modelValue := reflect.ValueOf(model).Elem().FieldByName(string(fieldName)).Addr().Interface()
 		return modelValue.(field.Field), nil
 	}
-	return nil, errors.New("FieldName not found")
+	return nil, errors.New("Name not found")
 }
 
 //
@@ -114,6 +114,23 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.Names) (sql.Resul
 		return nil, err
 	}
 	return NewUpdate(dbrSess, model, fields).Where(fmt.Sprintf("`%s`=?", primaryFieldName.SnakeCase()), id).Exec()
+}
+
+// ModelLoadMap load a map into a model
+func ModelLoadMap(model Model, data map[string]interface{}) error {
+	for k, v := range data {
+		fmt.Printf("k: %s v:%s s:%s\n", k, v, field.NewNameFromSnakeCase(k))
+		modelField, err := ModelGetField(model, field.NewNameFromSnakeCase(k))
+		if err != nil {
+			continue
+		}
+
+		err = modelField.Scan(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ModelValidate fields provided on model, if no fields validate all fields

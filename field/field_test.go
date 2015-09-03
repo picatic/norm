@@ -12,6 +12,13 @@ func TestName(t *testing.T) {
 			fn := Name("FirstName")
 			So(fn.SnakeCase(), ShouldEqual, "first_name")
 		})
+
+		Convey("NewNameFromSnakeCase", func() {
+			So(NewNameFromSnakeCase("first_name"), ShouldEqual, "FirstName")
+			So(NewNameFromSnakeCase("_meow"), ShouldEqual, "Meow")
+			So(NewNameFromSnakeCase("id"), ShouldEqual, "Id")
+			So(NewNameFromSnakeCase("id_"), ShouldEqual, "Id")
+		})
 	})
 }
 

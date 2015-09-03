@@ -115,5 +115,26 @@ func TestModel(t *testing.T) {
 				So(err, ShouldBeNil)
 			})
 		})
+
+		Convey("ModelLoadMap", func() {
+			dataMap := map[string]interface{}{
+				"id":         "1234",
+				"first_name": "James",
+			}
+			ModelLoadMap(model, dataMap)
+			So(model.Id.String, ShouldEqual, "1234")
+			So(model.FirstName.String, ShouldEqual, "James")
+		})
+
+		Convey("ModelChangedFields", func() {
+
+			Convey("No changed fields", func() {
+
+			})
+
+			Convey("Changed", func() {
+
+			})
+		})
 	})
 }
