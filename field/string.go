@@ -12,6 +12,7 @@ import (
 type String struct {
 	String string
 	shadow string
+	Valid  bool
 	ShadowInit
 }
 
@@ -25,7 +26,7 @@ func (s *String) Scan(value interface{}) error {
 		return errors.New("norm.field.String: value should be a string and not nil")
 	}
 	s.String = tmp.String
-
+	s.Valid = true
 	s.DoInit(func() {
 		s.shadow = tmp.String
 	})
@@ -35,6 +36,9 @@ func (s *String) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (s String) Value() (driver.Value, error) {
+	if s.Valid == false {
+		return nil, errors.New("Value was not set or was set to nil")
+	}
 	return s.String, nil
 }
 
@@ -55,6 +59,11 @@ func (s *String) IsDirty() bool {
 // MarshalJSON Marshal just the value of String
 func (s String) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.String)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (s String) UnmarshalJSON(data []byte) error {
+	return s.Scan(data)
 }
 
 // NullString string that allows nil
@@ -98,4 +107,14 @@ func (ns NullString) ShadowValue() (driver.Value, error) {
 		return ns.shadow.Value()
 	}
 	return nil, errors.New("Shadow Wasn't Created")
+}
+
+// MarshalJSON Marshal just the value of String
+func (ns NullString) MarshalJSON() ([]byte, error) {
+	return json.Marshal(ns.String)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (ns NullString) UnmarshalJSON(data []byte) error {
+	return ns.Scan(data)
 }

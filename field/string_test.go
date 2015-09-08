@@ -38,13 +38,13 @@ func TestString(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("should return empty string on scanned nil", func() {
+		Convey("should return err on scanned nil", func() {
 			s := &String{}
 			s.Scan(nil)
 
 			value, err := s.Value()
-			So(value, ShouldEqual, "")
-			So(err, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(value, ShouldBeNil)
 		})
 	})
 
