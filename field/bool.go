@@ -115,6 +115,6 @@ func (nb NullBool) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (nb NullBool) UnmarshalJSON(data []byte) error {
+func (nb *NullBool) UnmarshalJSON(data []byte) error {
 	return nb.Scan(data)
 }

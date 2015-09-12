@@ -246,4 +246,21 @@ func TestNullBool(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 	})
+
+	Convey("MarshalJSON", t, func() {
+		s := NullBool{}
+		s.Scan(true)
+		data, err := json.Marshal(s)
+		So(err, ShouldBeNil)
+		So(string(data), ShouldEqual, "true")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := NullBool{}
+		err := s.UnmarshalJSON([]byte("true"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, true)
+	})
 }

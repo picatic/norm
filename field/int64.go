@@ -63,7 +63,7 @@ func (i Int64) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (i Int64) UnmarshalJSON(data []byte) error {
+func (i *Int64) UnmarshalJSON(data []byte) error {
 	return i.Scan(data)
 }
 
@@ -116,6 +116,6 @@ func (ni NullInt64) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (ni NullInt64) UnmarshalJSON(data []byte) error {
+func (ni *NullInt64) UnmarshalJSON(data []byte) error {
 	return ni.Scan(data)
 }

@@ -112,6 +112,15 @@ func TestInt64(t *testing.T) {
 		data, _ := json.Marshal(s)
 		So(string(data), ShouldEqual, "1234")
 	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := Int64{}
+		err := s.UnmarshalJSON([]byte("5612"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, int64(5612))
+	})
 }
 
 func TestNullInt64(t *testing.T) {
@@ -217,5 +226,21 @@ func TestNullInt64(t *testing.T) {
 			So(value, ShouldEqual, 1234)
 			So(err, ShouldBeNil)
 		})
+	})
+
+	Convey("MarshalJSON", t, func() {
+		s := NullInt64{}
+		s.Scan(1234)
+		data, _ := json.Marshal(s)
+		So(string(data), ShouldEqual, "1234")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := NullInt64{}
+		err := s.UnmarshalJSON([]byte("5612"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, int64(5612))
 	})
 }

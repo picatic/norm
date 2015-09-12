@@ -120,6 +120,15 @@ func TestString(t *testing.T) {
 		data, _ := json.Marshal(s)
 		So(string(data), ShouldEqual, "\"Cat\"")
 	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := String{}
+		err := s.UnmarshalJSON([]byte("i am the string"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, "i am the string")
+	})
 }
 
 func TestNullString(t *testing.T) {
@@ -225,5 +234,21 @@ func TestNullString(t *testing.T) {
 			So(value, ShouldEqual, "First")
 			So(err, ShouldBeNil)
 		})
+	})
+
+	Convey("MarshalJSON", t, func() {
+		s := NullString{}
+		s.Scan("Cat")
+		data, _ := json.Marshal(s)
+		So(string(data), ShouldEqual, "\"Cat\"")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := NullString{}
+		err := s.UnmarshalJSON([]byte("i am the string"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, "i am the string")
 	})
 }

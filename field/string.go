@@ -62,7 +62,7 @@ func (s String) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (s String) UnmarshalJSON(data []byte) error {
+func (s *String) UnmarshalJSON(data []byte) error {
 	return s.Scan(data)
 }
 
@@ -115,6 +115,6 @@ func (ns NullString) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (ns NullString) UnmarshalJSON(data []byte) error {
+func (ns *NullString) UnmarshalJSON(data []byte) error {
 	return ns.Scan(data)
 }

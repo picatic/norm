@@ -65,7 +65,7 @@ func (t Time) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (t Time) UnmarshalJSON(data []byte) error {
+func (t *Time) UnmarshalJSON(data []byte) error {
 	return t.Scan(data)
 }
 
@@ -118,6 +118,6 @@ func (nt NullTime) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (nt NullTime) UnmarshalJSON(data []byte) error {
+func (nt *NullTime) UnmarshalJSON(data []byte) error {
 	return nt.Scan(data)
 }
