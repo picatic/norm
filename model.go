@@ -124,7 +124,6 @@ func ModelSave(dbrSess *dbr.Session, model Model, fields field.Names) (sql.Resul
 // ModelLoadMap load a map into a model
 func ModelLoadMap(model Model, data map[string]interface{}) error {
 	for k, v := range data {
-		fmt.Printf("k: %s v:%s s:%s\n", k, v, field.NewNameFromSnakeCase(k))
 		modelField, err := ModelGetField(model, field.NewNameFromSnakeCase(k))
 		if err != nil {
 			continue
