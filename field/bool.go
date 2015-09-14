@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"github.com/gocraft/dbr"
+	"gopkg.in/guregu/null.v2"
 )
 
 // Bool that cannot be nil
@@ -66,17 +66,19 @@ func (b *Bool) UnmarshalJSON(data []byte) error {
 	return b.Scan(string(data))
 }
 
+type nullBool null.Bool
+
 // NullBool that can be nil
 type NullBool struct {
-	dbr.NullBool
-	shadow dbr.NullBool
+	nullBool
+	shadow null.Bool
 	ShadowInit
 }
 
 // Scan a value into the Bool, error on unparsable
 func (nb *NullBool) Scan(value interface{}) error {
 
-	err := nb.NullBool.Scan(value)
+	err := nb.nullBool.Scan(value)
 	if err != nil {
 		return err
 	}
@@ -111,10 +113,23 @@ func (nb NullBool) ShadowValue() (driver.Value, error) {
 
 // MarshalJSON Marshal just the value of Bool
 func (nb NullBool) MarshalJSON() ([]byte, error) {
-	return json.Marshal(nb.Bool)
+	if nb.Valid == true {
+		return json.Marshal(nb.Bool)
+	}
+	return json.Marshal(nil)
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (nb *NullBool) UnmarshalJSON(data []byte) error {
-	return nb.Scan(data)
+	b := &null.Bool{}
+	err := b.UnmarshalJSON(data)
+	if err != nil {
+		return err
+	}
+	if b.Valid == true {
+		return nb.Scan(b.Bool)
+	}
+	nb.Valid = false
+
+	return nil
 }

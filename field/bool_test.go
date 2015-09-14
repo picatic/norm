@@ -248,19 +248,45 @@ func TestNullBool(t *testing.T) {
 	})
 
 	Convey("MarshalJSON", t, func() {
-		s := NullBool{}
-		s.Scan(true)
-		data, err := json.Marshal(s)
-		So(err, ShouldBeNil)
-		So(string(data), ShouldEqual, "true")
+
+		Convey("when Valid", func() {
+			s := NullBool{}
+			s.Scan(true)
+			data, err := json.Marshal(s)
+			So(err, ShouldBeNil)
+			So(string(data), ShouldEqual, "true")
+		})
+
+		Convey("when not Valid", func() {
+			s := NullBool{}
+			s.Scan(nil)
+			data, err := json.Marshal(s)
+			So(err, ShouldBeNil)
+			So(string(data), ShouldEqual, "null")
+		})
+
 	})
 
 	Convey("UnmarshalJSON", t, func() {
-		s := NullBool{}
-		err := s.UnmarshalJSON([]byte("true"))
-		So(err, ShouldBeNil)
-		v, err := s.Value()
-		So(err, ShouldBeNil)
-		So(v, ShouldEqual, true)
+
+		Convey("when valid bool", func() {
+			s := NullBool{}
+			err := json.Unmarshal([]byte("true"), &s)
+
+			So(err, ShouldBeNil)
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldEqual, true)
+		})
+
+		Convey("when null value", func() {
+			s := NullBool{}
+			err := json.Unmarshal([]byte("null"), &s)
+			So(err, ShouldBeNil)
+			_, err = s.Value()
+			So(err, ShouldBeNil)
+			So(s.Valid, ShouldEqual, false)
+		})
+
 	})
 }
