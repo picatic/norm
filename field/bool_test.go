@@ -16,6 +16,16 @@ func TestBool(t *testing.T) {
 			So(s.Bool, ShouldEqual, true)
 			So(s.shadow, ShouldEqual, true)
 		})
+		Convey("Scan should accept string", func() {
+			s := Bool{}
+			s.Scan("true")
+			So(s.Bool, ShouldEqual, true)
+		})
+		Convey("Scan should accept byte", func() {
+			s := Bool{}
+			s.Scan([]byte("true"))
+			So(s.Bool, ShouldEqual, true)
+		})
 		Convey("secondary Scan should not update shadow", func() {
 
 			s := &Bool{}
@@ -117,8 +127,18 @@ func TestBool(t *testing.T) {
 	Convey("MarshalJSON", t, func() {
 		s := Bool{}
 		s.Scan(true)
-		data, _ := json.Marshal(s)
+		data, err := json.Marshal(s)
+		So(err, ShouldBeNil)
 		So(string(data), ShouldEqual, "true")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := Bool{}
+		err := s.UnmarshalJSON([]byte("true"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, true)
 	})
 }
 
@@ -225,5 +245,22 @@ func TestNullBool(t *testing.T) {
 			So(value, ShouldEqual, true)
 			So(err, ShouldBeNil)
 		})
+	})
+
+	Convey("MarshalJSON", t, func() {
+		s := NullBool{}
+		s.Scan(true)
+		data, err := json.Marshal(s)
+		So(err, ShouldBeNil)
+		So(string(data), ShouldEqual, "true")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := NullBool{}
+		err := s.UnmarshalJSON([]byte("true"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, true)
 	})
 }

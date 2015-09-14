@@ -38,13 +38,13 @@ func TestString(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("should return empty string on scanned nil", func() {
+		Convey("should return err on scanned nil", func() {
 			s := &String{}
 			s.Scan(nil)
 
 			value, err := s.Value()
-			So(value, ShouldEqual, "")
-			So(err, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(value, ShouldBeNil)
 		})
 	})
 
@@ -119,6 +119,15 @@ func TestString(t *testing.T) {
 		s.Scan("Cat")
 		data, _ := json.Marshal(s)
 		So(string(data), ShouldEqual, "\"Cat\"")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := String{}
+		err := s.UnmarshalJSON([]byte("i am the string"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, "i am the string")
 	})
 }
 
@@ -225,5 +234,21 @@ func TestNullString(t *testing.T) {
 			So(value, ShouldEqual, "First")
 			So(err, ShouldBeNil)
 		})
+	})
+
+	Convey("MarshalJSON", t, func() {
+		s := NullString{}
+		s.Scan("Cat")
+		data, _ := json.Marshal(s)
+		So(string(data), ShouldEqual, "\"Cat\"")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := NullString{}
+		err := s.UnmarshalJSON([]byte("i am the string"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v, ShouldEqual, "i am the string")
 	})
 }

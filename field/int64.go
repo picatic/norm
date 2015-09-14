@@ -12,7 +12,7 @@ import (
 type Int64 struct {
 	Int64  int64
 	shadow int64
-	valid  bool
+	Valid  bool
 	ShadowInit
 }
 
@@ -25,7 +25,7 @@ func (i *Int64) Scan(value interface{}) error {
 		// TODO: maybe nil should be simply allowed to be empty int64?
 		return errors.New("Value should be a int64 and not nil")
 	}
-	i.valid = true
+	i.Valid = true
 	i.Int64 = tmp.Int64
 
 	i.DoInit(func() {
@@ -37,7 +37,7 @@ func (i *Int64) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (i Int64) Value() (driver.Value, error) {
-	if i.valid == false {
+	if i.Valid == false {
 		return nil, errors.New("Value was not set or was set to nil")
 	}
 	return i.Int64, nil
@@ -60,6 +60,11 @@ func (i *Int64) IsDirty() bool {
 // MarshalJSON Marshal just the value of Int64
 func (i Int64) MarshalJSON() ([]byte, error) {
 	return json.Marshal(i.Int64)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (i *Int64) UnmarshalJSON(data []byte) error {
+	return i.Scan(data)
 }
 
 // NullInt64 that can be nil
@@ -103,4 +108,14 @@ func (ni NullInt64) ShadowValue() (driver.Value, error) {
 		return ni.shadow.Value()
 	}
 	return nil, errors.New("Shadow Wasn't Created")
+}
+
+// MarshalJSON Marshal just the value of Int64
+func (ni NullInt64) MarshalJSON() ([]byte, error) {
+	return json.Marshal(ni.Int64)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (ni *NullInt64) UnmarshalJSON(data []byte) error {
+	return ni.Scan(data)
 }

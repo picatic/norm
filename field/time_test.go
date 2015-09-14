@@ -120,6 +120,15 @@ func TestTime(t *testing.T) {
 		data, _ := json.Marshal(s)
 		So(string(data), ShouldEqual, "\"2015-01-01T12:12:12Z\"")
 	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := Time{}
+		err := s.UnmarshalJSON([]byte("2015-01-01 12:12:12"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v.(time.Time).String(), ShouldEqual, "2015-01-01 12:12:12 +0000 UTC")
+	})
 }
 
 func TestNullTime(t *testing.T) {
@@ -225,5 +234,21 @@ func TestNullTime(t *testing.T) {
 			So(timeValue.Format(timeFormat), ShouldEqual, timeA)
 			So(err, ShouldBeNil)
 		})
+	})
+
+	Convey("MarshalJSON", t, func() {
+		s := NullTime{}
+		s.Scan(timeA)
+		data, _ := json.Marshal(s)
+		So(string(data), ShouldEqual, "\"2015-01-01T12:12:12Z\"")
+	})
+
+	Convey("UnmarshalJSON", t, func() {
+		s := NullTime{}
+		err := s.UnmarshalJSON([]byte("2015-01-01 12:12:12"))
+		So(err, ShouldBeNil)
+		v, err := s.Value()
+		So(err, ShouldBeNil)
+		So(v.(time.Time).String(), ShouldEqual, "2015-01-01 12:12:12 +0000 UTC")
 	})
 }

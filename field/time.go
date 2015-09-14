@@ -12,6 +12,7 @@ import (
 type Time struct {
 	Time   time.Time
 	shadow time.Time
+	Valid  bool
 	ShadowInit
 }
 
@@ -28,7 +29,7 @@ func (t *Time) Scan(value interface{}) error {
 		return errors.New("value should be a time and not nil")
 	}
 	t.Time = tmp.Time
-
+	t.Valid = true
 	t.DoInit(func() {
 		t.shadow = tmp.Time
 	})
@@ -38,7 +39,7 @@ func (t *Time) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (t Time) Value() (driver.Value, error) {
-	if t.Time.IsZero() == true {
+	if t.Time.IsZero() == true || t.Valid == false {
 		return nil, errors.New("Value was not set or was set to nil")
 	}
 	return t.Time, nil
@@ -61,6 +62,11 @@ func (t *Time) IsDirty() bool {
 // MarshalJSON Marshal just the value of Time
 func (t Time) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.Time)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (t *Time) UnmarshalJSON(data []byte) error {
+	return t.Scan(data)
 }
 
 // NullTime time that can be nil
@@ -104,4 +110,14 @@ func (nt NullTime) ShadowValue() (driver.Value, error) {
 		return nt.shadow.Value()
 	}
 	return nil, errors.New("Shadow Wasn't Created")
+}
+
+// MarshalJSON Marshal just the value of String
+func (nt NullTime) MarshalJSON() ([]byte, error) {
+	return json.Marshal(nt.Time)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (nt *NullTime) UnmarshalJSON(data []byte) error {
+	return nt.Scan(data)
 }

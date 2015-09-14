@@ -12,7 +12,7 @@ import (
 type Bool struct {
 	Bool   bool
 	shadow bool
-	valid  bool
+	Valid  bool
 	ShadowInit
 }
 
@@ -24,7 +24,7 @@ func (b *Bool) Scan(value interface{}) error {
 	if tmp.Valid == false {
 		return errors.New("Value should be a bool and not nil")
 	}
-	b.valid = true
+	b.Valid = true
 	b.Bool = tmp.Bool
 
 	b.DoInit(func() {
@@ -36,7 +36,7 @@ func (b *Bool) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (b Bool) Value() (driver.Value, error) {
-	if b.valid == false {
+	if b.Valid == false {
 		return nil, errors.New("Invalid Value set")
 	}
 	return b.Bool, nil
@@ -52,13 +52,18 @@ func (b Bool) ShadowValue() (driver.Value, error) {
 }
 
 // IsDirty if the shadow value does not match the field value
-func (b *Bool) IsDirty() bool {
+func (b Bool) IsDirty() bool {
 	return b.Bool != b.shadow
 }
 
 // MarshalJSON Marshal just the value of Bool
 func (b Bool) MarshalJSON() ([]byte, error) {
 	return json.Marshal(b.Bool)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (b *Bool) UnmarshalJSON(data []byte) error {
+	return b.Scan(string(data))
 }
 
 // NullBool that can be nil
@@ -102,4 +107,14 @@ func (nb NullBool) ShadowValue() (driver.Value, error) {
 		return nb.shadow.Value()
 	}
 	return nil, errors.New("Shadow Wasn't Created")
+}
+
+// MarshalJSON Marshal just the value of Bool
+func (nb NullBool) MarshalJSON() ([]byte, error) {
+	return json.Marshal(nb.Bool)
+}
+
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (nb *NullBool) UnmarshalJSON(data []byte) error {
+	return nb.Scan(data)
 }
