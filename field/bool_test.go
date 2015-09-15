@@ -2,7 +2,6 @@ package field
 
 import (
 	"encoding/json"
-	"errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -104,7 +103,7 @@ func TestBool(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return error when only a nil scanned", func() {
 			s := &Bool{}
@@ -112,7 +111,7 @@ func TestBool(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return scanned string", func() {
 			s := &Bool{}
@@ -227,7 +226,7 @@ func TestNullBool(t *testing.T) {
 			value, err := ns.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return nil before when nil", func() {
 			ns := &NullBool{}

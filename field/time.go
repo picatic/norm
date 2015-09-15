@@ -4,8 +4,13 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"github.com/gocraft/dbr"
+	"fmt"
+	"gopkg.in/guregu/null.v2"
 	"time"
+)
+
+const (
+	timeFormat = "2006-01-02 15:04:05.000000"
 )
 
 // Time field that does not accept nil
@@ -18,20 +23,31 @@ type Time struct {
 
 // Scan a value into the Time, error on nil or unparsable
 func (t *Time) Scan(value interface{}) error {
+	var err error
 	if value == nil {
-		return errors.New("value cannot be nil")
+		t.Valid = false
+		return ErrorCouldNotScan("Time", value)
 	}
-	tmp := dbr.NullTime{}
-	tmp.Scan(value)
+	switch v := value.(type) {
+	case time.Time:
+		t.Time, t.Valid = v, true
+		break
+	case []byte:
+		t.Time, err = parseDateTime(string(v), time.UTC)
+		t.Valid = (err == nil)
+		break
+	case string:
+		t.Time, err = parseDateTime(v, time.UTC)
+		t.Valid = (err == nil)
+		break
+	default:
+		return ErrorCouldNotScan("Time", value)
+	}
 
-	if tmp.Valid == false {
-		// TODO: maybe nil should be simply allowed to be empty int64?
-		return errors.New("value should be a time and not nil")
-	}
-	t.Time = tmp.Time
-	t.Valid = true
+	t.Valid = (err == nil)
+	// load shadow on first scan only
 	t.DoInit(func() {
-		t.shadow = tmp.Time
+		t.shadow = t.Time
 	})
 
 	return nil
@@ -40,7 +56,7 @@ func (t *Time) Scan(value interface{}) error {
 // Value return the value of this field
 func (t Time) Value() (driver.Value, error) {
 	if t.Time.IsZero() == true || t.Valid == false {
-		return nil, errors.New("Value was not set or was set to nil")
+		return nil, ErrorValueWasNotSet
 	}
 	return t.Time, nil
 }
@@ -51,7 +67,7 @@ func (t Time) ShadowValue() (driver.Value, error) {
 		return t.shadow, nil
 	}
 
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // IsDirty if the shadow value does not match the field value
@@ -66,34 +82,72 @@ func (t Time) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (t *Time) UnmarshalJSON(data []byte) error {
-	return t.Scan(data)
+	tmp := null.Time{}
+	err := json.Unmarshal(data, &tmp)
+	if err != nil {
+		return err
+	}
+	if tmp.Valid == false {
+		return errors.New("Attempted to unmarshal null value")
+	}
+	return t.Scan(tmp.Time)
 }
+
+type nullTime null.Time
 
 // NullTime time that can be nil
 type NullTime struct {
-	dbr.NullTime
-	shadow dbr.NullTime
+	nullTime
+	validNull       bool
+	shadow          null.Time
+	shadowValidNull bool
 	ShadowInit
 }
 
 // Scan a value into the Time, error on unparsable
 func (nt *NullTime) Scan(value interface{}) error {
-
-	err := nt.NullTime.Scan(value)
-	if err != nil {
-		return err
+	var err error
+	switch v := value.(type) {
+	case time.Time:
+		nt.Time, nt.Valid = v, true
+		nt.validNull = false
+		break
+	case []byte:
+		nt.Time, err = parseDateTime(string(v), time.UTC)
+		nt.Valid = (err == nil)
+		if err == nil {
+			nt.validNull = false
+		}
+		break
+	case string:
+		nt.Time, err = parseDateTime(v, time.UTC)
+		nt.Valid = (err == nil)
+		if err == nil {
+			nt.validNull = false
+		}
+		break
+	default:
+		if value == nil {
+			nt.Valid = false
+			nt.validNull = true
+		} else {
+			err = ErrorCouldNotScan("NullTime", value)
+		}
 	}
 
 	// load shadow on first scan only
 	nt.DoInit(func() {
-		_ = nt.shadow.Scan(value)
+		_ = nt.shadow.Scan(nt.Time)
+		if value == nil {
+			nt.shadowValidNull = true
+		}
 	})
-	return nil
+	return err
 }
 
 // Value return the value of this field
 func (nt NullTime) Value() (driver.Value, error) {
-	if !nt.Valid {
+	if nt.validNull {
 		return nil, nil
 	}
 	return nt.Time, nil
@@ -101,15 +155,23 @@ func (nt NullTime) Value() (driver.Value, error) {
 
 // IsDirty if the shadow value does not match the field value
 func (nt *NullTime) IsDirty() bool {
-	return nt.Valid != nt.shadow.Valid || nt.Time != nt.shadow.Time
+	if nt.validNull && nt.shadowValidNull {
+		return false
+	} else if nt.validNull == false && nt.shadowValidNull == false {
+		return !nt.Time.Equal(nt.shadow.Time)
+	}
+	return true
 }
 
 // ShadowValue return the initial value of this field
 func (nt NullTime) ShadowValue() (driver.Value, error) {
 	if nt.InitDone() {
+		if nt.shadowValidNull {
+			return nil, nil
+		}
 		return nt.shadow.Value()
 	}
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // MarshalJSON Marshal just the value of String
@@ -119,5 +181,39 @@ func (nt NullTime) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (nt *NullTime) UnmarshalJSON(data []byte) error {
-	return nt.Scan(data)
+	t := &null.Time{}
+	err := t.UnmarshalJSON(data)
+	if err != nil {
+		return err
+	}
+	if t.Valid == true {
+		return nt.Scan(t.Time)
+	}
+	nt.Valid = false
+
+	return nil
+}
+
+// taken from https://github.com/go-sql-driver/mysql/blob/master/utils.go
+func parseDateTime(str string, loc *time.Location) (t time.Time, err error) {
+	base := "0000-00-00 00:00:00.0000000"
+	switch len(str) {
+	case 10, 19, 21, 22, 23, 24, 25, 26: // up to "YYYY-MM-DD HH:MM:SS.MMMMMM"
+		if str == base[:len(str)] {
+			return
+		}
+		t, err = time.Parse(timeFormat[:len(str)], str)
+	default:
+		err = fmt.Errorf("Invalid Time-String: %s", str)
+		return
+	}
+
+	// Adjust location
+	if err == nil && loc != time.UTC {
+		y, mo, d := t.Date()
+		h, mi, s := t.Clock()
+		t, err = time.Date(y, mo, d, h, mi, s, t.Nanosecond(), loc), nil
+	}
+
+	return
 }

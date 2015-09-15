@@ -2,7 +2,6 @@ package field
 
 import (
 	"encoding/json"
-	"errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -86,7 +85,7 @@ func TestInt64(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return error when only a nil scanned", func() {
 			s := &Int64{}
@@ -94,7 +93,7 @@ func TestInt64(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return scanned Int64", func() {
 			s := &Int64{}
@@ -115,7 +114,7 @@ func TestInt64(t *testing.T) {
 
 	Convey("UnmarshalJSON", t, func() {
 		s := Int64{}
-		err := s.UnmarshalJSON([]byte("5612"))
+		err := json.Unmarshal([]byte("5612"), &s)
 		So(err, ShouldBeNil)
 		v, err := s.Value()
 		So(err, ShouldBeNil)
@@ -208,7 +207,7 @@ func TestNullInt64(t *testing.T) {
 			value, err := ns.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return nil before when nil", func() {
 			ns := &NullInt64{}
@@ -229,18 +228,39 @@ func TestNullInt64(t *testing.T) {
 	})
 
 	Convey("MarshalJSON", t, func() {
-		s := NullInt64{}
-		s.Scan(1234)
-		data, _ := json.Marshal(s)
-		So(string(data), ShouldEqual, "1234")
+
+		Convey("with value", func() {
+			s := NullInt64{}
+			s.Scan(1234)
+			data, _ := json.Marshal(s)
+			So(string(data), ShouldEqual, "1234")
+		})
+
+		Convey("with null", func() {
+			s := NullInt64{}
+			data, _ := json.Marshal(s)
+			So(string(data), ShouldEqual, "null")
+		})
 	})
 
 	Convey("UnmarshalJSON", t, func() {
-		s := NullInt64{}
-		err := s.UnmarshalJSON([]byte("5612"))
-		So(err, ShouldBeNil)
-		v, err := s.Value()
-		So(err, ShouldBeNil)
-		So(v, ShouldEqual, int64(5612))
+
+		Convey("with value", func() {
+			s := NullInt64{}
+			err := json.Unmarshal([]byte("5612"), &s)
+			So(err, ShouldBeNil)
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldEqual, int64(5612))
+		})
+
+		Convey("with null", func() {
+			s := NullInt64{}
+			err := json.Unmarshal([]byte("null"), &s)
+			So(err, ShouldBeNil)
+			_, err = s.Value()
+			So(err, ShouldBeNil)
+			So(s.Valid, ShouldBeFalse)
+		})
 	})
 }

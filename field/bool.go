@@ -37,7 +37,7 @@ func (b *Bool) Scan(value interface{}) error {
 // Value return the value of this field
 func (b Bool) Value() (driver.Value, error) {
 	if b.Valid == false {
-		return nil, errors.New("Invalid Value set")
+		return nil, ErrorValueWasNotSet
 	}
 	return b.Bool, nil
 }
@@ -48,7 +48,7 @@ func (b Bool) ShadowValue() (driver.Value, error) {
 		return b.shadow, nil
 	}
 
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // IsDirty if the shadow value does not match the field value
@@ -108,7 +108,7 @@ func (nb NullBool) ShadowValue() (driver.Value, error) {
 	if nb.InitDone() {
 		return nb.shadow.Value()
 	}
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // MarshalJSON Marshal just the value of Bool
