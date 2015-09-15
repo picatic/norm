@@ -4,7 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 ### Changed
-- 
+-
+
+## [0.0.4] - 2015-09-14
+### New
+- Better handling of Null fields
 
 ## [0.0.3] - 2015-09-04
 ### New
@@ -13,3 +17,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Update and Insert use new PrimaryKeyer data to trim/customize queries
+- JSON Marshal/Unmarshal improvements
