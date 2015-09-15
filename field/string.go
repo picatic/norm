@@ -1,11 +1,10 @@
 package field
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"github.com/gocraft/dbr"
+	"gopkg.in/guregu/null.v2"
 )
 
 // String field type, does not allow nil
@@ -18,7 +17,7 @@ type String struct {
 
 // Scan a value into the string, error on nil
 func (s *String) Scan(value interface{}) error {
-	tmp := sql.NullString{}
+	tmp := null.String{}
 	tmp.Scan(value)
 
 	if tmp.Valid == false {
@@ -37,7 +36,7 @@ func (s *String) Scan(value interface{}) error {
 // Value return the value of this field
 func (s String) Value() (driver.Value, error) {
 	if s.Valid == false {
-		return nil, errors.New("Value was not set or was set to nil")
+		return nil, ErrorValueWasNotSet
 	}
 	return s.String, nil
 }
@@ -48,7 +47,7 @@ func (s String) ShadowValue() (driver.Value, error) {
 		return s.shadow, nil
 	}
 
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // IsDirty if the shadow value does not match the field value
@@ -63,13 +62,23 @@ func (s String) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (s *String) UnmarshalJSON(data []byte) error {
-	return s.Scan(data)
+	ss := null.String{}
+	err := json.Unmarshal(data, &ss)
+	if err != nil {
+		return nil
+	}
+	if ss.Valid == false {
+		return errors.New("Attempted to unmarshal null value")
+	}
+	return s.Scan(ss.String)
 }
+
+type nullString null.String
 
 // NullString string that allows nil
 type NullString struct {
-	dbr.NullString
-	shadow dbr.NullString
+	nullString
+	shadow nullString
 	ShadowInit
 }
 
@@ -106,15 +115,28 @@ func (ns NullString) ShadowValue() (driver.Value, error) {
 	if ns.InitDone() {
 		return ns.shadow.Value()
 	}
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // MarshalJSON Marshal just the value of String
 func (ns NullString) MarshalJSON() ([]byte, error) {
-	return json.Marshal(ns.String)
+	if ns.Valid == true {
+		return json.Marshal(ns.String)
+	}
+	return json.Marshal(nil)
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (ns *NullString) UnmarshalJSON(data []byte) error {
-	return ns.Scan(data)
+	s := &null.String{}
+	err := s.UnmarshalJSON(data)
+	if err != nil {
+		return err
+	}
+	if s.Valid == true {
+		return ns.Scan(s.String)
+	}
+	ns.Valid = false
+
+	return nil
 }

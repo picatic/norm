@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"github.com/gocraft/dbr"
+	"gopkg.in/guregu/null.v2"
 )
 
 // Int64 that cannot be nil
@@ -38,7 +38,7 @@ func (i *Int64) Scan(value interface{}) error {
 // Value return the value of this field
 func (i Int64) Value() (driver.Value, error) {
 	if i.Valid == false {
-		return nil, errors.New("Value was not set or was set to nil")
+		return nil, ErrorValueWasNotSet
 	}
 	return i.Int64, nil
 }
@@ -49,7 +49,7 @@ func (i Int64) ShadowValue() (driver.Value, error) {
 		return i.shadow, nil
 	}
 
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // IsDirty if the shadow value does not match the field value
@@ -67,10 +67,12 @@ func (i *Int64) UnmarshalJSON(data []byte) error {
 	return i.Scan(data)
 }
 
+type nullInt null.Int
+
 // NullInt64 that can be nil
 type NullInt64 struct {
-	dbr.NullInt64
-	shadow dbr.NullInt64
+	nullInt
+	shadow nullInt
 	ShadowInit
 }
 
@@ -107,15 +109,28 @@ func (ni NullInt64) ShadowValue() (driver.Value, error) {
 	if ni.InitDone() {
 		return ni.shadow.Value()
 	}
-	return nil, errors.New("Shadow Wasn't Created")
+	return nil, ErrorUnintializedShadow
 }
 
 // MarshalJSON Marshal just the value of Int64
 func (ni NullInt64) MarshalJSON() ([]byte, error) {
-	return json.Marshal(ni.Int64)
+	if ni.Valid == true {
+		return json.Marshal(ni.Int64)
+	}
+	return json.Marshal(nil)
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (ni *NullInt64) UnmarshalJSON(data []byte) error {
-	return ni.Scan(data)
+	i := &null.Int{}
+	err := i.UnmarshalJSON(data)
+	if err != nil {
+		return err
+	}
+	if i.Valid == true {
+		return ni.Scan(i.Int64)
+	}
+	ni.Valid = false
+
+	return nil
 }

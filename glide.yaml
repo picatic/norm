@@ -14,3 +14,4 @@ import:
     vcs:     git
     subpackages:
       - /convey
+  - package: gopkg.in/guregu/null.v2

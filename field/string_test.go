@@ -2,7 +2,6 @@ package field
 
 import (
 	"encoding/json"
-	"errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -94,7 +93,7 @@ func TestString(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return error when only a nil scanned", func() {
 			s := &String{}
@@ -102,7 +101,7 @@ func TestString(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return scanned string", func() {
 			s := &String{}
@@ -123,7 +122,7 @@ func TestString(t *testing.T) {
 
 	Convey("UnmarshalJSON", t, func() {
 		s := String{}
-		err := s.UnmarshalJSON([]byte("i am the string"))
+		err := json.Unmarshal([]byte("\"i am the string\""), &s)
 		So(err, ShouldBeNil)
 		v, err := s.Value()
 		So(err, ShouldBeNil)
@@ -216,7 +215,7 @@ func TestNullString(t *testing.T) {
 			value, err := ns.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return nil before when nil", func() {
 			ns := &NullString{}
@@ -237,18 +236,41 @@ func TestNullString(t *testing.T) {
 	})
 
 	Convey("MarshalJSON", t, func() {
-		s := NullString{}
-		s.Scan("Cat")
-		data, _ := json.Marshal(s)
-		So(string(data), ShouldEqual, "\"Cat\"")
+
+		Convey("with valid value", func() {
+			s := NullString{}
+			s.Scan("Cat")
+			data, _ := json.Marshal(s)
+			So(string(data), ShouldEqual, "\"Cat\"")
+		})
+
+		Convey("with null value", func() {
+			s := NullString{}
+			data, _ := json.Marshal(s)
+			So(string(data), ShouldEqual, "null")
+		})
 	})
 
 	Convey("UnmarshalJSON", t, func() {
-		s := NullString{}
-		err := s.UnmarshalJSON([]byte("i am the string"))
-		So(err, ShouldBeNil)
-		v, err := s.Value()
-		So(err, ShouldBeNil)
-		So(v, ShouldEqual, "i am the string")
+
+		Convey("with valid value", func() {
+			s := NullString{}
+			err := json.Unmarshal([]byte("\"i am the string\""), &s)
+			So(err, ShouldBeNil)
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldEqual, "i am the string")
+		})
+
+		Convey("with null value", func() {
+			s := NullString{}
+			err := json.Unmarshal([]byte("null"), &s)
+			So(err, ShouldBeNil)
+			_, err = s.Value()
+			So(err, ShouldBeNil)
+			So(s.Valid, ShouldBeFalse)
+		})
+
 	})
+
 }

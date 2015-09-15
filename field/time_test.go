@@ -2,16 +2,14 @@ package field
 
 import (
 	"encoding/json"
-	"errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 	"time"
 )
 
 const (
-	timeFormat = "2006-01-02 15:04:05.000"
-	timeA      = "2015-01-01 12:12:12.000"
-	timeB      = "2014-01-01 12:12:12.000"
+	timeA = "2015-01-01 12:12:12.000000"
+	timeB = "2014-01-01 12:12:12.000000"
 )
 
 func TestTime(t *testing.T) {
@@ -94,7 +92,7 @@ func TestTime(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return error when only a nil scanned", func() {
 			s := &Time{}
@@ -102,7 +100,7 @@ func TestTime(t *testing.T) {
 			value, err := s.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return scanned Time", func() {
 			s := &Time{}
@@ -123,7 +121,7 @@ func TestTime(t *testing.T) {
 
 	Convey("UnmarshalJSON", t, func() {
 		s := Time{}
-		err := s.UnmarshalJSON([]byte("2015-01-01 12:12:12"))
+		err := json.Unmarshal([]byte("\"2015-01-01T12:12:12Z\""), &s)
 		So(err, ShouldBeNil)
 		v, err := s.Value()
 		So(err, ShouldBeNil)
@@ -134,9 +132,9 @@ func TestTime(t *testing.T) {
 func TestNullTime(t *testing.T) {
 	Convey("Scan", t, func() {
 		Convey("Scan should load Time and Shadow field", func() {
-			ns := &NullTime{}
-			ns.Scan(timeA)
-
+			ns := NullTime{}
+			err := ns.Scan(timeA)
+			So(err, ShouldBeNil)
 			So(ns.Time.Format(timeFormat), ShouldEqual, timeA)
 			So(ns.shadow.Time.Format(timeFormat), ShouldEqual, timeA)
 		})
@@ -157,6 +155,7 @@ func TestNullTime(t *testing.T) {
 			ns.Scan(timeA)
 
 			value, err := ns.Value()
+			So(err, ShouldBeNil)
 			timeValue := value.(time.Time)
 			So(timeValue.Format(timeFormat), ShouldEqual, timeA)
 			So(err, ShouldBeNil)
@@ -167,18 +166,20 @@ func TestNullTime(t *testing.T) {
 			ns.Scan(nil)
 
 			value, err := ns.Value()
-			So(value, ShouldBeNil)
 			So(err, ShouldBeNil)
+			So(value, ShouldBeNil)
 		})
 	})
 
 	Convey("IsDirty", t, func() {
 		Convey("should be false", func() {
 			ns := &NullTime{}
-			ns.Scan(timeA)
+			err := ns.Scan(timeA)
+			So(err, ShouldBeNil)
 
 			So(ns.IsDirty(), ShouldBeFalse)
 		})
+
 		Convey("should be false if nil", func() {
 			ns := &NullTime{}
 			ns.Scan(nil)
@@ -195,7 +196,8 @@ func TestNullTime(t *testing.T) {
 		})
 		Convey("should be true if modified from nil", func() {
 			ns := &NullTime{}
-			ns.Scan(nil)
+			err := ns.Scan(nil)
+			So(err, ShouldBeNil)
 			ns.Scan(timeB)
 
 			So(ns.IsDirty(), ShouldBeTrue)
@@ -216,7 +218,7 @@ func TestNullTime(t *testing.T) {
 			value, err := ns.ShadowValue()
 
 			So(value, ShouldBeNil)
-			So(err, ShouldResemble, errors.New("Shadow Wasn't Created"))
+			So(err, ShouldResemble, ErrorUnintializedShadow)
 		})
 		Convey("should return nil before when nil", func() {
 			ns := &NullTime{}
@@ -245,7 +247,7 @@ func TestNullTime(t *testing.T) {
 
 	Convey("UnmarshalJSON", t, func() {
 		s := NullTime{}
-		err := s.UnmarshalJSON([]byte("2015-01-01 12:12:12"))
+		err := json.Unmarshal([]byte("\"2015-01-01T12:12:12Z\""), &s)
 		So(err, ShouldBeNil)
 		v, err := s.Value()
 		So(err, ShouldBeNil)
