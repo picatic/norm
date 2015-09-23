@@ -63,29 +63,34 @@ func ModelGetField(model Model, fieldName field.Name) (field.Field, error) {
 	return nil, errors.New("Name not found")
 }
 
+// ModelTableName get the complete table name including the database
+func ModelTableName(s *Session, m Model) string {
+	return fmt.Sprintf("%s.%s", s.Connection().Database(), m.TableName())
+}
+
 //
-// TODO: Would be nice to have the dbr.Session reliant code in a sub package...maybe.
+// TODO: Would be nice to have the Session reliant code in a sub package...maybe.
 // This is kind of an ActiveRecord/RemoteProxy/RecordGateway pattern
 //
 
 // NewSelect builds a select from the Model and Fields
 // Selects all fields if no fields provided
-func NewSelect(s *dbr.Session, m Model, fields field.Names) *dbr.SelectBuilder {
-	return s.Select(defaultFieldsEscaped(m, fields)...).From(m.TableName())
+func NewSelect(s *Session, m Model, fields field.Names) *dbr.SelectBuilder {
+	return s.Select(defaultFieldsEscaped(m, fields)...).From(ModelTableName(s, m))
 }
 
 // NewUpdate builds an update from the Model and Fields
-func NewUpdate(s *dbr.Session, m Model, fields field.Names) *dbr.UpdateBuilder {
+func NewUpdate(s *Session, m Model, fields field.Names) *dbr.UpdateBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
 	fields = fields.Remove(m.PrimaryKey().Fields())
 	setMap := defaultUpdate(m, fields)
-	return s.Update(m.TableName()).SetMap(setMap)
+	return s.Update(ModelTableName(s, m)).SetMap(setMap)
 }
 
 // NewInsert create an insert from the Model and Fields
-func NewInsert(s *dbr.Session, m Model, fields field.Names) *dbr.InsertBuilder {
+func NewInsert(s *Session, m Model, fields field.Names) *dbr.InsertBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
@@ -94,16 +99,16 @@ func NewInsert(s *dbr.Session, m Model, fields field.Names) *dbr.InsertBuilder {
 	// TODO do not eat this error
 	setFields, _ := pk.Generator(m)
 	fields = fields.Add(setFields)
-	return s.InsertInto(m.TableName()).Columns(fields.SnakeCase()...)
+	return s.InsertInto(ModelTableName(s, m)).Columns(fields.SnakeCase()...)
 }
 
 // NewDelete creates a delete from the Model
-func NewDelete(s *dbr.Session, m Model) *dbr.DeleteBuilder {
-	return s.DeleteFrom(m.TableName())
+func NewDelete(s *Session, m Model) *dbr.DeleteBuilder {
+	return s.DeleteFrom(ModelTableName(s, m))
 }
 
 // ModelSave Save a model, calls appropriate Insert or Update based on Model.IsNew()
-func ModelSave(dbrSess *dbr.Session, model Model, fields field.Names) (sql.Result, error) {
+func ModelSave(dbrSess *Session, model Model, fields field.Names) (sql.Result, error) {
 	if model.IsNew() == true {
 		return nil, errors.New("ModelSave for when IsNew Not Implement")
 	}
