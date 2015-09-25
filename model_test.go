@@ -27,6 +27,12 @@ func (*MockModel) PrimaryKey() PrimaryKeyer {
 	return NewSinglePrimaryKey(field.Name("Id"))
 }
 
+func (MockModel) Validators() []FieldValidator {
+	validators := make([]FieldValidator, 1)
+	validators[0] = NewFieldValidator(field.Name("FirstName"), "matches", MockFieldValidatorFunc, "Pete")
+	return validators
+}
+
 type MockModelCustomPrimaryKey struct {
 	MockModel
 }
@@ -170,6 +176,22 @@ func TestModel(t *testing.T) {
 				So(len(f), ShouldEqual, 1)
 				So(err, ShouldBeNil)
 			})
+		})
+
+		Convey("ModelValidate", func() {
+
+			Convey("With validation error", func() {
+				err := ModelValidate(conn.NewSession(nil), model, nil)
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldEqual, "First of multiple errors, Field:  Error: Value [Mock] did not equal first argument [Pete]")
+			})
+
+			Convey("Without validation error", func() {
+				model.FirstName.Scan("Pete")
+				err := ModelValidate(conn.NewSession(nil), model, nil)
+				So(err, ShouldBeNil)
+			})
+
 		})
 	})
 }

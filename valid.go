@@ -9,6 +9,12 @@ import (
 // Validators global static map of validators for models
 var Validators = ValidatorMap{}
 
+// ModelValidators implementation for a model to define its validators
+type ModelValidators interface {
+	Model
+	Validators() []FieldValidator
+}
+
 // Validator implementation
 type ModelValidator interface {
 	Model
