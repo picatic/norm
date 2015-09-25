@@ -64,7 +64,7 @@ func ModelGetField(model Model, fieldName field.Name) (field.Field, error) {
 }
 
 // ModelTableName get the complete table name including the database
-func ModelTableName(s *Session, m Model) string {
+func ModelTableName(s Session, m Model) string {
 	return fmt.Sprintf("%s.%s", s.Connection().Database(), m.TableName())
 }
 
@@ -75,12 +75,12 @@ func ModelTableName(s *Session, m Model) string {
 
 // NewSelect builds a select from the Model and Fields
 // Selects all fields if no fields provided
-func NewSelect(s *Session, m Model, fields field.Names) *dbr.SelectBuilder {
+func NewSelect(s Session, m Model, fields field.Names) *dbr.SelectBuilder {
 	return s.Select(defaultFieldsEscaped(m, fields)...).From(ModelTableName(s, m))
 }
 
 // NewUpdate builds an update from the Model and Fields
-func NewUpdate(s *Session, m Model, fields field.Names) *dbr.UpdateBuilder {
+func NewUpdate(s Session, m Model, fields field.Names) *dbr.UpdateBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
@@ -90,7 +90,7 @@ func NewUpdate(s *Session, m Model, fields field.Names) *dbr.UpdateBuilder {
 }
 
 // NewInsert create an insert from the Model and Fields
-func NewInsert(s *Session, m Model, fields field.Names) *dbr.InsertBuilder {
+func NewInsert(s Session, m Model, fields field.Names) *dbr.InsertBuilder {
 	if fields == nil {
 		fields = ModelFields(m)
 	}
@@ -103,12 +103,12 @@ func NewInsert(s *Session, m Model, fields field.Names) *dbr.InsertBuilder {
 }
 
 // NewDelete creates a delete from the Model
-func NewDelete(s *Session, m Model) *dbr.DeleteBuilder {
+func NewDelete(s Session, m Model) *dbr.DeleteBuilder {
 	return s.DeleteFrom(ModelTableName(s, m))
 }
 
 // ModelSave Save a model, calls appropriate Insert or Update based on Model.IsNew()
-func ModelSave(dbrSess *Session, model Model, fields field.Names) (sql.Result, error) {
+func ModelSave(dbrSess Session, model Model, fields field.Names) (sql.Result, error) {
 	if model.IsNew() == true {
 		return nil, errors.New("ModelSave for when IsNew Not Implement")
 	}
