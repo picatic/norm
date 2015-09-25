@@ -160,14 +160,14 @@ func ModelDirtyFields(model Model) (field.Names, error) {
 }
 
 // ModelValidate fields provided on model, if no fields validate all fields
-func ModelValidate(model Model, fields field.Names) chan error {
+func ModelValidate(sess Session, model Model, fields field.Names) chan error {
 	err := make(chan error, 1)
 
 	go func() {
 		if fields == nil {
 			fields = ModelFields(model)
 		}
-		errors := Validators.Validate(model, fields)
+		errors := Validators.Validate(sess, model, fields)
 		if errors != nil {
 			for _, validationError := range errors.Errors {
 				err <- validationError
