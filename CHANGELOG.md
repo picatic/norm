@@ -3,7 +3,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
+### New
+- Connections are created with the database name, full database.tablename selectors for queries
+  can be generated with `ModelTableName`
 ### Changed
+- Wrapped `dbr.Connection` and `dbr.Session` in our own local structs to add some context
+
 
 ## [0.0.05] - 2015-09-22
 - Float64 and NullFloat64 support

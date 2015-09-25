@@ -2,7 +2,6 @@ package norm
 
 import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"github.com/gocraft/dbr"
 	"github.com/picatic/norm/field"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -43,7 +42,7 @@ func (*MockModelCustomPrimaryKey) PrimaryKey() PrimaryKeyer {
 func TestModel(t *testing.T) {
 	Convey("Model", t, func() {
 		db, mock, _ := sqlmock.New()
-		dbrConn := dbr.NewConnection(db, nil)
+		conn := NewConnection(db, "mock_db", nil)
 
 		model := &MockModel{}
 		model.Id.Scan("1")
@@ -82,17 +81,24 @@ func TestModel(t *testing.T) {
 			})
 		})
 
+		Convey("ModelTableName", func() {
+			Convey("Builds table name with connection database prepended", func() {
+				sess := conn.NewSession(nil)
+				So(ModelTableName(sess, model), ShouldEqual, "mock_db.mocks")
+			})
+		})
+
 		Convey("NewSelect", func() {
 
 			Convey("Without fields", func() {
-				mock.ExpectQuery("SELECT `id`, `first_name`, `org` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id", "first_name"}).FromCSVString("2,mocker"))
-				err := NewSelect(dbrConn.NewSession(nil), model, nil).LoadStruct(model)
+				mock.ExpectQuery("SELECT `id`, `first_name`, `org` FROM mock_db\\.mocks").WillReturnRows(sqlmock.NewRows([]string{"id", "first_name"}).FromCSVString("2,mocker"))
+				err := NewSelect(conn.NewSession(nil), model, nil).LoadStruct(model)
 				So(err, ShouldBeNil)
 			})
 
 			Convey("With fields", func() {
-				mock.ExpectQuery("SELECT `id` FROM mocks").WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("2"))
-				err := NewSelect(dbrConn.NewSession(nil), model, field.Names{"Id"}).LoadStruct(model)
+				mock.ExpectQuery("SELECT `id` FROM mock_db\\.mocks").WillReturnRows(sqlmock.NewRows([]string{"id"}).FromCSVString("2"))
+				err := NewSelect(conn.NewSession(nil), model, field.Names{"Id"}).LoadStruct(model)
 				So(err, ShouldBeNil)
 				So(model.Id.String, ShouldEqual, "2")
 			})
@@ -101,23 +107,23 @@ func TestModel(t *testing.T) {
 		Convey("NewInsert", func() {
 
 			Convey("Without fields", func() {
-				mock.ExpectExec("INSERT INTO mocks \\(`first_name`,`org`\\) VALUES \\('Mock',NULL\\)").WillReturnResult(sqlmock.NewResult(2, 1))
+				mock.ExpectExec("INSERT INTO mock_db\\.mocks \\(`first_name`,`org`\\) VALUES \\('Mock',NULL\\)").WillReturnResult(sqlmock.NewResult(2, 1))
 
-				_, err := NewInsert(dbrConn.NewSession(nil), model, nil).Record(model).Exec()
+				_, err := NewInsert(conn.NewSession(nil), model, nil).Record(model).Exec()
 				So(err, ShouldBeNil)
 			})
 
 			Convey("With fields", func() {
-				mock.ExpectExec("INSERT INTO mocks \\(`first_name`\\) VALUES \\('Mock'\\)").WillReturnResult(sqlmock.NewResult(3, 1))
-				_, err := NewInsert(dbrConn.NewSession(nil), model, field.Names{"FirstName"}).Record(model).Exec()
+				mock.ExpectExec("INSERT INTO mock_db\\.mocks \\(`first_name`\\) VALUES \\('Mock'\\)").WillReturnResult(sqlmock.NewResult(3, 1))
+				_, err := NewInsert(conn.NewSession(nil), model, field.Names{"FirstName"}).Record(model).Exec()
 				So(err, ShouldBeNil)
 			})
 
 			Convey("With Custom Primary Key", func() {
 				modelCust := &MockModelCustomPrimaryKey{}
 				modelCust.FirstName.Scan("Custom Key")
-				mock.ExpectExec("INSERT INTO mocks \\((`id`|,|`first_name`)+\\) VALUES \\(('abc-123-xyz-789'|,|'Custom Key')+\\)").WillReturnResult(sqlmock.NewResult(4, 1))
-				_, err := NewInsert(dbrConn.NewSession(nil), modelCust, field.Names{"FirstName"}).Record(modelCust).Exec()
+				mock.ExpectExec("INSERT INTO mock_db\\.mocks \\((`id`|,|`first_name`)+\\) VALUES \\(('abc-123-xyz-789'|,|'Custom Key')+\\)").WillReturnResult(sqlmock.NewResult(4, 1))
+				_, err := NewInsert(conn.NewSession(nil), modelCust, field.Names{"FirstName"}).Record(modelCust).Exec()
 				So(err, ShouldBeNil)
 			})
 		})
@@ -125,15 +131,15 @@ func TestModel(t *testing.T) {
 		Convey("NewUpdate", func() {
 
 			Convey("Without fields", func() {
-				mock.ExpectExec("UPDATE mocks SET (`first_name` = 'Mock'|, |`org` = NULL)+ WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
+				mock.ExpectExec("UPDATE mock_db\\.mocks SET (`first_name` = 'Mock'|, |`org` = NULL)+ WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
 
-				_, err := NewUpdate(dbrConn.NewSession(nil), model, nil).Where("id = ?", model.Id.String).Exec()
+				_, err := NewUpdate(conn.NewSession(nil), model, nil).Where("id = ?", model.Id.String).Exec()
 				So(err, ShouldBeNil)
 			})
 
 			Convey("With fields", func() {
-				mock.ExpectExec("UPDATE mocks SET `first_name` = 'Mock' WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
-				_, err := NewUpdate(dbrConn.NewSession(nil), model, field.Names{"FirstName"}).Where("id = ?", model.Id.String).Exec()
+				mock.ExpectExec("UPDATE mock_db\\.mocks SET `first_name` = 'Mock' WHERE \\(id = '1'\\)").WillReturnResult(sqlmock.NewResult(0, 1))
+				_, err := NewUpdate(conn.NewSession(nil), model, field.Names{"FirstName"}).Where("id = ?", model.Id.String).Exec()
 				So(err, ShouldBeNil)
 			})
 		})

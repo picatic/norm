@@ -3,7 +3,7 @@
 [![Go Report Card](http://goreportcard.com/badge/picatic/norm)](http://goreportcard.com/report/picatic/norm)
 
 ```
-  _   _  ____  _____  __  __ 
+  _   _  ____  _____  __  __
  | \ | |/ __ \|  __ \|  \/  |
  |  \| | |  | | |__) | \  / |
  | . ` | |  | |  _  /| |\/| |
@@ -28,7 +28,7 @@ Why?
 ====
 
 Because we wanted something like an ORM, but got out of our way and let us drive. Making queries is likely still best
-done by humans (for now...). Most ORM's try to do too much, and eventually block you from doing the complex business 
+done by humans (for now...). Most ORM's try to do too much, and eventually block you from doing the complex business
 logic you end up needing to do 6 months from now.
 
 Examples
@@ -53,9 +53,9 @@ Select a Model
 var post Post = Post{}
 post.Id.Scan(4384)
 
-err := norm.NewSelect(dbrSession, post, nil).Where("id = ?", post.Id.Int64).LoadStruct(&post) // select all defined fields
+err := norm.NewSelect(session, post, nil).Where("id = ?", post.Id.Int64).LoadStruct(&post) // select all defined fields
 
-err = norm.NewSelect(dbrSession, post, field.FieldNames{"id", "title"}).Where("id = ?", post.Id.Int64).LoadStruct(&post) // only those fields
+err = norm.NewSelect(session, post, field.FieldNames{"id", "title"}).Where("id = ?", post.Id.Int64).LoadStruct(&post) // only those fields
 ```
 
 Select Models
@@ -64,7 +64,7 @@ Select Models
 ```golang
 var posts []Post = make([]Post, 0)
 
-err := norm.NewSelect(dbrSession, post, nil).Where("created > '2015-01-01").LoadStructs(&posts)
+err := norm.NewSelect(session, post, nil).Where("created > '2015-01-01").LoadStructs(&posts)
 ```
 
 Insert Model
@@ -77,7 +77,7 @@ post.Context.Scan("...")
 post.AuthorId.Scan(1)
 post.Created.Scan(time.Time.Now())
 
-result, err := norm.NewInsert(dbrSession, post, nil).Exec()
+result, err := norm.NewInsert(session, post, nil).Exec()
 
 fmt.Printf("InsertId: %s", result.Value())
 ```
@@ -90,7 +90,7 @@ Update Model
 // continued from Insert
 post.Content.Scan("modified content")
 
-result, err := norm.NewUpdate(dbrSession, post, nil).Exec()
+result, err := norm.NewUpdate(session, post, nil).Exec()
 
 ```
 
