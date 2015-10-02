@@ -31,7 +31,7 @@ func MockFieldValidatorFunc(sess Session, m Model, value field.Field, args ...in
 	if v == args[0] {
 		return nil
 	}
-	return NewValidationError("", "", fmt.Sprintf("Value [%s] did not equal first argument [%s]", v, args[0]))
+	return NewFieldValidationError(fmt.Sprintf("Value [%s] did not equal first argument [%s]", v, args[0]))
 }
 
 func TestValidator(t *testing.T) {
@@ -124,7 +124,8 @@ func TestValidator(t *testing.T) {
 			m.FirstName.Scan("duck")
 			err := fv.Validate(nil, m)
 			So(err, ShouldNotBeNil)
-			So(fmt.Sprintf("%s", err), ShouldEqual, "Field: [] Alias: [] Message: Value [duck] did not equal first argument [test]")
+			So(err, ShouldHaveSameTypeAs, &FieldValidationError{})
+			So(fmt.Sprintf("%s", err), ShouldEqual, "Value [duck] did not equal first argument [test]")
 		})
 	})
 
@@ -152,12 +153,12 @@ func TestValidator(t *testing.T) {
 
 		Convey("Only ValidationError", func() {
 			ves.Add(NewValidationError(field.Name("id"), "alias", "mega message"))
-			So(ves.Error(), ShouldEqual, "First of multiple errors, Field: id Error: mega message")
+			So(ves.Error(), ShouldEqual, "Field: [id] Alias: [alias] Message: mega message")
 		})
 
 		Convey("Not ValidationError", func() {
 			ves.Add(fmt.Errorf("not a ValidationError"))
-			So(ves.Error(), ShouldEqual, "First of multiple errors is not a Validation error")
+			So(ves.Error(), ShouldEqual, "not a ValidationError")
 		})
 	})
 }
