@@ -11,21 +11,28 @@ type Connection interface {
 	NewSession(log dbr.EventReceiver) Session
 
 	Database() string
+	ValidatorCache() ValidatorMap
 }
 
 type connection struct {
 	*dbr.Connection
-	database string
+	database       string
+	validatorCache ValidatorMap
 }
 
 // NewConnection return a Connection as configured
 func NewConnection(db *sql.DB, database string, log dbr.EventReceiver) Connection {
-	return &connection{Connection: dbr.NewConnection(db, log), database: database}
+	return &connection{Connection: dbr.NewConnection(db, log), database: database, validatorCache: make(ValidatorMap, 0)}
 }
 
 // Database returns name of database
 func (c connection) Database() string {
 	return c.database
+}
+
+// ValidatorCache returns Validator Map
+func (c connection) ValidatorCache() ValidatorMap {
+	return c.validatorCache
 }
 
 // NewSession Create a new Session with the Connection
