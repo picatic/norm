@@ -161,15 +161,16 @@ func ModelDirtyFields(model Model) (field.Names, error) {
 
 // ModelValidate fields provided on model, if no fields validate all fields
 func ModelValidate(sess Session, model Model, fields field.Names) error {
+	validators := sess.Connection().ValidatorCache()
 	if fields == nil {
 		fields = ModelFields(model)
 	}
-	if len(Validators.Get(model)) == 0 {
+	if len(validators.Get(model)) == 0 {
 		if vm, ok := model.(ModelValidators); ok == true {
-			Validators.Set(model, vm.Validators())
+			validators.Set(model, vm.Validators())
 		} else {
 			return nil
 		}
 	}
-	return Validators.Validate(sess, model, fields)
+	return validators.Validate(sess, model, fields)
 }

@@ -24,16 +24,6 @@ func defaultFieldsEscaped(model Model, fields field.Names) []string {
 	return escapeFields(fields)
 }
 
-// func fieldToDbMap(m Model) map[field.Name]string {
-// 	fields := ModelFields(m)
-// 	dbMap := make(map[field.Name]string)
-// 	for i := 0; i < len(fields); i++ {
-// 		dbMap[fields[i]] = dbr.NameMapping(string(fields[i]))
-// 	}
-
-// 	return dbMap
-// }
-
 // Create a map of strings and values from the model to work with dbr's interfaces
 func defaultUpdate(m Model, fields field.Names) map[string]interface{} {
 	kv := make(map[string]interface{})

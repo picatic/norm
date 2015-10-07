@@ -7,10 +7,6 @@ import (
 	"reflect"
 )
 
-// Validators global static map of validators for models.
-// To be depreciated in the near future, use the Validators interface to provide FieldValidators for models.
-var Validators = ValidatorMap{}
-
 // ModelValidators implementation for a model to define its validators
 type ModelValidators interface {
 	Model
@@ -216,8 +212,3 @@ func (ve ValidationErrors) Error() string {
 	}
 	return out.String()
 }
-
-// AddValidator add a validator to a model
-// func AddValidator(modelType reflect.Type, validators ...Validator) {
-// 	Validators.Set(modelType, append(Validators.Get(modelType), validators...))
-// }
