@@ -183,7 +183,8 @@ func TestModel(t *testing.T) {
 			Convey("With validation error", func() {
 				err := ModelValidate(conn.NewSession(nil), model, nil)
 				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldEqual, "First of multiple errors, Field:  Error: Value [Mock] did not equal first argument [Pete]")
+				So(err, ShouldHaveSameTypeAs, &ValidationErrors{})
+				So(err.Error(), ShouldEqual, "Field: [FirstName] Alias: [matches] Message: Value [Mock] did not equal first argument [Pete]")
 			})
 
 			Convey("Without validation error", func() {
