@@ -36,40 +36,40 @@ func MockFieldValidatorFunc(sess Session, m Model, value field.Field, args ...in
 
 func TestValidator(t *testing.T) {
 
-	Convey("ValidatorMap", t, func() {
+	Convey("ValidatorCache", t, func() {
 		var (
-			vmap       ValidatorMap = make(ValidatorMap, 1)
+			cache      ValidatorCache = make(ValidatorCache, 1)
 			validators []FieldValidator
 		)
 		Convey("Get", func() {
 			Convey("Not set", func() {
-				So(vmap.Get(&MockModel{}), ShouldBeEmpty)
+				So(cache.Get(&MockModel{}), ShouldBeEmpty)
 			})
 			Convey("When Set", func() {
 				mv := &MockValidator{}
 				validators = append(validators, mv)
-				vmap.Set(&MockModel{}, validators)
-				So(vmap.Get(&MockModel{}), ShouldContain, mv)
+				cache.Set(&MockModel{}, validators)
+				So(cache.Get(&MockModel{}), ShouldContain, mv)
 			})
 		})
 
 		Convey("Set", func() {
 			validators = append(validators, &MockValidator{})
-			vmap.Set(&MockModel{}, validators)
-			So(vmap.Get(&MockModel{}), ShouldResemble, validators)
+			cache.Set(&MockModel{}, validators)
+			So(cache.Get(&MockModel{}), ShouldResemble, validators)
 		})
 
 		Convey("Del", func() {
 			validators = append(validators, &MockValidator{})
-			vmap.Set(&MockModel{}, validators)
-			vmap.Del(&MockModel{})
-			So(len(vmap.Get(&MockModel{})), ShouldEqual, 0)
+			cache.Set(&MockModel{}, validators)
+			cache.Del(&MockModel{})
+			So(len(cache.Get(&MockModel{})), ShouldEqual, 0)
 		})
 
 		Convey("Clone", func() {
 			validators = append(validators, &MockValidator{})
-			vmap.Set(&MockModel{}, validators)
-			So(vmap.Clone(), ShouldResemble, vmap)
+			cache.Set(&MockModel{}, validators)
+			So(cache.Clone(), ShouldResemble, cache)
 		})
 
 		Convey("Validate", func() {
@@ -80,15 +80,15 @@ func TestValidator(t *testing.T) {
 			fv1 = NewFieldValidator(field.Name("FirstName"), "value_match", MockFieldValidatorFunc, "test")
 			fv2 = NewFieldValidator(field.Name("Org"), "value_match", MockFieldValidatorFunc, "picatic")
 			m = &MockModel{}
-			vmap.Set(m, []FieldValidator{fv1, fv2})
+			cache.Set(m, []FieldValidator{fv1, fv2})
 			Convey("Single Error via Names", func() {
-				err := vmap.Validate(nil, m, field.Names{"FirstName"})
+				err := cache.Validate(nil, m, field.Names{"FirstName"})
 				So(err, ShouldNotBeNil)
 				So(len(err.Errors), ShouldEqual, 1)
 			})
 
 			Convey("Multiple Errors", func() {
-				err := vmap.Validate(nil, m, field.Names{"FirstName", "Org"})
+				err := cache.Validate(nil, m, field.Names{"FirstName", "Org"})
 				So(err, ShouldNotBeNil)
 				So(len(err.Errors), ShouldEqual, 2)
 			})
@@ -96,7 +96,7 @@ func TestValidator(t *testing.T) {
 			Convey("No errors", func() {
 				m.FirstName.Scan("test")
 				m.Org.Scan("picatic")
-				err := vmap.Validate(nil, m, field.Names{"FirstName", "Org"})
+				err := cache.Validate(nil, m, field.Names{"FirstName", "Org"})
 				So(err, ShouldBeNil)
 			})
 		})

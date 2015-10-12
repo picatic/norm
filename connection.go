@@ -11,18 +11,18 @@ type Connection interface {
 	NewSession(log dbr.EventReceiver) Session
 
 	Database() string
-	ValidatorCache() ValidatorMap
+	ValidatorCache() ValidatorCache
 }
 
 type connection struct {
 	*dbr.Connection
 	database       string
-	validatorCache ValidatorMap
+	validatorCache ValidatorCache
 }
 
 // NewConnection return a Connection as configured
 func NewConnection(db *sql.DB, database string, log dbr.EventReceiver) Connection {
-	return &connection{Connection: dbr.NewConnection(db, log), database: database, validatorCache: make(ValidatorMap, 0)}
+	return &connection{Connection: dbr.NewConnection(db, log), database: database, validatorCache: make(ValidatorCache, 0)}
 }
 
 // Database returns name of database
@@ -30,8 +30,8 @@ func (c connection) Database() string {
 	return c.database
 }
 
-// ValidatorCache returns Validator Map
-func (c connection) ValidatorCache() ValidatorMap {
+// ValidatorCache returns ValidatorCache
+func (c connection) ValidatorCache() ValidatorCache {
 	return c.validatorCache
 }
 
