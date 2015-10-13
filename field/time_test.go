@@ -13,6 +13,10 @@ const (
 )
 
 func TestTime(t *testing.T) {
+	var (
+		timeStructA time.Time
+	)
+	timeStructA, _ = time.Parse(timeFormat, timeA)
 	Convey("Scan", t, func() {
 		Convey("Scan should load Time and Shadow field", func() {
 			s := &Time{}
@@ -29,6 +33,24 @@ func TestTime(t *testing.T) {
 
 			So(s.Time.Format(timeFormat), ShouldEqual, timeB)
 			So(s.shadow.Format(timeFormat), ShouldEqual, timeA)
+		})
+
+		Convey("can set with time.Time", func() {
+			s := &Time{}
+			err := s.Scan(timeStructA)
+
+			So(err, ShouldBeNil)
+
+			So(s.Time.Format(timeFormat), ShouldEqual, timeA)
+		})
+
+		Convey("can set with bytes", func() {
+			s := &Time{}
+			err := s.Scan([]byte(timeA))
+
+			So(err, ShouldBeNil)
+
+			So(s.Time.Format(timeFormat), ShouldEqual, timeA)
 		})
 	})
 
