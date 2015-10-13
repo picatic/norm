@@ -13,6 +13,7 @@ type PrimaryKeyer interface {
 // CustomPrimaryKeyFn function prototype for custom Generator function wrap
 type CustomPrimaryKeyFn func(pk PrimaryKeyer, model Model) (field.Names, error)
 
+// noopPrimaryKeyGenerator used for auto-increment primary keys
 func noopPrimaryKeyGenerator(pk PrimaryKeyer, model Model) (field.Names, error) {
 	return field.Names{}, nil
 }
