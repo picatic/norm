@@ -155,7 +155,7 @@ func ModelSave(dbrSess Session, model Model, fields field.Names) (sql.Result, er
 		return nil, errors.New("ModelSave for when IsNew Not Implement")
 	}
 	// TODO: handle composite primary keys
-	if len( model.PrimaryKey().Fields()) > 1 {
+	if len(model.PrimaryKey().Fields()) > 1 {
 		panic("ModelSave Composite Primary Keys not yet implemented")
 	}
 	primaryFieldName := model.PrimaryKey().Fields()[0]

@@ -2,17 +2,17 @@ package norm_test
 
 import (
 	"encoding/json"
-	"os"
 	"fmt"
 	"github.com/picatic/norm"
 	"github.com/picatic/norm/field"
+	"os"
 )
 
 type User struct {
 	Id        field.Int64  `json:"id",sql:"id"`
 	FirstName field.String `json:"first_name"`
-	LastName  field.String     `json:"last_name"`
-	Email     field.String     `json:"email"`
+	LastName  field.String `json:"last_name"`
+	Email     field.String `json:"email"`
 }
 
 func (u *User) TableName() string {
@@ -32,14 +32,13 @@ func (u *User) IsNew() bool {
 var _ norm.Model = &User{}
 
 // outputJson jsonEncode OR report error for use in Example Output: block
-func outputJson(o interface{}){
+func outputJson(o interface{}) {
 	str, err := json.Marshal(o)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	os.Stdout.Write(str)
 }
-
 
 func ExampleModel() {
 
