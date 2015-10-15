@@ -32,11 +32,11 @@ type FieldValidator interface {
 	Validate(Session, Model) error
 }
 
-// ValidatorMap Store validators for models
-type ValidatorMap map[reflect.Type][]FieldValidator
+// ValidatorCache Store FieldValidators for models
+type ValidatorCache map[reflect.Type][]FieldValidator
 
 // Get Fetch the validators registered to a Model
-func (vm ValidatorMap) Get(model Model) []FieldValidator {
+func (vm ValidatorCache) Get(model Model) []FieldValidator {
 	modelType := reflect.TypeOf(model)
 	validators, ok := vm[modelType]
 	if !ok {
@@ -47,33 +47,33 @@ func (vm ValidatorMap) Get(model Model) []FieldValidator {
 }
 
 // Set validators for a model
-func (vm ValidatorMap) Set(model Model, validators []FieldValidator) {
+func (vm ValidatorCache) Set(model Model, validators []FieldValidator) {
 	modelType := reflect.TypeOf(model)
 	vm[modelType] = validators
 }
 
 // Del deletes validators for a model
-func (vm ValidatorMap) Del(model Model) {
+func (vm ValidatorCache) Del(model Model) {
 	modelType := reflect.TypeOf(model)
 	delete(vm, modelType)
 }
 
-// Clone the ValidatorMap
-func (vm ValidatorMap) Clone() ValidatorMap {
-	newMap := ValidatorMap{}
+// Clone the ValidatorCache
+func (vm ValidatorCache) Clone() ValidatorCache {
+	clone := ValidatorCache{}
 	for k, v := range vm {
-		newMap[k] = make([]FieldValidator, len(v))
+		clone[k] = make([]FieldValidator, len(v))
 		for i, vv := range v {
-			newMap[k][i] = vv
+			clone[k][i] = vv
 		}
 	}
-	return newMap
+	return clone
 }
 
 // Validate a model and specified fields. Returns nil if no errors.
 //
 // Returning a ValidationErrors if any errors (including non-validation related) or nil on success
-func (vm ValidatorMap) Validate(sess Session, model Model, fields field.Names) *ValidationErrors {
+func (vm ValidatorCache) Validate(sess Session, model Model, fields field.Names) *ValidationErrors {
 	errs := &ValidationErrors{}
 	for _, validator := range vm.Get(model) {
 		switch v := validator.(type) {

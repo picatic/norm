@@ -11,9 +11,51 @@ import (
 
 // Model This interface provides basic information to help with building queries and behaviours in dbr.
 type Model interface {
-	TableName() string        // table name within the database this model is associated to
-	PrimaryKey() PrimaryKeyer // primary key for this model
-	IsNew() bool              // Is this model new or not
+
+	// TableName is the name used in the name used in database.
+	//
+	// Typically implemented to return in storage table name
+	//
+	//	// TableName returns database table name
+	//	func (u *User) TableName() string {
+	//		return "norm_users"
+	//	}
+	TableName() string
+
+	// PrimaryKey returns a PrimaryKeyer which can be one of a few provided implementations
+	//
+	//	// PrimaryKey returns SinglePrimaryKey
+	//	func (u *User) PrimaryKey() PrimaryKeyer {
+	//		return norm.NewSinglePrimaryKey(field.Name("Id"))
+	//	}
+	//
+	//	// PrimaryKey returns Composite Key as MultiplePrimaryKey
+	//	func (u *User) PrimaryKey() PrimaryKeyer {
+	//		return norm.NewMultiplePrimaryKey(field.Names{"OrgId", "AccountId"})
+	//	}
+	//
+	//	// PrimaryKey returns CustomPrimaryKey example for generating a uuid
+	//	func (t OauthAccessToken) PrimaryKey() norm.PrimaryKeyer {
+	//		return norm.NewCustomPrimaryKey(Names{"Id"}, func(pk norm.PrimaryKeyer, model norm.Model) (Names, error) {
+	//			f, _ := norm.ModelGetField(model, "Id")
+	//			f.Scan(newUuid())
+	//			return Names{"Id"}, nil
+	//		})
+	//	}
+	//
+	//  Must not be called more than once and should only be done by norm.
+	PrimaryKey() PrimaryKeyer
+
+	// IsNew returns if the the model does not already exist in storage.
+	// The Primarykey on the model should not be Valid.
+	//
+	// Typically this can be implemented as
+	//
+	//	// IsNew indicates that model instance does not already exist.
+	//	func (u *User) IsNew() bool {
+	//		return !u.Id.Valid
+	//	}
+	IsNew() bool
 }
 
 // ModelFields Fetch list of fields on this model via reflection of fields that are from norm/field
@@ -111,6 +153,10 @@ func NewDelete(s Session, m Model) *dbr.DeleteBuilder {
 func ModelSave(dbrSess Session, model Model, fields field.Names) (sql.Result, error) {
 	if model.IsNew() == true {
 		return nil, errors.New("ModelSave for when IsNew Not Implement")
+	}
+	// TODO: handle composite primary keys
+	if len(model.PrimaryKey().Fields()) > 1 {
+		panic("ModelSave Composite Primary Keys not yet implemented")
 	}
 	primaryFieldName := model.PrimaryKey().Fields()[0]
 
