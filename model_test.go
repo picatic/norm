@@ -71,11 +71,6 @@ func TestModel(t *testing.T) {
 				So(len(fields), ShouldEqual, 3)
 			})
 
-			SkipConvey("On Struct", func() {
-				m := &MockModel{}
-				So(func() { ModelFields(m) }, ShouldPanic)
-			})
-
 			Convey("With embedded struct", func() {
 				fields := ModelFields(modelWithEmbedded)
 				So(fields, ShouldContain, field.Name("Id"))
@@ -103,6 +98,15 @@ func TestModel(t *testing.T) {
 				rawModelField, err := ModelGetField(model, "NotAField")
 				So(rawModelField, ShouldBeNil)
 				So(err, ShouldNotBeNil)
+			})
+
+			Convey("Field from Embedded struct", func() {
+				modelWithEmbedded.Id.Scan("12")
+				idField, err := ModelGetField(modelWithEmbedded, "Id")
+				So(err, ShouldBeNil)
+				f, ok := idField.(*field.NullString)
+				So(ok, ShouldBeTrue)
+				So(f.String, ShouldEqual, "12")
 			})
 		})
 
