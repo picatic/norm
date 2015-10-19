@@ -136,13 +136,13 @@ func modelGetField(model interface{}, fieldName field.Name) (field.Field, error)
 		modelValue := reflect.ValueOf(model).Elem().FieldByName(string(fieldName)).Addr().Interface()
 		return modelValue.(field.Field), nil
 	} else {
+		modelValue := reflect.ValueOf(model)
+
+		if modelValue.Kind() == reflect.Ptr {
+			modelValue = modelValue.Elem()
+		}
 		for i := 0; i < modelType.NumField(); i++ {
 			t := modelType.Field(i)
-			modelValue := reflect.ValueOf(model)
-
-			if modelValue.Kind() == reflect.Ptr {
-				modelValue = modelValue.Elem()
-			}
 			v := modelValue.Field(i)
 
 			if t.Anonymous == true && v.CanAddr() == true && v.Kind() == reflect.Interface {
