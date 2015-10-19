@@ -74,21 +74,20 @@ func ModelFields(model Model) field.Names {
 	if modelType.Elem().Kind() != reflect.Struct {
 		panic("Expected Model to be a Ptr to a Struct")
 	}
-	fields := make(field.Names, 0)
 
-	fields = append(fields, modelFields(model)...)
-
-	return fields
+	return modelFields(model)
 }
 
 func modelFields(model interface{}) field.Names {
 	fields := make(field.Names, 0)
 
+	// Value of model
 	ifv := reflect.ValueOf(model)
 	if ifv.Kind() == reflect.Ptr {
 		ifv = ifv.Elem()
 	}
 
+	// Type of Model
 	itf := reflect.TypeOf(model)
 	if itf.Kind() == reflect.Ptr {
 		itf = itf.Elem()
@@ -96,11 +95,14 @@ func modelFields(model interface{}) field.Names {
 
 	for i := 0; i < itf.NumField(); i++ {
 		v := ifv.Field(i)
-		t := itf.Field(i)
+
 		if v.CanAddr() == true && v.Addr().Type().Implements(fieldType) == true {
 			fields = append(fields, field.Name(itf.Field(i).Name))
-		} else if t.Anonymous == true && v.CanAddr() && v.Kind() == reflect.Struct {
-			fields = append(fields, modelFields(v.Addr().Interface())...)
+		} else {
+			t := itf.Field(i)
+			if t.Anonymous == true && v.CanAddr() == true && v.Kind() == reflect.Struct {
+				fields = append(fields, modelFields(v.Addr().Interface())...)
+			}
 		}
 	}
 
