@@ -11,6 +11,7 @@ import (
 
 var (
 	fieldType = reflect.TypeOf((*field.Field)(nil)).Elem()
+	modelType = reflect.TypeOf((*Model)(nil)).Elem()
 )
 
 // Model This interface provides basic information to help with building queries and behaviours in dbr.
@@ -96,12 +97,16 @@ func modelFields(model interface{}) field.Names {
 	for i := 0; i < itf.NumField(); i++ {
 		v := ifv.Field(i)
 
+		// Straight up struct field of type field.Field
 		if v.CanAddr() == true && v.Addr().Type().Implements(fieldType) == true {
 			fields = append(fields, field.Name(itf.Field(i).Name))
 		} else {
 			t := itf.Field(i)
+			// Embedded Struct with potential field.Field fields
 			if t.Anonymous == true && v.CanAddr() == true && v.Kind() == reflect.Struct {
 				fields = append(fields, modelFields(v.Addr().Interface())...)
+			} else if t.Anonymous == true && v.CanAddr() == true && v.Kind() == reflect.Interface { // Embedded Model interface
+				fields = append(fields, modelFields(v.Elem().Interface())...)
 			}
 		}
 	}
@@ -119,10 +124,36 @@ func ModelGetField(model Model, fieldName field.Name) (field.Field, error) {
 	if modelType.Elem().Kind() != reflect.Struct {
 		panic("Expected Model to be a Ptr to Struct")
 	}
+	return modelGetField(model, fieldName)
+}
 
-	if _, ok := modelType.Elem().FieldByName(string(fieldName)); ok == true {
+func modelGetField(model interface{}, fieldName field.Name) (field.Field, error) {
+	modelType := reflect.TypeOf(model)
+	if modelType.Kind() == reflect.Ptr {
+		modelType = modelType.Elem()
+	}
+	if _, ok := modelType.FieldByName(string(fieldName)); ok == true {
 		modelValue := reflect.ValueOf(model).Elem().FieldByName(string(fieldName)).Addr().Interface()
 		return modelValue.(field.Field), nil
+	} else {
+		for i := 0; i < modelType.NumField(); i++ {
+			t := modelType.Field(i)
+			modelValue := reflect.ValueOf(model)
+
+			if modelValue.Kind() == reflect.Ptr {
+				modelValue = modelValue.Elem()
+			}
+			v := modelValue.Field(i)
+
+			if t.Anonymous == true && v.CanAddr() == true && v.Kind() == reflect.Interface {
+				if m, ok := v.Elem().Interface().(Model); ok == true {
+					if f, err := modelGetField(m, fieldName); err == nil {
+						return f, nil
+					}
+				}
+
+			}
+		}
 	}
 	return nil, errors.New("Name not found")
 }

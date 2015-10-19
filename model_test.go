@@ -21,6 +21,10 @@ type MockModelEmbedded struct {
 	Modified field.Time
 }
 
+type MockModelInterfaceEmbedded struct {
+	Model
+}
+
 func (*MockModel) TableName() string {
 	return "mocks"
 }
@@ -81,6 +85,15 @@ func TestModel(t *testing.T) {
 				So(len(fields), ShouldEqual, 5)
 			})
 
+			Convey("With embedded Model interface", func() {
+				m := &MockModelInterfaceEmbedded{model}
+				fields := ModelFields(m)
+				So(fields, ShouldContain, field.Name("Id"))
+				So(fields, ShouldContain, field.Name("FirstName"))
+				So(fields, ShouldContain, field.Name("Org"))
+				So(len(fields), ShouldEqual, 3)
+			})
+
 		})
 
 		Convey("ModelGetField", func() {
@@ -107,6 +120,16 @@ func TestModel(t *testing.T) {
 				f, ok := idField.(*field.NullString)
 				So(ok, ShouldBeTrue)
 				So(f.String, ShouldEqual, "12")
+			})
+
+			Convey("Fields from embedded Model interface", func() {
+				m := &MockModelInterfaceEmbedded{Model: model}
+				rawModelField, err := ModelGetField(m, "Id")
+				So(err, ShouldBeNil)
+
+				f, ok := rawModelField.(*field.NullString)
+				So(ok, ShouldBeTrue)
+				So(f.String, ShouldEqual, "1")
 			})
 		})
 
