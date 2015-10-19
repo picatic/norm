@@ -94,6 +94,19 @@ result, err := norm.NewUpdate(session, post, nil).Exec()
 
 ```
 
+Embed other models
+------------------
+```golang
+
+type User struct {
+  Id field.Int64
+  FirstName field.String
+  LastName field.String
+  BaseCreatedModified // embedded models are union'ed in golang
+}
+
+```
+
 FAQ
 ===
 
