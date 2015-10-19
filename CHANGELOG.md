@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### New
 ### Changed
 
+## [0.1.1] - 2015-10-19
+### New
+- Support for `ModelFields` to recurse into Anonymous/Embedded models to return all field.Names
+
 ## [0.1.0] - 2015-09-28
 ### New
 - Connections are created with the database name, full database.tablename selectors for queries
