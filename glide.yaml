@@ -9,9 +9,8 @@ import:
   - package: github.com/go-sql-driver/mysql
     repo:    https://github.com/go-sql-driver/mysql
     vcs:     git
-  - package: github.com/smartystreets/goconvey
-    repo:    https://github.com/smartystreets/goconvey
-    vcs:     git
-    subpackages:
-      - /convey
   - package: gopkg.in/guregu/null.v2
+  - package: github.com/kisielk/sqlstruct
+  - package: github.com/smartystreets/goconvey
+  - package: github.com/smartystreets/assertions
+    flatten: true
