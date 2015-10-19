@@ -15,6 +15,12 @@ type MockModel struct {
 	Ignore    string
 }
 
+type MockModelEmbedded struct {
+	MockModel
+	Created  field.Time
+	Modified field.Time
+}
+
 func (*MockModel) TableName() string {
 	return "mocks"
 }
@@ -54,6 +60,8 @@ func TestModel(t *testing.T) {
 		model.Id.Scan("1")
 		model.FirstName.Scan("Mock")
 
+		modelWithEmbedded := &MockModelEmbedded{}
+
 		Convey("ModelFields", func() {
 			Convey("On Ptr to Struct", func() {
 				fields := ModelFields(model)
@@ -67,6 +75,17 @@ func TestModel(t *testing.T) {
 				m := &MockModel{}
 				So(func() { ModelFields(m) }, ShouldPanic)
 			})
+
+			Convey("With embedded struct", func() {
+				fields := ModelFields(modelWithEmbedded)
+				So(fields, ShouldContain, field.Name("Id"))
+				So(fields, ShouldContain, field.Name("FirstName"))
+				So(fields, ShouldContain, field.Name("Org"))
+				So(fields, ShouldContain, field.Name("Created"))
+				So(fields, ShouldContain, field.Name("Modified"))
+				So(len(fields), ShouldEqual, 5)
+			})
+
 		})
 
 		Convey("ModelGetField", func() {

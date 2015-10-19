@@ -9,6 +9,10 @@ import (
 	"reflect"
 )
 
+var (
+	fieldType = reflect.TypeOf((*field.Field)(nil)).Elem()
+)
+
 // Model This interface provides basic information to help with building queries and behaviours in dbr.
 type Model interface {
 
@@ -61,8 +65,6 @@ type Model interface {
 // ModelFields Fetch list of fields on this model via reflection of fields that are from norm/field
 // If model fails to be a Ptr to a Struct we return an error
 func ModelFields(model Model) field.Names {
-	fieldType := reflect.TypeOf((*field.Field)(nil)).Elem()
-
 	modelType := reflect.TypeOf(model)
 
 	if modelType.Kind() != reflect.Ptr {
@@ -72,15 +74,33 @@ func ModelFields(model Model) field.Names {
 	if modelType.Elem().Kind() != reflect.Struct {
 		panic("Expected Model to be a Ptr to a Struct")
 	}
-
-	modelValue := reflect.ValueOf(model).Elem()
-
 	fields := make(field.Names, 0)
 
-	for i := 0; i < modelValue.NumField(); i++ {
-		_field := modelValue.Field(i)
-		if _field.CanAddr() == true && _field.Addr().Type().Implements(fieldType) == true {
-			fields = append(fields, field.Name(modelType.Elem().Field(i).Name))
+	fields = append(fields, modelFields(model)...)
+
+	return fields
+}
+
+func modelFields(model interface{}) field.Names {
+	fields := make(field.Names, 0)
+
+	ifv := reflect.ValueOf(model)
+	if ifv.Kind() == reflect.Ptr {
+		ifv = ifv.Elem()
+	}
+
+	itf := reflect.TypeOf(model)
+	if itf.Kind() == reflect.Ptr {
+		itf = itf.Elem()
+	}
+
+	for i := 0; i < itf.NumField(); i++ {
+		v := ifv.Field(i)
+		t := itf.Field(i)
+		if v.CanAddr() == true && v.Addr().Type().Implements(fieldType) == true {
+			fields = append(fields, field.Name(itf.Field(i).Name))
+		} else if t.Anonymous == true && v.CanAddr() && v.Kind() == reflect.Struct {
+			fields = append(fields, modelFields(v.Addr().Interface())...)
 		}
 	}
 
