@@ -12,7 +12,6 @@ import (
 type Int64 struct {
 	Int64  int64
 	shadow int64
-	Valid  bool
 	ShadowInit
 }
 
@@ -25,7 +24,6 @@ func (i *Int64) Scan(value interface{}) error {
 		// TODO: maybe nil should be simply allowed to be empty int64?
 		return errors.New("Value should be a int64 and not nil")
 	}
-	i.Valid = true
 	i.Int64 = tmp.Int64
 
 	i.DoInit(func() {
@@ -37,9 +35,6 @@ func (i *Int64) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (i Int64) Value() (driver.Value, error) {
-	if i.Valid == false {
-		return nil, ErrorValueWasNotSet
-	}
 	return i.Int64, nil
 }
 
@@ -55,6 +50,11 @@ func (i Int64) ShadowValue() (driver.Value, error) {
 // IsDirty if the shadow value does not match the field value
 func (i *Int64) IsDirty() bool {
 	return i.Int64 != i.shadow
+}
+
+//IsSet indicates if Scan has been called successfully
+func (i Int64) IsSet() bool {
+	return i.InitDone()
 }
 
 // MarshalJSON Marshal just the value of Int64
@@ -104,6 +104,11 @@ func (ni *NullInt64) IsDirty() bool {
 	return ni.Valid != ni.shadow.Valid || ni.Int64 != ni.shadow.Int64
 }
 
+//IsSet indicates if Scan has been called successfully
+func (ni NullInt64) IsSet() bool {
+	return ni.InitDone()
+}
+
 // ShadowValue return the initial value of this field
 func (ni NullInt64) ShadowValue() (driver.Value, error) {
 	if ni.InitDone() {
@@ -130,7 +135,5 @@ func (ni *NullInt64) UnmarshalJSON(data []byte) error {
 	if i.Valid == true {
 		return ni.Scan(i.Int64)
 	}
-	ni.Valid = false
-
-	return nil
+	return ni.Scan(nil)
 }
