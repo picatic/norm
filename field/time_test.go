@@ -24,6 +24,7 @@ func TestTime(t *testing.T) {
 
 			So(s.Time.Format(timeFormat), ShouldEqual, timeA)
 			So(s.shadow.Format(timeFormat), ShouldEqual, timeA)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 		Convey("secondary Scan should not update shadow", func() {
 
@@ -33,6 +34,7 @@ func TestTime(t *testing.T) {
 
 			So(s.Time.Format(timeFormat), ShouldEqual, timeB)
 			So(s.shadow.Format(timeFormat), ShouldEqual, timeA)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 
 		Convey("can set with time.Time", func() {
@@ -42,6 +44,7 @@ func TestTime(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			So(s.Time.Format(timeFormat), ShouldEqual, timeA)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 
 		Convey("can set with bytes", func() {
@@ -51,6 +54,7 @@ func TestTime(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			So(s.Time.Format(timeFormat), ShouldEqual, timeA)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 	})
 
@@ -65,13 +69,21 @@ func TestTime(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("should return err on scanned nil", func() {
+		Convey("should return Zero time on scanned nil", func() {
 			s := &Time{}
 			s.Scan(nil)
 
 			value, err := s.Value()
-			So(value, ShouldBeNil)
-			So(err, ShouldNotBeNil)
+			So(value.(time.Time).IsZero(), ShouldBeTrue)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("should return Zero time when not set", func() {
+			s := &Time{}
+
+			value, err := s.Value()
+			So(value.(time.Time).IsZero(), ShouldBeTrue)
+			So(err, ShouldBeNil)
 		})
 	})
 
@@ -105,7 +117,13 @@ func TestTime(t *testing.T) {
 
 			So(s.IsDirty(), ShouldBeFalse)
 		})
+	})
 
+	Convey("IsSet", t, func() {
+		s := Time{}
+		So(s.IsSet(), ShouldBeFalse)
+		s.Scan(timeA)
+		So(s.IsSet(), ShouldBeTrue)
 	})
 
 	Convey("ShadowValue", t, func() {
@@ -148,6 +166,7 @@ func TestTime(t *testing.T) {
 		v, err := s.Value()
 		So(err, ShouldBeNil)
 		So(v.(time.Time).String(), ShouldEqual, "2015-01-01 12:12:12 +0000 UTC")
+		So(s.IsSet(), ShouldBeTrue)
 	})
 }
 
@@ -159,6 +178,7 @@ func TestNullTime(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(ns.Time.Format(timeFormat), ShouldEqual, timeA)
 			So(ns.shadow.Time.Format(timeFormat), ShouldEqual, timeA)
+			So(ns.IsSet(), ShouldBeTrue)
 		})
 		Convey("secondary Scan should not update shadow", func() {
 
@@ -168,6 +188,7 @@ func TestNullTime(t *testing.T) {
 
 			So(ns.Time.Format(timeFormat), ShouldEqual, timeB)
 			So(ns.shadow.Time.Format(timeFormat), ShouldEqual, timeA)
+			So(ns.IsSet(), ShouldBeTrue)
 		})
 	})
 
@@ -234,6 +255,13 @@ func TestNullTime(t *testing.T) {
 
 	})
 
+	Convey("IsSet", t, func() {
+		s := NullTime{}
+		So(s.IsSet(), ShouldBeFalse)
+		s.Scan(timeA)
+		So(s.IsSet(), ShouldBeTrue)
+	})
+
 	Convey("ShadowValue", t, func() {
 		Convey("should return err before first scan", func() {
 			ns := &NullTime{}
@@ -261,18 +289,43 @@ func TestNullTime(t *testing.T) {
 	})
 
 	Convey("MarshalJSON", t, func() {
-		s := NullTime{}
-		s.Scan(timeA)
-		data, _ := json.Marshal(s)
-		So(string(data), ShouldEqual, "\"2015-01-01T12:12:12Z\"")
+
+		Convey("valid date", func() {
+			s := NullTime{}
+			s.Scan(timeA)
+			data, _ := json.Marshal(s)
+			So(string(data), ShouldEqual, "\"2015-01-01T12:12:12Z\"")
+		})
+
+		Convey("null date", func() {
+			s := NullTime{}
+			s.Scan(nil)
+			data, _ := json.Marshal(s)
+			So(string(data), ShouldEqual, "null")
+		})
+
 	})
 
 	Convey("UnmarshalJSON", t, func() {
-		s := NullTime{}
-		err := json.Unmarshal([]byte("\"2015-01-01T12:12:12Z\""), &s)
-		So(err, ShouldBeNil)
-		v, err := s.Value()
-		So(err, ShouldBeNil)
-		So(v.(time.Time).String(), ShouldEqual, "2015-01-01 12:12:12 +0000 UTC")
+		Convey("Valid Date", func() {
+			s := NullTime{}
+			err := json.Unmarshal([]byte("\"2015-01-01T12:12:12Z\""), &s)
+			So(err, ShouldBeNil)
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v.(time.Time).String(), ShouldEqual, "2015-01-01 12:12:12 +0000 UTC")
+			So(s.IsSet(), ShouldBeTrue)
+		})
+
+		Convey("null date", func() {
+			s := NullTime{}
+			err := json.Unmarshal([]byte("null"), &s)
+			So(err, ShouldBeNil)
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldBeNil)
+			So(s.IsSet(), ShouldBeTrue)
+		})
+
 	})
 }

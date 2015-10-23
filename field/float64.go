@@ -13,7 +13,6 @@ import (
 type Float64 struct {
 	Float64 float64
 	shadow  float64
-	Valid   bool
 	ShadowInit
 }
 
@@ -25,7 +24,7 @@ func (f *Float64) Scan(value interface{}) error {
 	if tmp.Valid == false {
 		return errors.New("Value should be a float64 and not nil")
 	}
-	f.Valid = true
+
 	f.Float64 = tmp.Float64
 
 	f.DoInit(func() {
@@ -37,9 +36,6 @@ func (f *Float64) Scan(value interface{}) error {
 
 //Value return the value of this field
 func (f Float64) Value() (driver.Value, error) {
-	if f.Valid == false {
-		return nil, ErrorValueWasNotSet
-	}
 	return f.Float64, nil
 }
 
@@ -55,6 +51,11 @@ func (f Float64) ShadowValue() (driver.Value, error) {
 //IsDirty if the shadow value does not match the field value
 func (f *Float64) IsDirty() bool {
 	return f.Float64 != f.shadow
+}
+
+//IsSet indicates if Scan has been called successfully
+func (f Float64) IsSet() bool {
+	return f.InitDone()
 }
 
 //MarshalJSON Marshal just the value of Int64
@@ -93,15 +94,20 @@ func (nf *NullFloat64) Scan(value interface{}) error {
 
 //Value returns the value of the field
 func (nf NullFloat64) Value() (driver.Value, error) {
-	if !nf.Valid {
+	if nf.Valid == false || nf.InitDone() == false {
 		return nil, nil
 	}
 	return nf.Float64, nil
 }
 
 //IsDirty if the shadow value does not match the field value
-func (nf *NullFloat64) IsDirty() bool {
+func (nf NullFloat64) IsDirty() bool {
 	return nf.Valid != nf.shadow.Valid || nf.Float64 != nf.shadow.Float64
+}
+
+//IsSet indicates if Scan has been called successfully
+func (nf NullFloat64) IsSet() bool {
+	return nf.InitDone()
 }
 
 //ShadowValue returns initial value of this field value
@@ -130,7 +136,5 @@ func (nf *NullFloat64) UnmarshalJSON(data []byte) error {
 	if f.Valid == true {
 		return nf.Scan(f.Float64)
 	}
-	nf.Valid = false
-
-	return nil
+	return nf.Scan(nil)
 }

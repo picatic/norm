@@ -14,6 +14,7 @@ func TestInt64(t *testing.T) {
 
 			So(s.Int64, ShouldEqual, 1234)
 			So(s.shadow, ShouldEqual, 1234)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 		Convey("secondary Scan should not update shadow", func() {
 
@@ -23,6 +24,7 @@ func TestInt64(t *testing.T) {
 
 			So(s.Int64, ShouldEqual, 5678)
 			So(s.shadow, ShouldEqual, 1234)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 	})
 
@@ -37,13 +39,13 @@ func TestInt64(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("should return empty Int64 on scanned nil", func() {
+		Convey("should return default Int64 on scanned nil", func() {
 			s := &Int64{}
 			s.Scan(nil)
 
 			value, err := s.Value()
-			So(value, ShouldEqual, nil)
-			So(err, ShouldNotBeNil)
+			So(value, ShouldEqual, int64(0))
+			So(err, ShouldBeNil)
 		})
 	})
 
@@ -76,7 +78,13 @@ func TestInt64(t *testing.T) {
 			// TODO: FIX Scan Nil Logic
 			//      So(s.IsDirty(), ShouldBeTrue)
 		})
+	})
 
+	Convey("IsSet", t, func() {
+		s := &Int64{}
+		So(s.IsSet(), ShouldBeFalse)
+		s.Scan(123)
+		So(s.IsSet(), ShouldBeTrue)
 	})
 
 	Convey("ShadowValue", t, func() {
@@ -119,6 +127,7 @@ func TestInt64(t *testing.T) {
 		v, err := s.Value()
 		So(err, ShouldBeNil)
 		So(v, ShouldEqual, int64(5612))
+		So(s.IsSet(), ShouldBeTrue)
 	})
 }
 
@@ -130,6 +139,7 @@ func TestNullInt64(t *testing.T) {
 
 			So(ns.Int64, ShouldEqual, 1234)
 			So(ns.shadow.Int64, ShouldEqual, 1234)
+			So(ns.IsSet(), ShouldBeTrue)
 		})
 		Convey("secondary Scan should not update shadow", func() {
 
@@ -139,6 +149,7 @@ func TestNullInt64(t *testing.T) {
 
 			So(ns.Int64, ShouldEqual, 5678)
 			So(ns.shadow.Int64, ShouldEqual, 1234)
+			So(ns.IsSet(), ShouldBeTrue)
 		})
 	})
 
@@ -156,6 +167,14 @@ func TestNullInt64(t *testing.T) {
 		Convey("should return scanned nil", func() {
 			ns := &NullInt64{}
 			ns.Scan(nil)
+
+			value, err := ns.Value()
+			So(value, ShouldBeNil)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("default to nil", func() {
+			ns := &NullInt64{}
 
 			value, err := ns.Value()
 			So(value, ShouldBeNil)
@@ -198,7 +217,13 @@ func TestNullInt64(t *testing.T) {
 
 			So(ns.IsDirty(), ShouldBeTrue)
 		})
+	})
 
+	Convey("IsSet", t, func() {
+		ns := &NullInt64{}
+		So(ns.IsSet(), ShouldBeFalse)
+		ns.Scan(47473)
+		So(ns.IsSet(), ShouldBeTrue)
 	})
 
 	Convey("ShadowValue", t, func() {
@@ -238,6 +263,13 @@ func TestNullInt64(t *testing.T) {
 
 		Convey("with null", func() {
 			s := NullInt64{}
+			s.Scan(nil)
+			data, _ := json.Marshal(s)
+			So(string(data), ShouldEqual, "null")
+		})
+
+		Convey("default to null when not set", func() {
+			s := NullInt64{}
 			data, _ := json.Marshal(s)
 			So(string(data), ShouldEqual, "null")
 		})
@@ -252,6 +284,7 @@ func TestNullInt64(t *testing.T) {
 			v, err := s.Value()
 			So(err, ShouldBeNil)
 			So(v, ShouldEqual, int64(5612))
+			So(s.IsSet(), ShouldBeTrue)
 		})
 
 		Convey("with null", func() {
@@ -261,6 +294,7 @@ func TestNullInt64(t *testing.T) {
 			_, err = s.Value()
 			So(err, ShouldBeNil)
 			So(s.Valid, ShouldBeFalse)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 	})
 }

@@ -26,7 +26,7 @@ func (u *User) PrimaryKey() norm.PrimaryKeyer {
 // IsNew returns true if the model is new and wasn't loaded from storage
 // Id must not be scanned for new models. Scanning in an Id effectively makes it appear not not new.
 func (u *User) IsNew() bool {
-	return !u.Id.Valid
+	return u.Id.Int64 == 0
 }
 
 var _ norm.Model = &User{}

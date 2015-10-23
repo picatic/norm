@@ -4,7 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 ### New
+- IsSet() bool added to all fields and is part of the field.Field interface
 ### Changed
+- Removed `Valid` field from non-nullable fields
+- Fixed a few Marshal/Unmarshal edge cases
+
 
 ## [0.1.1] - 2015-10-19
 ### New

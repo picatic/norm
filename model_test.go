@@ -224,6 +224,24 @@ func TestModel(t *testing.T) {
 			})
 		})
 
+		Convey("ModelGetSetFields", func() {
+			model := &MockModel{}
+
+			Convey("No set fields", func() {
+				f, err := ModelGetSetFields(model)
+				So(len(f), ShouldEqual, 0)
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Changed", func() {
+				model.Id.Scan("1")
+				model.FirstName.Scan("James James James")
+				f, err := ModelGetSetFields(model)
+				So(len(f), ShouldEqual, 2)
+				So(err, ShouldBeNil)
+			})
+		})
+
 		Convey("ModelValidate", func() {
 
 			Convey("With validation error", func() {

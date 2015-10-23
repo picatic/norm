@@ -1,10 +1,8 @@
 package field
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
-	"errors"
 	"gopkg.in/guregu/null.v2"
 )
 
@@ -12,19 +10,14 @@ import (
 type Bool struct {
 	Bool   bool
 	shadow bool
-	Valid  bool
 	ShadowInit
 }
 
 // Scan a value into the Bool, error on nil or unparsable
 func (b *Bool) Scan(value interface{}) error {
-	tmp := sql.NullBool{}
+	tmp := null.Bool{}
 	tmp.Scan(value)
 
-	if tmp.Valid == false {
-		return errors.New("Value should be a bool and not nil")
-	}
-	b.Valid = true
 	b.Bool = tmp.Bool
 
 	b.DoInit(func() {
@@ -36,9 +29,6 @@ func (b *Bool) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (b Bool) Value() (driver.Value, error) {
-	if b.Valid == false {
-		return nil, ErrorValueWasNotSet
-	}
 	return b.Bool, nil
 }
 
@@ -56,6 +46,11 @@ func (b Bool) IsDirty() bool {
 	return b.Bool != b.shadow
 }
 
+//IsSet indicates if Scan has been called successfully
+func (b Bool) IsSet() bool {
+	return b.InitDone()
+}
+
 // MarshalJSON Marshal just the value of Bool
 func (b Bool) MarshalJSON() ([]byte, error) {
 	return json.Marshal(b.Bool)
@@ -71,17 +66,18 @@ type nullBool null.Bool
 // NullBool that can be nil
 type NullBool struct {
 	nullBool
+	isSet  bool
 	shadow null.Bool
 	ShadowInit
 }
 
 // Scan a value into the Bool, error on unparsable
 func (nb *NullBool) Scan(value interface{}) error {
-
 	err := nb.nullBool.Scan(value)
 	if err != nil {
 		return err
 	}
+	nb.isSet = true
 
 	// load shadow on first scan only
 	nb.DoInit(func() {
@@ -92,15 +88,20 @@ func (nb *NullBool) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (nb NullBool) Value() (driver.Value, error) {
-	if !nb.Valid {
+	if nb.Valid == false || nb.isSet == false {
 		return nil, nil
 	}
 	return nb.Bool, nil
 }
 
 // IsDirty if the shadow value does not match the field value
-func (nb *NullBool) IsDirty() bool {
+func (nb NullBool) IsDirty() bool {
 	return nb.Valid != nb.shadow.Valid || nb.Bool != nb.shadow.Bool
+}
+
+//IsSet indicates if Scan has been called successfully
+func (nb NullBool) IsSet() bool {
+	return nb.isSet
 }
 
 // ShadowValue return the initial value of this field
@@ -129,7 +130,5 @@ func (nb *NullBool) UnmarshalJSON(data []byte) error {
 	if b.Valid == true {
 		return nb.Scan(b.Bool)
 	}
-	nb.Valid = false
-
-	return nil
+	return nb.Scan(nil)
 }

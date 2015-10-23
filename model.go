@@ -158,6 +158,25 @@ func modelGetField(model interface{}, fieldName field.Name) (field.Field, error)
 	return nil, errors.New("Name not found")
 }
 
+// ModelGetSetFields is named poorly but returns all the fields on a model that have been set.
+// For a field to be set, it must of been successfully called with Scan at least once.
+func ModelGetSetFields(model Model) (field.Names, error) {
+	fields := ModelFields(model)
+
+	var setFields field.Names
+
+	for _, field := range fields {
+		modelField, err := ModelGetField(model, field)
+		if err != nil {
+			return nil, err
+		}
+		if modelField.IsSet() {
+			setFields = append(setFields, field)
+		}
+	}
+	return setFields, nil
+}
+
 // ModelTableName get the complete table name including the database
 func ModelTableName(s Session, m Model) string {
 	return fmt.Sprintf("%s.%s", s.Connection().Database(), m.TableName())
