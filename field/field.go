@@ -94,7 +94,7 @@ type Field interface {
 	sql.Scanner   // we require Scanner implementations
 	driver.Valuer // our values stand and guard for thee
 	Shadower      // we require Shadower
-	// IsSet() bool  // True if Scan has been called
+	IsSet() bool  // True if Scan has been called
 }
 
 // compile time check
