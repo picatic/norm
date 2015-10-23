@@ -14,6 +14,7 @@ func TestString(t *testing.T) {
 
 			So(s.String, ShouldEqual, "Hello")
 			So(s.shadow, ShouldEqual, "Hello")
+			So(s.IsSet(), ShouldBeTrue)
 		})
 		Convey("secondary Scan should not update shadow", func() {
 
@@ -23,6 +24,7 @@ func TestString(t *testing.T) {
 
 			So(s.String, ShouldEqual, "Second")
 			So(s.shadow, ShouldEqual, "First")
+			So(s.IsSet(), ShouldBeTrue)
 		})
 	})
 
@@ -42,8 +44,8 @@ func TestString(t *testing.T) {
 			s.Scan(nil)
 
 			value, err := s.Value()
-			So(err, ShouldNotBeNil)
-			So(value, ShouldBeNil)
+			So(err, ShouldBeNil)
+			So(value, ShouldEqual, "")
 		})
 	})
 
@@ -87,6 +89,13 @@ func TestString(t *testing.T) {
 
 	})
 
+	Convey("IsSet", t, func() {
+		s := &String{}
+		So(s.IsSet(), ShouldBeFalse)
+		s.Scan("tea pot")
+		So(s.IsSet(), ShouldBeTrue)
+	})
+
 	Convey("ShadowValue", t, func() {
 		Convey("should return err before first scan", func() {
 			s := &String{}
@@ -127,6 +136,7 @@ func TestString(t *testing.T) {
 		v, err := s.Value()
 		So(err, ShouldBeNil)
 		So(v, ShouldEqual, "i am the string")
+		So(s.IsSet(), ShouldBeTrue)
 	})
 }
 
@@ -138,6 +148,7 @@ func TestNullString(t *testing.T) {
 
 			So(ns.String, ShouldEqual, "Hello")
 			So(ns.shadow.String, ShouldEqual, "Hello")
+			So(ns.IsSet(), ShouldBeTrue)
 		})
 		Convey("secondary Scan should not update shadow", func() {
 
@@ -147,6 +158,7 @@ func TestNullString(t *testing.T) {
 
 			So(ns.String, ShouldEqual, "Second")
 			So(ns.shadow.String, ShouldEqual, "First")
+			So(ns.IsSet(), ShouldBeTrue)
 		})
 	})
 
@@ -209,6 +221,13 @@ func TestNullString(t *testing.T) {
 
 	})
 
+	Convey("IsSet", t, func() {
+		s := &NullString{}
+		So(s.IsSet(), ShouldBeFalse)
+		s.Scan("tea pot")
+		So(s.IsSet(), ShouldBeTrue)
+	})
+
 	Convey("ShadowValue", t, func() {
 		Convey("should return err before first scan", func() {
 			ns := &NullString{}
@@ -269,6 +288,7 @@ func TestNullString(t *testing.T) {
 			_, err = s.Value()
 			So(err, ShouldBeNil)
 			So(s.Valid, ShouldBeFalse)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 
 	})
