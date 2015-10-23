@@ -63,3 +63,17 @@ type session struct {
 func (s session) Connection() Connection {
 	return s.connection
 }
+
+type Tx struct {
+	*dbr.Tx
+	connection Connection
+}
+
+func (t Tx) Connection() Connection {
+	return t.connection
+}
+
+func Begin(s Session) (*Tx, error) {
+	tx, err := s.Begin()
+	return &Tx{tx, s.Connection()}, err
+}

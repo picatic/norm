@@ -25,3 +25,5 @@ func TestConnection(t *testing.T) {
 		})
 	})
 }
+
+var tx Session = Tx{} //ensure Tx implements Session
