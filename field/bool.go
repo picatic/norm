@@ -46,7 +46,7 @@ func (b Bool) IsDirty() bool {
 	return b.Bool != b.shadow
 }
 
-// IsSet if Scan has been calledå
+//IsSet indicates if Scan has been called successfully
 func (b Bool) IsSet() bool {
 	return b.InitDone()
 }
@@ -99,6 +99,7 @@ func (nb NullBool) IsDirty() bool {
 	return nb.Valid != nb.shadow.Valid || nb.Bool != nb.shadow.Bool
 }
 
+//IsSet indicates if Scan has been called successfully
 func (nb NullBool) IsSet() bool {
 	return nb.isSet
 }

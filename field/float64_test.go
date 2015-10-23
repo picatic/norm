@@ -15,6 +15,7 @@ func TestFloat64(t *testing.T) {
 
 			So(s.Float64, ShouldEqual, 1234)
 			So(s.shadow, ShouldEqual, 1234)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 		Convey("secondary Scan should not update shadow", func() {
 
@@ -24,6 +25,7 @@ func TestFloat64(t *testing.T) {
 
 			So(s.Float64, ShouldEqual, 56.78)
 			So(s.shadow, ShouldEqual, 12.34)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 	})
 
@@ -38,13 +40,13 @@ func TestFloat64(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("should return empty Float64 on scanned nil", func() {
+		Convey("should return default Float64 on scanned nil", func() {
 			s := &Float64{}
 			s.Scan(nil)
 
 			value, err := s.Value()
-			So(value, ShouldEqual, nil)
-			So(err, ShouldNotBeNil)
+			So(value, ShouldEqual, float64(0))
+			So(err, ShouldBeNil)
 		})
 	})
 
@@ -69,6 +71,13 @@ func TestFloat64(t *testing.T) {
 
 			So(s.IsDirty(), ShouldBeTrue)
 		})
+	})
+
+	Convey("IsSet", t, func() {
+		s := &Float64{}
+		So(s.IsSet(), ShouldBeFalse)
+		s.Scan(1.23)
+		So(s.IsSet(), ShouldBeTrue)
 	})
 
 	Convey("ShadowValue", t, func() {
@@ -111,6 +120,7 @@ func TestFloat64(t *testing.T) {
 		v, err := s.Value()
 		So(err, ShouldBeNil)
 		So(v, ShouldEqual, float64(56.12))
+		So(s.IsSet(), ShouldBeTrue)
 	})
 }
 
@@ -244,6 +254,7 @@ func TestNullFloat64(t *testing.T) {
 			v, err := s.Value()
 			So(err, ShouldBeNil)
 			So(v, ShouldEqual, float64(56.12))
+			So(s.IsSet(), ShouldBeTrue)
 		})
 
 		Convey("with null", func() {
@@ -253,6 +264,7 @@ func TestNullFloat64(t *testing.T) {
 			_, err = s.Value()
 			So(err, ShouldBeNil)
 			So(s.Valid, ShouldBeFalse)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 	})
 }
