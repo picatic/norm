@@ -17,7 +17,6 @@ const (
 type Time struct {
 	Time   time.Time
 	shadow time.Time
-	Valid  bool
 	ShadowInit
 }
 
@@ -25,26 +24,25 @@ type Time struct {
 func (t *Time) Scan(value interface{}) error {
 	var err error
 	if value == nil {
-		t.Valid = false
-		return ErrorCouldNotScan("Time", value)
+		t.Time = time.Time{}
 	}
 	switch v := value.(type) {
 	case time.Time:
-		t.Time, t.Valid = v, true
+		t.Time = v
 		break
 	case []byte:
 		t.Time, err = parseDateTime(string(v), time.UTC)
-		t.Valid = (err == nil)
 		break
 	case string:
 		t.Time, err = parseDateTime(v, time.UTC)
-		t.Valid = (err == nil)
 		break
 	default:
 		return ErrorCouldNotScan("Time", value)
 	}
-
-	t.Valid = (err == nil)
+	if err != nil {
+		t.Time = time.Time{}
+		return err
+	}
 	// load shadow on first scan only
 	t.DoInit(func() {
 		t.shadow = t.Time
@@ -55,9 +53,6 @@ func (t *Time) Scan(value interface{}) error {
 
 // Value return the value of this field
 func (t Time) Value() (driver.Value, error) {
-	if t.Time.IsZero() == true || t.Valid == false {
-		return nil, ErrorValueWasNotSet
-	}
 	return t.Time, nil
 }
 
@@ -73,6 +68,11 @@ func (t Time) ShadowValue() (driver.Value, error) {
 // IsDirty if the shadow value does not match the field value
 func (t *Time) IsDirty() bool {
 	return t.Time != t.shadow
+}
+
+//IsSet indicates if Scan has been called successfully
+func (t Time) IsSet() bool {
+	return t.InitDone()
 }
 
 // MarshalJSON Marshal just the value of Time
@@ -163,6 +163,11 @@ func (nt *NullTime) IsDirty() bool {
 	return true
 }
 
+//IsSet indicates if Scan has been called successfully
+func (nt NullTime) IsSet() bool {
+	return nt.InitDone()
+}
+
 // ShadowValue return the initial value of this field
 func (nt NullTime) ShadowValue() (driver.Value, error) {
 	if nt.InitDone() {
@@ -176,7 +181,11 @@ func (nt NullTime) ShadowValue() (driver.Value, error) {
 
 // MarshalJSON Marshal just the value of String
 func (nt NullTime) MarshalJSON() ([]byte, error) {
-	return json.Marshal(nt.Time)
+	if nt.Valid {
+		return json.Marshal(nt.Time)
+	}
+	return json.Marshal(nil)
+
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
@@ -189,9 +198,7 @@ func (nt *NullTime) UnmarshalJSON(data []byte) error {
 	if t.Valid == true {
 		return nt.Scan(t.Time)
 	}
-	nt.Valid = false
-
-	return nil
+	return nt.Scan(nil)
 }
 
 // taken from https://github.com/go-sql-driver/mysql/blob/master/utils.go
