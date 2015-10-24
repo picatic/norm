@@ -47,5 +47,21 @@ func TestNames(t *testing.T) {
 			So(fns.Add(Names{"Id"}), ShouldResemble, Names{"FirstName", "LastName", "Created", "Id"})
 			So(fns.Add(Names{}), ShouldResemble, fns)
 		})
+
+		Convey("Intersect", func() {
+			fns1 := Names{"Id", "FirstName", "LastName", "Created", "Modified"}
+			fns2 := Names{"FirstName", "LastName", "Company"}
+			fnsr := fns1.Intersect(fns2)
+			So(len(fnsr), ShouldEqual, 2)
+			So(fnsr, ShouldContain, "FirstName")
+			So(fnsr, ShouldContain, "LastName")
+
+			// and backwords
+			fnsr = fns2.Intersect(fns1)
+			So(len(fnsr), ShouldEqual, 2)
+			So(fnsr, ShouldContain, "FirstName")
+			So(fnsr, ShouldContain, "LastName")
+		})
+
 	})
 }

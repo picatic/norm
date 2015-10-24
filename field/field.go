@@ -75,6 +75,17 @@ func (fn Names) Remove(names Names) Names {
 	return newNames
 }
 
+// Intersect returns the intersection of the two Names
+func (fn Names) Intersect(names Names) Names {
+	var union Names
+	for _, field := range names {
+		if fn.Has(field) {
+			union = append(union, field)
+		}
+	}
+	return union
+}
+
 // Add returns a new Names with the names provided added, no duplicates
 func (fn Names) Add(names Names) Names {
 	if len(names) == 0 {
