@@ -2,6 +2,7 @@ package norm
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gocraft/dbr"
 )
 
@@ -43,7 +44,7 @@ func (c connection) NewSession(log dbr.EventReceiver) Session {
 // Session return a Session to work with
 type Session interface {
 	// dbr.Session functions
-	Begin() (*dbr.Tx, error)
+	Begin() (Tx, error)
 	DeleteFrom(from string) *dbr.DeleteBuilder
 	InsertInto(into string) *dbr.InsertBuilder
 	Select(cols ...string) *dbr.SelectBuilder
@@ -62,4 +63,34 @@ type session struct {
 // Connection returns the connection used to create the session
 func (s session) Connection() Connection {
 	return s.connection
+}
+
+// Begin returns a norm Tx which has wrapped a dbr.Tx
+// A real database connection has been aquired and is held by the enclosed sql.Tx instance
+func (s session) Begin() (Tx, error) {
+	dbrTx, err := s.Session.Begin()
+	return &tx{dbrTx, s.Connection()}, err
+}
+
+// Tx embeds dbr.Tx and norm Session
+type Tx interface {
+	Session
+	Commit() error
+	Rollback() error
+	RollbackUnlessCommitted()
+}
+
+// tx implements Tx interface
+type tx struct {
+	*dbr.Tx
+	connection Connection
+}
+
+// Connection returns norm Connection
+func (t tx) Connection() Connection {
+	return t.connection
+}
+
+func (t tx) Begin() (Tx, error) {
+	return nil, errors.New("Support for nested transactions not implemented")
 }
