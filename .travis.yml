@@ -9,4 +9,4 @@ install:
   - glide install
   - go get ./vendor/...
 script:
-  - go test -v -covermode=count  -bench . -cpu 1,4
+  - make test-ci

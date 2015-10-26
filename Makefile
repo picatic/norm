@@ -3,7 +3,7 @@ VERSION_MAJOR = $(shell cat VERSION | sed 's/^v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\
 VERSION_MINOR = $(shell cat VERSION | sed 's/^v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*$$/\2/')
 VERSION_BUILD = $(shell cat VERSION | sed 's/^v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*$$/\3/')
 
-.PHONY: test
+.PHONY: test test-ci
 
 
 bump: VERSION
@@ -17,4 +17,7 @@ bump: VERSION
 	git push --tags
 
 test:
-	go test -v $(shell glide novendor)
+	go test -v -cpu 1,4 $(shell glide novendor)
+
+test-ci:
+	go test -v -covermode=count  -bench . -cpu 1,4 $(shell glide novendor)
