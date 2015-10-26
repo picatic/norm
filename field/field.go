@@ -42,6 +42,24 @@ func (fn Name) SnakeCase() string {
 // Names A set of Names
 type Names []Name
 
+// NewNamesFromString create Names from []string
+func NewNamesFromString(strs []string) Names {
+	names := make(Names, len(strs), len(strs))
+	for i, v := range strs {
+		names[i] = Name(string(v))
+	}
+	return names
+}
+
+// NewNamesFromSnakeCase create Names with snake_case []string
+func NewNamesFromSnakeCase(snakes []string) Names {
+	names := make(Names, len(snakes), len(snakes))
+	for i, v := range snakes {
+		names[i] = NewNameFromSnakeCase(v)
+	}
+	return names
+}
+
 // SnakeCase Return []string of snake_case field names for database map
 func (fn Names) SnakeCase() []string {
 	snakes := make([]string, len(fn))
