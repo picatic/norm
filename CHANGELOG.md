@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 ### New
+### Changed
+
+## [0.2.0] - 2015-10-25
+### New
 - IsSet() bool added to all fields and is part of the field.Field interface
 - field.Names can now return the intersection of two sets, Intersect()
 ### Changed
