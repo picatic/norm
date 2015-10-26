@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/picatic/norm"
 	"github.com/picatic/norm/field"
 )
 
@@ -21,4 +22,8 @@ func (u *User) PrimaryKeyFieldName() field.Name {
 
 func (u *User) IsNew() bool {
 	return u.Id.Valid
+}
+
+func (u User) PrimaryKey() norm.PrimaryKeyer {
+	return norm.NewSinglePrimaryKey(field.Name("Id"))
 }

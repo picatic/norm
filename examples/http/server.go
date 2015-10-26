@@ -6,14 +6,13 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gocraft/dbr"
 	"github.com/picatic/norm"
 	"log"
 	"net/http"
 	"net/url"
 )
 
-var dbrConnection *dbr.Connection
+var normConnection norm.Connection
 
 func main() {
 	mysqlUri := flag.String("mysql", "mysql://norm_demo:password@localhost:3306/norm_demo", "provide a database/sql driver uri")
@@ -40,7 +39,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dbrConnection = dbr.NewConnection(db, nil)
+	normConnection = norm.NewConnection(db, "norm", nil)
 
 	// register some handlers
 	http.HandleFunc("/users", usersHandler)
@@ -55,11 +54,11 @@ func usersHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "POST":
-		norm.NewSelect(dbrConnection.NewSession(nil), &User{}, nil)
+		norm.NewSelect(normConnection.NewSession(nil), &User{}, nil)
 	case "GET":
 		users := make([]*User, 0)
 
-		selectQ := norm.NewSelect(dbrConnection.NewSession(nil), &User{}, nil)
+		selectQ := norm.NewSelect(normConnection.NewSession(nil), &User{}, nil)
 		_, err := selectQ.LoadStructs(&users)
 		if err != nil {
 			handleError(rw, err, http.StatusInternalServerError)
@@ -76,10 +75,10 @@ func usersIdHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "POST":
-		norm.NewSelect(dbrConnection.NewSession(nil), &User{}, nil)
+		norm.NewSelect(normConnection.NewSession(nil), &User{}, nil)
 	case "GET":
 		user := &User{}
-		norm.NewSelect(dbrConnection.NewSession(nil), &User{}, nil).Where("id = ?", 1).LoadStruct(user)
+		norm.NewSelect(normConnection.NewSession(nil), &User{}, nil).Where("id = ?", 1).LoadStruct(user)
 
 	default:
 		rw.Write([]byte("WHAT?"))
