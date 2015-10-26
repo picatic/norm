@@ -25,6 +25,21 @@ func TestName(t *testing.T) {
 func TestNames(t *testing.T) {
 	Convey("Names", t, func() {
 
+		Convey("NewNamesFromString", func() {
+			fns := NewNamesFromString([]string{"Id", "FirstName"})
+			So(len(fns), ShouldEqual, 2)
+			So(fns.Has("Id"), ShouldBeTrue)
+			So(fns.Has("FirstName"), ShouldBeTrue)
+		})
+
+		Convey("NewNamesFromSnakeCase", func() {
+			fns := NewNamesFromSnakeCase([]string{"id", "first_name", "a_good_idea"})
+			So(len(fns), ShouldEqual, 3)
+			So(fns.Has("Id"), ShouldBeTrue)
+			So(fns.Has("FirstName"), ShouldBeTrue)
+			So(fns.Has("AGoodIdea"), ShouldBeTrue)
+		})
+
 		Convey("SnakeCase", func() {
 			fns := &Names{"Id", "FirstName"}
 			So(fns.SnakeCase(), ShouldResemble, []string{"id", "first_name"})
