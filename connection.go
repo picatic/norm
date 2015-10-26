@@ -64,16 +64,28 @@ func (s session) Connection() Connection {
 	return s.connection
 }
 
-type Tx struct {
+// Tx embeds dbr.Tx and norm Session
+type Tx interface {
+	Session
+	Commit() error
+	Rollback() error
+	RollbackUnlessCommitted()
+}
+
+// tx implements Tx interface
+type tx struct {
 	*dbr.Tx
 	connection Connection
 }
 
-func (t Tx) Connection() Connection {
+// Connection returns norm Connection
+func (t tx) Connection() Connection {
 	return t.connection
 }
 
-func Begin(s Session) (*Tx, error) {
-	tx, err := s.Begin()
-	return &Tx{tx, s.Connection()}, err
+// Begin returns a norm Tx which has wrapped a dbr.Tx
+// A real database connection has been aquired and is held by the enclosed sql.Tx instance
+func Begin(s Session) (Tx, error) {
+	dbrTx, err := s.Begin()
+	return &tx{dbrTx, s.Connection()}, err
 }

@@ -26,4 +26,5 @@ func TestConnection(t *testing.T) {
 	})
 }
 
-var tx Session = Tx{} //ensure Tx implements Session
+var _ Session = &tx{} //ensure tx implements Session
+var _ Tx = &tx{}      //ensure tx implements Tx
