@@ -290,5 +290,9 @@ func ModelValidate(sess Session, model Model, fields field.Names) error {
 			return nil
 		}
 	}
-	return validators.Validate(sess, model, fields)
+	err := validators.Validate(sess, model, fields)
+	if err == nil { // a ptr to a struct cast into an interface is no longer really nil
+		return nil
+	}
+	return err
 }
