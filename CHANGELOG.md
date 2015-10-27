@@ -6,6 +6,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### New
 ### Changed
 
+## [0.2.2] - 2015-10-27
+### Fixed
+- ModelValidate would return a non-nil value when it intended to return a nil value for no errors
+
+## [0.2.1] - 2015-10-26
+### Changed
+- Wrapped dbr.Tx in an interface and updated Session implementation to return our wrap
+
 ## [0.2.0] - 2015-10-25
 ### New
 - IsSet() bool added to all fields and is part of the field.Field interface
