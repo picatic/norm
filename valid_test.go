@@ -113,12 +113,10 @@ func TestValidator(t *testing.T) {
 		})
 
 		Convey("error passed", func() {
-			Convey("nil error follows through", func() {
-				m := &MockModel{}
-				m.FirstName.Scan("Not Pete")
-				err := ModelValidate(normConn.NewSession(nil), m, nil)
-				So(err, ShouldNotBeNil)
-			})
+			m := &MockModel{}
+			m.FirstName.Scan("Not Pete")
+			err := ModelValidate(normConn.NewSession(nil), m, nil)
+			So(err, ShouldNotBeNil)
 		})
 	})
 
