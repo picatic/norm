@@ -143,6 +143,4 @@ func (ns *NullString) UnmarshalJSON(data []byte) error {
 		return ns.Scan(s.String)
 	}
 	return ns.Scan(nil)
-
-	return nil
 }

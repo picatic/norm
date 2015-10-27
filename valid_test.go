@@ -103,7 +103,21 @@ func TestValidator(t *testing.T) {
 	})
 
 	Convey("ModelValidator", t, func() {
+		normConn := NewConnection(nil, "picatic", nil)
+		Convey("nil error follows through", func() {
+			m := &MockModel{}
+			m.FirstName.Scan("Pete")
+			err := ModelValidate(normConn.NewSession(nil), m, nil)
+			So(err, ShouldBeNil)
+			So(err == nil, ShouldBeTrue)
+		})
 
+		Convey("error passed", func() {
+			m := &MockModel{}
+			m.FirstName.Scan("Not Pete")
+			err := ModelValidate(normConn.NewSession(nil), m, nil)
+			So(err, ShouldNotBeNil)
+		})
 	})
 
 	Convey("FieldValidator", t, func() {
