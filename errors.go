@@ -1,13 +1,15 @@
 package norm
 
 import (
-  "github.com/gocraft/dbr"
+	"github.com/gocraft/dbr"
 )
 
 // Copy errors from dbr
-var ErrArgumentMismatch := dbr.ErrArgumentMismatch
-var ErrInvalidSliceLength := dbr.ErrInvalidSliceLength
-var ErrInvalidSliceValue := dbr.ErrInvalidSliceValue
-var ErrInvalidValue := dbr.ErrInvalidValue
-var ErrNotFound := dbr.ErrNotFound
-var ErrNotUTF8 := dbr.ErrNotUTF8
+var (
+	ErrArgumentMismatch   = dbr.ErrArgumentMismatch
+	ErrInvalidSliceLength = dbr.ErrInvalidSliceLength
+	ErrInvalidSliceValue  = dbr.ErrInvalidSliceValue
+	ErrInvalidValue       = dbr.ErrInvalidValue
+	ErrNotFound           = dbr.ErrNotFound
+	ErrNotUTF8            = dbr.ErrNotUTF8
+)
