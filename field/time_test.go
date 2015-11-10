@@ -47,6 +47,16 @@ func TestTime(t *testing.T) {
 			So(s.IsSet(), ShouldBeTrue)
 		})
 
+		Convey("Zero time is an error", func() {
+			s := &Time{}
+			t := time.Time{}
+			err := s.Scan(t)
+
+			So(err, ShouldNotBeNil)
+
+			So(s.IsSet(), ShouldBeFalse)
+		})
+
 		Convey("can set with bytes", func() {
 			s := &Time{}
 			err := s.Scan([]byte(timeA))
@@ -315,6 +325,27 @@ func TestNullTime(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(v.(time.Time).String(), ShouldEqual, "2015-01-01 12:12:12 +0000 UTC")
 			So(s.IsSet(), ShouldBeTrue)
+		})
+
+		Convey("Invalid Date format", func() {
+			s := NullTime{}
+			err := json.Unmarshal([]byte("\"2015-01-01 12:12:12\""), &s)
+			So(err, ShouldNotBeNil)
+			So(s.IsSet(), ShouldBeFalse)
+		})
+
+		Convey("Invalid empty string", func() {
+			s := NullTime{}
+			err := json.Unmarshal([]byte("\"\""), &s)
+			So(err, ShouldNotBeNil)
+			So(s.IsSet(), ShouldBeFalse)
+		})
+
+		Convey("Invalid date range", func() {
+			s := NullTime{}
+			err := json.Unmarshal([]byte("\"0001-01-01T00:00:00.00Z\""), &s)
+			So(err, ShouldNotBeNil)
+			So(s.IsSet(), ShouldBeFalse)
 		})
 
 		Convey("null date", func() {
