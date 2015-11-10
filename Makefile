@@ -19,7 +19,6 @@ else
 	git push origin master
 	git push --tags
 endif
-
 test:
 	go test -v -cpu 1,4 $(shell glide novendor)
 
