@@ -114,11 +114,12 @@ func (nt *NullTime) Scan(value interface{}) error {
 	case time.Time:
 		if v.IsZero() {
 			nt.Valid = false
+			nt.validNull = true
+
+		} else {
+			nt.Time, nt.Valid = v, true
 			nt.validNull = false
-			return ErrorCouldNotScan("Time", value)
 		}
-		nt.Time, nt.Valid = v, true
-		nt.validNull = false
 		break
 	case []byte:
 		nt.Time, err = parseDateTime(string(v), time.UTC)

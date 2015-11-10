@@ -190,6 +190,15 @@ func TestNullTime(t *testing.T) {
 			So(ns.shadow.Time.Format(timeFormat), ShouldEqual, timeA)
 			So(ns.IsSet(), ShouldBeTrue)
 		})
+
+		Convey("zero time is nil", func() {
+			ns := NullTime{}
+			t := time.Time{}
+			err := ns.Scan(t)
+			So(err, ShouldBeNil)
+			So(ns.Valid, ShouldBeFalse)
+			So(ns.IsSet(), ShouldBeTrue)
+		})
 		Convey("secondary Scan should not update shadow", func() {
 
 			ns := &NullTime{}
@@ -341,11 +350,12 @@ func TestNullTime(t *testing.T) {
 			So(s.IsSet(), ShouldBeFalse)
 		})
 
-		Convey("Invalid date range", func() {
+		Convey("Invalid date range. as zero time?", func() {
 			s := NullTime{}
 			err := json.Unmarshal([]byte("\"0001-01-01T00:00:00.00Z\""), &s)
-			So(err, ShouldNotBeNil)
-			So(s.IsSet(), ShouldBeFalse)
+			So(err, ShouldBeNil)
+			So(s.Valid, ShouldBeFalse)
+			So(s.IsSet(), ShouldBeTrue)
 		})
 
 		Convey("null date", func() {
