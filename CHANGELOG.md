@@ -6,6 +6,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### New
 ### Changed
 
+## [0.2.4] - 2015-11-10
+### Fixed
+- Fixed better handling of Time.IsZero()
+
+## [0.2.3] - 2015-11-10
+### Fixed
+- Better handling of Time.IsZero()
+
 ## [0.2.2] - 2015-10-27
 ### Fixed
 - ModelValidate would return a non-nil value when it intended to return a nil value for no errors
