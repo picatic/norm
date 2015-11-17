@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"gopkg.in/guregu/null.v2"
+	"gopkg.in/guregu/null.v3"
 )
 
 // Int64 that cannot be nil
