@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gopkg.in/guregu/null.v2"
+	"gopkg.in/guregu/null.v3"
 	"time"
 )
 

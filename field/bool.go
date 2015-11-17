@@ -3,7 +3,7 @@ package field
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"gopkg.in/guregu/null.v2"
+	"gopkg.in/guregu/null.v3"
 )
 
 // Bool that cannot be nil

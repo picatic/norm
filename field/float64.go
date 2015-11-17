@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"gopkg.in/guregu/null.v2"
+	"gopkg.in/guregu/null.v3"
 )
 
 // Float64 cannot be nil

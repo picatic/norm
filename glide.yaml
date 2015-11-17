@@ -1,6 +1,7 @@
 package: github.com/picatic/norm
 import:
   - package: github.com/gocraft/dbr
+    ref:     1.1
   - package: github.com/AlekSi/reflector
   - package: github.com/DATA-DOG/go-sqlmock
     ref:     v1.0.0
@@ -9,7 +10,7 @@ import:
   - package: github.com/go-sql-driver/mysql
     repo:    https://github.com/go-sql-driver/mysql
     vcs:     git
-  - package: gopkg.in/guregu/null.v2
+  - package: gopkg.in/guregu/null.v3
   - package: github.com/kisielk/sqlstruct
   - package: github.com/smartystreets/goconvey
   - package: github.com/smartystreets/assertions
