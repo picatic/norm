@@ -3,27 +3,20 @@ package field
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"gopkg.in/guregu/null.v3"
 	"time"
 )
 
-const (
-	timeFormat     = "2006-01-02 15:04:05.000000"
-	timeTimeFormat = "15:04:05"
-	timeDateFormat = "2006-01-02"
-)
-
 // Time field that does not accept nil
-type Time struct {
+type TimeDate struct {
 	Time   time.Time
 	shadow time.Time
 	ShadowInit
 }
 
 // Scan a value into the Time, error on nil or unparsable
-func (t *Time) Scan(value interface{}) error {
+func (t *TimeDate) Scan(value interface{}) error {
 	var err error
 	if value == nil {
 		t.Time = time.Time{}
@@ -36,10 +29,10 @@ func (t *Time) Scan(value interface{}) error {
 		t.Time = v
 		break
 	case []byte:
-		t.Time, err = parseDateTime(string(v), time.UTC)
+		t.Time, err = parseTimeDate(string(v))
 		break
 	case string:
-		t.Time, err = parseDateTime(v, time.UTC)
+		t.Time, err = parseTimeDate(v)
 		break
 	default:
 		return ErrorCouldNotScan("Time", value)
@@ -57,12 +50,12 @@ func (t *Time) Scan(value interface{}) error {
 }
 
 // Value return the value of this field
-func (t Time) Value() (driver.Value, error) {
+func (t TimeDate) Value() (driver.Value, error) {
 	return t.Time, nil
 }
 
 // ShadowValue return the initial value of this field
-func (t Time) ShadowValue() (driver.Value, error) {
+func (t TimeDate) ShadowValue() (driver.Value, error) {
 	if t.InitDone() {
 		return t.shadow, nil
 	}
@@ -71,37 +64,32 @@ func (t Time) ShadowValue() (driver.Value, error) {
 }
 
 // IsDirty if the shadow value does not match the field value
-func (t *Time) IsDirty() bool {
+func (t *TimeDate) IsDirty() bool {
 	return t.Time != t.shadow
 }
 
 //IsSet indicates if Scan has been called successfully
-func (t Time) IsSet() bool {
+func (t TimeDate) IsSet() bool {
 	return t.InitDone()
 }
 
 // MarshalJSON Marshal just the value of Time
-func (t Time) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.Time)
+func (t TimeDate) MarshalJSON() ([]byte, error) {
+	str := t.Time.Format(timeDateFormat)
+	return json.Marshal(str)
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (t *Time) UnmarshalJSON(data []byte) error {
-	tmp := null.Time{}
-	err := json.Unmarshal(data, &tmp)
+func (t *TimeDate) UnmarshalJSON(data []byte) error {
+	timeDate, err := parseTimeDate(string(data))
 	if err != nil {
 		return err
 	}
-	if tmp.Valid == false {
-		return errors.New("Attempted to unmarshal null value")
-	}
-	return t.Scan(tmp.Time)
+	return t.Scan(timeDate)
 }
 
-type nullTime null.Time
-
 // NullTime time that can be nil
-type NullTime struct {
+type NullTimeDate struct {
 	nullTime
 	validNull       bool
 	shadow          null.Time
@@ -110,7 +98,7 @@ type NullTime struct {
 }
 
 // Scan a value into the Time, error on unparsable
-func (nt *NullTime) Scan(value interface{}) error {
+func (nt *NullTimeDate) Scan(value interface{}) error {
 	var err error
 	switch v := value.(type) {
 	case time.Time:
@@ -124,7 +112,7 @@ func (nt *NullTime) Scan(value interface{}) error {
 		}
 		break
 	case []byte:
-		nt.Time, err = parseDateTime(string(v), time.UTC)
+		nt.Time, err = parseTimeDate(string(v))
 		if nt.Time.IsZero() == true {
 			nt.Valid = false
 			nt.validNull = false
@@ -136,7 +124,7 @@ func (nt *NullTime) Scan(value interface{}) error {
 		}
 		break
 	case string:
-		nt.Time, err = parseDateTime(v, time.UTC)
+		nt.Time, err = parseTimeDate(v)
 		if nt.Time.IsZero() == true {
 			nt.Valid = false
 			nt.validNull = false
@@ -167,7 +155,7 @@ func (nt *NullTime) Scan(value interface{}) error {
 }
 
 // Value return the value of this field
-func (nt NullTime) Value() (driver.Value, error) {
+func (nt NullTimeDate) Value() (driver.Value, error) {
 	if nt.validNull {
 		return nil, nil
 	}
@@ -175,7 +163,7 @@ func (nt NullTime) Value() (driver.Value, error) {
 }
 
 // IsDirty if the shadow value does not match the field value
-func (nt *NullTime) IsDirty() bool {
+func (nt *NullTimeDate) IsDirty() bool {
 	if nt.validNull && nt.shadowValidNull {
 		return false
 	} else if nt.validNull == false && nt.shadowValidNull == false {
@@ -185,12 +173,12 @@ func (nt *NullTime) IsDirty() bool {
 }
 
 //IsSet indicates if Scan has been called successfully
-func (nt NullTime) IsSet() bool {
+func (nt NullTimeDate) IsSet() bool {
 	return nt.InitDone()
 }
 
 // ShadowValue return the initial value of this field
-func (nt NullTime) ShadowValue() (driver.Value, error) {
+func (nt NullTimeDate) ShadowValue() (driver.Value, error) {
 	if nt.InitDone() {
 		if nt.shadowValidNull {
 			return nil, nil
@@ -201,46 +189,38 @@ func (nt NullTime) ShadowValue() (driver.Value, error) {
 }
 
 // MarshalJSON Marshal just the value of String
-func (nt NullTime) MarshalJSON() ([]byte, error) {
+func (nt NullTimeDate) MarshalJSON() ([]byte, error) {
 	if nt.Valid {
-		return json.Marshal(nt.Time)
+		str := nt.Time.Format(timeDateFormat)
+		return json.Marshal(str)
 	}
 	return json.Marshal(nil)
-
 }
 
 // UnmarshalJSON implements encoding/json Unmarshaler
-func (nt *NullTime) UnmarshalJSON(data []byte) error {
-	t := &null.Time{}
-	err := t.UnmarshalJSON(data)
+func (nt *NullTimeDate) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		return nt.Scan(nil)
+	}
+
+	timeDate, err := parseTimeDate(string(data))
 	if err != nil {
 		return err
 	}
-	if t.Valid == true {
-		return nt.Scan(t.Time)
-	}
-	return nt.Scan(nil)
+	return nt.Scan(timeDate)
 }
 
-// taken from https://github.com/go-sql-driver/mysql/blob/master/utils.go
-func parseDateTime(str string, loc *time.Location) (t time.Time, err error) {
-	base := "0000-00-00 00:00:00.0000000"
+func parseTimeDate(str string) (t time.Time, err error) {
+	base := "0000-00-00"
 	switch len(str) {
-	case 10, 19, 21, 22, 23, 24, 25, 26: // up to "YYYY-MM-DD HH:MM:SS.MMMMMM"
+	case 10: // up to "YYYY-MM-DD HH:MM:SS.MMMMMM"
 		if str == base[:len(str)] {
 			return
 		}
-		t, err = time.Parse(timeFormat[:len(str)], str)
+		t, err = time.Parse(timeDateFormat[:len(str)], str)
 	default:
 		err = fmt.Errorf("Invalid Time-String: %s", str)
 		return
-	}
-
-	// Adjust location
-	if err == nil && loc != time.UTC {
-		y, mo, d := t.Date()
-		h, mi, s := t.Clock()
-		t, err = time.Date(y, mo, d, h, mi, s, t.Nanosecond(), loc), nil
 	}
 
 	return
