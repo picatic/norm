@@ -81,7 +81,12 @@ func (t TimeTime) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (t *TimeTime) UnmarshalJSON(data []byte) error {
-	timeTime, err := parseTimeTime(string(data), time.UTC)
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err != nil {
+		return err
+	}
+	timeTime, err := parseTimeTime(str, time.UTC)
 	if err != nil {
 		return err
 	}
@@ -204,7 +209,12 @@ func (nt *NullTimeTime) UnmarshalJSON(data []byte) error {
 		return nt.Scan(nil)
 	}
 
-	timeTime, err := parseTimeTime(string(data), time.UTC)
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err != nil {
+		return err
+	}
+	timeTime, err := parseTimeTime(str, time.UTC)
 	if err != nil {
 		return err
 	}
