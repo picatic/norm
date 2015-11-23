@@ -24,7 +24,7 @@ func (t *TimeDate) Scan(value interface{}) error {
 	switch v := value.(type) {
 	case time.Time:
 		if v.IsZero() {
-			return ErrorCouldNotScan("Time", value)
+			return ErrorCouldNotScan("TimeDate", value)
 		}
 		t.Time = v
 		break
@@ -35,7 +35,7 @@ func (t *TimeDate) Scan(value interface{}) error {
 		t.Time, err = parseTimeDate(v)
 		break
 	default:
-		return ErrorCouldNotScan("Time", value)
+		return ErrorCouldNotScan("TimeDate", value)
 	}
 	if err != nil {
 		t.Time = time.Time{}
@@ -121,7 +121,7 @@ func (nt *NullTimeDate) Scan(value interface{}) error {
 		if nt.Time.IsZero() == true {
 			nt.Valid = false
 			nt.validNull = false
-			return ErrorCouldNotScan("NullTime", value)
+			return ErrorCouldNotScan("NullTimeDate", value)
 		}
 		nt.Valid = (err == nil)
 		if err == nil {
@@ -133,7 +133,7 @@ func (nt *NullTimeDate) Scan(value interface{}) error {
 		if nt.Time.IsZero() == true {
 			nt.Valid = false
 			nt.validNull = false
-			return ErrorCouldNotScan("NullTime", value)
+			return ErrorCouldNotScan("NullTimeDate", value)
 		}
 		nt.Valid = (err == nil)
 		if err == nil {
@@ -145,7 +145,7 @@ func (nt *NullTimeDate) Scan(value interface{}) error {
 			nt.Valid = false
 			nt.validNull = true
 		} else {
-			err = ErrorCouldNotScan("NullTime", value)
+			err = ErrorCouldNotScan("NullTimeDate", value)
 		}
 	}
 

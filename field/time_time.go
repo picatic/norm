@@ -24,7 +24,7 @@ func (t *TimeTime) Scan(value interface{}) error {
 	switch v := value.(type) {
 	case time.Time:
 		if v.IsZero() {
-			return ErrorCouldNotScan("Time", value)
+			return ErrorCouldNotScan("TimeTime", value)
 		}
 		t.Time = v
 		break
@@ -35,7 +35,7 @@ func (t *TimeTime) Scan(value interface{}) error {
 		t.Time, err = parseTimeTime(v, time.UTC)
 		break
 	default:
-		return ErrorCouldNotScan("Time", value)
+		return ErrorCouldNotScan("TimeTime", value)
 	}
 	if err != nil {
 		t.Time = time.Time{}
@@ -107,22 +107,11 @@ func (nt *NullTimeTime) Scan(value interface{}) error {
 	var err error
 	switch v := value.(type) {
 	case time.Time:
-		if v.IsZero() {
-			nt.Valid = false
-			nt.validNull = true
-
-		} else {
-			nt.Time, nt.Valid = v, true
-			nt.validNull = false
-		}
+		nt.Time, nt.Valid = v, true
+		nt.validNull = false
 		break
 	case []byte:
 		nt.Time, err = parseTimeTime(string(v), time.UTC)
-		if nt.Time.IsZero() == true {
-			nt.Valid = false
-			nt.validNull = false
-			return ErrorCouldNotScan("NullTime", value)
-		}
 		nt.Valid = (err == nil)
 		if err == nil {
 			nt.validNull = false
@@ -130,11 +119,6 @@ func (nt *NullTimeTime) Scan(value interface{}) error {
 		break
 	case string:
 		nt.Time, err = parseTimeTime(v, time.UTC)
-		if nt.Time.IsZero() == true {
-			nt.Valid = false
-			nt.validNull = false
-			return ErrorCouldNotScan("NullTime", value)
-		}
 		nt.Valid = (err == nil)
 		if err == nil {
 			nt.validNull = false
@@ -145,7 +129,7 @@ func (nt *NullTimeTime) Scan(value interface{}) error {
 			nt.Valid = false
 			nt.validNull = true
 		} else {
-			err = ErrorCouldNotScan("NullTime", value)
+			err = ErrorCouldNotScan("NullTimeTime", value)
 		}
 	}
 
