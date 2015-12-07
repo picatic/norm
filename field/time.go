@@ -171,6 +171,9 @@ func (nt NullTime) Value() (driver.Value, error) {
 	if nt.validNull {
 		return nil, nil
 	}
+	if nt.Time.IsZero() {
+		return nil, nil
+	}
 	return nt.Time, nil
 }
 
