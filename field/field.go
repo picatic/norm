@@ -3,7 +3,7 @@ package field
 import (
 	"database/sql"
 	"database/sql/driver"
-	"github.com/gocraft/dbr"
+	"unicode"
 )
 
 // Shadower Support for shadow fields. Allows us to determine if a field has been altered or not.
@@ -36,7 +36,24 @@ func NewNameFromSnakeCase(name string) Name {
 
 // SnakeCase Returns a field as SnakeCase
 func (fn Name) SnakeCase() string {
-	return dbr.NameMapping(string(fn))
+	var newstr []rune
+	lastLower := false
+	for _, chr := range fn {
+		if unicode.IsUpper(chr) {
+			if lastLower {
+				newstr = append(newstr, '_')
+			}
+			newstr = append(newstr, unicode.ToLower(chr))
+			lastLower = false
+		} else if unicode.IsLower(chr) {
+			newstr = append(newstr, chr)
+			lastLower = true
+		} else {
+			newstr = append(newstr, chr)
+			lastLower = false
+		}
+	}
+	return string(newstr)
 }
 
 // Names A set of Names
