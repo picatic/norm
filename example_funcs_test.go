@@ -92,7 +92,7 @@ func ExampleNewInsert() {
 	outputJson(insertArgs)
 
 	// Output:
-	// DML: INSERT INTO norm_mysql.norm_users (`first_name`,`last_name`,`email`) VALUES (?,?,?)
+	// DML: INSERT INTO `norm_mysql`.`norm_users` (`first_name`,`last_name`,`email`) VALUES (?,?,?)
 	// ARGS: ["Zim","Ham","zh@example.com"]
 
 }
@@ -113,7 +113,7 @@ func ExampleNewDelete() {
 	outputJson(deleteArgs)
 
 	// Output:
-	// DML: DELETE FROM norm_mysql.norm_users WHERE (id = ?)
+	// DML: DELETE FROM `norm_mysql`.`norm_users` WHERE (id = ?)
 	// ARGS: [5432]
 
 }

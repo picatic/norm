@@ -6,10 +6,13 @@ import (
 
 // Copy errors from dbr
 var (
-	ErrArgumentMismatch   = dbr.ErrArgumentMismatch
-	ErrInvalidSliceLength = dbr.ErrInvalidSliceLength
-	ErrInvalidSliceValue  = dbr.ErrInvalidSliceValue
-	ErrInvalidValue       = dbr.ErrInvalidValue
 	ErrNotFound           = dbr.ErrNotFound
-	ErrNotUTF8            = dbr.ErrNotUTF8
+	ErrNotSupported       = dbr.ErrNotSupported
+	ErrTableNotSpecified  = dbr.ErrTableNotSpecified
+	ErrColumnNotSpecified = dbr.ErrColumnNotSpecified
+	ErrInvalidPointer     = dbr.ErrInvalidPointer
+	ErrPlaceholderCount   = dbr.ErrPlaceholderCount
+	ErrInvalidSliceLength = dbr.ErrInvalidSliceLength
+	ErrCantConvertToTime  = dbr.ErrCantConvertToTime
+	ErrInvalidTimestring  = dbr.ErrInvalidTimestring
 )
