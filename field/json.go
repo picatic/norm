@@ -8,38 +8,48 @@ import (
 
 // JSON field type, does not allow nil
 type JSON struct {
-	JSON   interface{}
-	shadow interface{}
+	JSON    interface{}
+	shadow  interface{}
+	isDirty bool
+	scanned bool
 	ShadowInit
 }
 
 // Scan a value into the string, error on nil
-func (j *JSON) Scan(value interface{}) error {
+func (j *JSON) Scan(value interface{}) (err error) {
 	switch value := value.(type) {
 	case nil:
 		j.JSON = nil
-		return nil
+		err = nil
 	case string:
-		return j.UnmarshalJSON([]byte(value))
+		err = j.UnmarshalJSON([]byte(value))
 	case []byte:
-		return j.UnmarshalJSON(value)
+		err = j.UnmarshalJSON(value)
 	case map[string]interface{}:
-		_, err := json.Marshal(value)
+		_, err = json.Marshal(value)
 		if err != nil {
 			return err
 		}
 		j.JSON = value
-		return nil
+		err = nil
 	case []interface{}:
-		_, err := json.Marshal(value)
+		_, err = json.Marshal(value)
 		if err != nil {
 			return err
 		}
 		j.JSON = value
-		return nil
+		err = nil
 	default:
 		return errors.New("Unrecognized type")
 	}
+
+	if !j.scanned {
+		j.scanned = true
+	} else if !j.isDirty {
+		j.isDirty = true
+	}
+
+	return
 }
 
 // Value return the value of this field
@@ -48,7 +58,12 @@ func (j JSON) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return j.MarshalJSON()
+	bytes, err := j.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+
+	return string(bytes), nil
 }
 
 // ShadowValue return the initial value of this field
@@ -58,7 +73,12 @@ func (j JSON) ShadowValue() (driver.Value, error) {
 			return nil, nil
 		}
 
-		return json.Marshal(j.shadow)
+		bytes, err := json.Marshal(j.shadow)
+		if err != nil {
+			return nil, err
+		}
+
+		return string(bytes), nil
 	}
 
 	return nil, ErrorUnintializedShadow
@@ -66,7 +86,7 @@ func (j JSON) ShadowValue() (driver.Value, error) {
 
 // IsDirty if the shadow value does not match the field value
 func (j *JSON) IsDirty() bool {
-	return j.shadow != j.JSON
+	return j.isDirty
 }
 
 //IsSet indicates if Scan has been called successfully

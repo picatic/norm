@@ -1,6 +1,7 @@
 package: github.com/picatic/norm
 import:
   - package: github.com/gocraft/dbr
+    flatten: true
   - package: github.com/AlekSi/reflector
   - package: github.com/DATA-DOG/go-sqlmock
     ref:     v1.0.0

@@ -1,5 +1,5 @@
 hash: 58c9193dccd462f4832a20a05cd19cd5e294a36bc9851df50bfcfa7882e18c73
-updated: 2016-03-10T15:21:43.150523238-08:00
+updated: 2016-03-10T16:00:33.326120604-08:00
 imports:
 - name: github.com/AlekSi/reflector
   version: d7aee842efa4a4d10cd04b8cb3fdd65808ebc093
@@ -12,7 +12,9 @@ imports:
   repo: https://github.com/go-sql-driver/mysql
   vcs: git
 - name: github.com/gocraft/dbr
-  version: 2519cf967cd5452db23f6e739d28fe2fa22cec9e
+  version: 3f9c5fed829fa517ce584d4450d8cccfbb822afa
+  subpackages:
+  - dialect
 - name: github.com/jtolds/gls
   version: 8ddce2a84170772b95dd5d576c48d517b22cac63
 - name: github.com/kisielk/sqlstruct
@@ -38,7 +40,7 @@ imports:
   - web/server/watch
   - convey/reporting
 - name: golang.org/x/net
-  version: 3e5cd1ed149001198e582f9d3f5bfd564cde2896
+  version: e7da8edaa52631091740908acaf2c2d4c9b3ce90
   subpackages:
   - context
 - name: gopkg.in/guregu/null.v3
