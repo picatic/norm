@@ -6,9 +6,9 @@ import (
 	"errors"
 )
 
-// NullJSON field type, does not allow nil
-type NullJSON struct {
-	NullJSON interface{}
+// NullJson field type, does not allow nil
+type NullJson struct {
+	NullJson interface{}
 	shadow   interface{}
 	isDirty  bool
 	scanned  bool
@@ -16,28 +16,28 @@ type NullJSON struct {
 }
 
 // Scan a value into the string, error on nil
-func (j *NullJSON) Scan(value interface{}) (err error) {
+func (j *NullJson) Scan(value interface{}) (err error) {
 	switch value := value.(type) {
 	case nil:
-		j.NullJSON = nil
+		j.NullJson = nil
 		err = nil
 	case string:
-		err = j.UnmarshalNullJSON([]byte(value))
+		err = j.UnmarshalNullJson([]byte(value))
 	case []byte:
-		err = j.UnmarshalNullJSON(value)
+		err = j.UnmarshalNullJson(value)
 	case map[string]interface{}:
 		_, err = json.Marshal(value)
 		if err != nil {
 			return err
 		}
-		j.NullJSON = value
+		j.NullJson = value
 		err = nil
 	case []interface{}:
 		_, err = json.Marshal(value)
 		if err != nil {
 			return err
 		}
-		j.NullJSON = value
+		j.NullJson = value
 		err = nil
 	default:
 		return errors.New("Unrecognized type")
@@ -50,19 +50,19 @@ func (j *NullJSON) Scan(value interface{}) (err error) {
 	}
 
 	j.DoInit(func() {
-		j.shadow = j.NullJSON
+		j.shadow = j.NullJson
 	})
 
 	return
 }
 
 // Value return the value of this field
-func (j NullJSON) Value() (driver.Value, error) {
-	if j.NullJSON == nil {
+func (j NullJson) Value() (driver.Value, error) {
+	if j.NullJson == nil {
 		return nil, nil
 	}
 
-	bytes, err := j.MarshalNullJSON()
+	bytes, err := j.MarshalNullJson()
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (j NullJSON) Value() (driver.Value, error) {
 }
 
 // ShadowValue return the initial value of this field
-func (j NullJSON) ShadowValue() (driver.Value, error) {
+func (j NullJson) ShadowValue() (driver.Value, error) {
 	if j.InitDone() {
 		if j.shadow == nil {
 			return nil, nil
@@ -89,29 +89,29 @@ func (j NullJSON) ShadowValue() (driver.Value, error) {
 }
 
 // IsDirty if the shadow value does not match the field value
-func (j *NullJSON) IsDirty() bool {
+func (j *NullJson) IsDirty() bool {
 	return j.isDirty
 }
 
 //IsSet indicates if Scan has been called successfully
-func (j NullJSON) IsSet() bool {
+func (j NullJson) IsSet() bool {
 	return j.InitDone()
 }
 
-// MarshalNullJSON Marshal just the value of NullJSON
-func (j NullJSON) MarshalNullJSON() ([]byte, error) {
-	return json.Marshal(j.NullJSON)
+// MarshalNullJson Marshal just the value of NullJson
+func (j NullJson) MarshalNullJson() ([]byte, error) {
+	return json.Marshal(j.NullJson)
 }
 
-// UnmarshalNullJSON implements encoding/json Unmarshaler
-func (j *NullJSON) UnmarshalNullJSON(data []byte) error {
-	err := json.Unmarshal(data, &j.NullJSON)
+// UnmarshalNullJson implements encoding/json Unmarshaler
+func (j *NullJson) UnmarshalNullJson(data []byte) error {
+	err := json.Unmarshal(data, &j.NullJson)
 	if err != nil {
 		return err
 	}
 
 	j.DoInit(func() {
-		j.shadow = j.NullJSON
+		j.shadow = j.NullJson
 	})
 
 	return nil
