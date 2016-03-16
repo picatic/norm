@@ -6,38 +6,38 @@ import (
 	"errors"
 )
 
-// JSON field type, does not allow nil
-type JSON struct {
-	JSON    interface{}
-	shadow  interface{}
-	isDirty bool
-	scanned bool
+// NullJSON field type, does not allow nil
+type NullJSON struct {
+	NullJSON interface{}
+	shadow   interface{}
+	isDirty  bool
+	scanned  bool
 	ShadowInit
 }
 
 // Scan a value into the string, error on nil
-func (j *JSON) Scan(value interface{}) (err error) {
+func (j *NullJSON) Scan(value interface{}) (err error) {
 	switch value := value.(type) {
 	case nil:
-		j.JSON = nil
+		j.NullJSON = nil
 		err = nil
 	case string:
-		err = j.UnmarshalJSON([]byte(value))
+		err = j.UnmarshalNullJSON([]byte(value))
 	case []byte:
-		err = j.UnmarshalJSON(value)
+		err = j.UnmarshalNullJSON(value)
 	case map[string]interface{}:
 		_, err = json.Marshal(value)
 		if err != nil {
 			return err
 		}
-		j.JSON = value
+		j.NullJSON = value
 		err = nil
 	case []interface{}:
 		_, err = json.Marshal(value)
 		if err != nil {
 			return err
 		}
-		j.JSON = value
+		j.NullJSON = value
 		err = nil
 	default:
 		return errors.New("Unrecognized type")
@@ -50,19 +50,19 @@ func (j *JSON) Scan(value interface{}) (err error) {
 	}
 
 	j.DoInit(func() {
-		j.shadow = j.JSON
+		j.shadow = j.NullJSON
 	})
 
 	return
 }
 
 // Value return the value of this field
-func (j JSON) Value() (driver.Value, error) {
-	if j.JSON == nil {
+func (j NullJSON) Value() (driver.Value, error) {
+	if j.NullJSON == nil {
 		return nil, nil
 	}
 
-	bytes, err := j.MarshalJSON()
+	bytes, err := j.MarshalNullJSON()
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (j JSON) Value() (driver.Value, error) {
 }
 
 // ShadowValue return the initial value of this field
-func (j JSON) ShadowValue() (driver.Value, error) {
+func (j NullJSON) ShadowValue() (driver.Value, error) {
 	if j.InitDone() {
 		if j.shadow == nil {
 			return nil, nil
@@ -89,29 +89,29 @@ func (j JSON) ShadowValue() (driver.Value, error) {
 }
 
 // IsDirty if the shadow value does not match the field value
-func (j *JSON) IsDirty() bool {
+func (j *NullJSON) IsDirty() bool {
 	return j.isDirty
 }
 
 //IsSet indicates if Scan has been called successfully
-func (j JSON) IsSet() bool {
+func (j NullJSON) IsSet() bool {
 	return j.InitDone()
 }
 
-// MarshalJSON Marshal just the value of JSON
-func (j JSON) MarshalJSON() ([]byte, error) {
-	return json.Marshal(j.JSON)
+// MarshalNullJSON Marshal just the value of NullJSON
+func (j NullJSON) MarshalNullJSON() ([]byte, error) {
+	return json.Marshal(j.NullJSON)
 }
 
-// UnmarshalJSON implements encoding/json Unmarshaler
-func (j *JSON) UnmarshalJSON(data []byte) error {
-	err := json.Unmarshal(data, &j.JSON)
+// UnmarshalNullJSON implements encoding/json Unmarshaler
+func (j *NullJSON) UnmarshalNullJSON(data []byte) error {
+	err := json.Unmarshal(data, &j.NullJSON)
 	if err != nil {
 		return err
 	}
 
 	j.DoInit(func() {
-		j.shadow = j.JSON
+		j.shadow = j.NullJSON
 	})
 
 	return nil
