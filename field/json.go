@@ -49,6 +49,10 @@ func (j *JSON) Scan(value interface{}) (err error) {
 		j.isDirty = true
 	}
 
+	j.DoInit(func() {
+		j.shadow = j.JSON
+	})
+
 	return
 }
 
@@ -101,5 +105,14 @@ func (j JSON) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements encoding/json Unmarshaler
 func (j *JSON) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &j.JSON)
+	err := json.Unmarshal(data, &j.JSON)
+	if err != nil {
+		return err
+	}
+
+	j.DoInit(func() {
+		j.shadow = j.JSON
+	})
+
+	return nil
 }
