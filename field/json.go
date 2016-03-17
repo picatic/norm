@@ -22,9 +22,9 @@ func (j *NullJson) Scan(value interface{}) (err error) {
 		j.NullJson = nil
 		err = nil
 	case string:
-		err = j.UnmarshalNullJson([]byte(value))
+		err = j.UnmarshalJSON([]byte(value))
 	case []byte:
-		err = j.UnmarshalNullJson(value)
+		err = j.UnmarshalJSON(value)
 	case map[string]interface{}:
 		_, err = json.Marshal(value)
 		if err != nil {
@@ -62,7 +62,7 @@ func (j NullJson) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	bytes, err := j.MarshalNullJson()
+	bytes, err := j.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
@@ -98,13 +98,13 @@ func (j NullJson) IsSet() bool {
 	return j.InitDone()
 }
 
-// MarshalNullJson Marshal just the value of NullJson
-func (j NullJson) MarshalNullJson() ([]byte, error) {
+// MarshalJSON Marshal just the value of NullJson
+func (j NullJson) MarshalJSON() ([]byte, error) {
 	return json.Marshal(j.NullJson)
 }
 
-// UnmarshalNullJson implements encoding/json Unmarshaler
-func (j *NullJson) UnmarshalNullJson(data []byte) error {
+// UnmarshalJSON implements encoding/json Unmarshaler
+func (j *NullJson) UnmarshalJSON(data []byte) error {
 	err := json.Unmarshal(data, &j.NullJson)
 	if err != nil {
 		return err
