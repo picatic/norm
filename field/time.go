@@ -103,9 +103,9 @@ type nullTime null.Time
 // NullTime time that can be nil
 type NullTime struct {
 	nullTime
-	validNull       bool
-	shadow          null.Time
-	shadowValidNull bool
+	invalidNull       bool
+	shadow            null.Time
+	shadowInvalidNull bool
 	ShadowInit
 }
 
@@ -116,41 +116,38 @@ func (nt *NullTime) Scan(value interface{}) error {
 	case time.Time:
 		if v.IsZero() {
 			nt.Valid = false
-			nt.validNull = true
+			nt.invalidNull = true
 
 		} else {
 			nt.Time, nt.Valid = v, true
-			nt.validNull = false
+			nt.invalidNull = true
 		}
-		break
 	case []byte:
 		nt.Time, err = parseDateTime(string(v), time.UTC)
 		if nt.Time.IsZero() == true {
 			nt.Valid = false
-			nt.validNull = false
+			nt.invalidNull = true
 			return ErrorCouldNotScan("NullTime", value)
 		}
 		nt.Valid = (err == nil)
 		if err == nil {
-			nt.validNull = false
+			nt.invalidNull = true
 		}
-		break
 	case string:
 		nt.Time, err = parseDateTime(v, time.UTC)
 		if nt.Time.IsZero() == true {
 			nt.Valid = false
-			nt.validNull = false
+			nt.invalidNull = true
 			return ErrorCouldNotScan("NullTime", value)
 		}
 		nt.Valid = (err == nil)
 		if err == nil {
-			nt.validNull = false
+			nt.invalidNull = true
 		}
-		break
 	default:
 		if value == nil {
 			nt.Valid = false
-			nt.validNull = true
+			nt.invalidNull = false
 		} else {
 			err = ErrorCouldNotScan("NullTime", value)
 		}
@@ -159,19 +156,14 @@ func (nt *NullTime) Scan(value interface{}) error {
 	// load shadow on first scan only
 	nt.DoInit(func() {
 		_ = nt.shadow.Scan(nt.Time)
-		if value == nil {
-			nt.shadowValidNull = true
-		}
+		nt.shadowInvalidNull = (value != nil)
 	})
 	return err
 }
 
 // Value return the value of this field
 func (nt NullTime) Value() (driver.Value, error) {
-	if nt.validNull {
-		return nil, nil
-	}
-	if nt.Time.IsZero() {
+	if !nt.invalidNull {
 		return nil, nil
 	}
 	return nt.Time, nil
@@ -179,9 +171,9 @@ func (nt NullTime) Value() (driver.Value, error) {
 
 // IsDirty if the shadow value does not match the field value
 func (nt *NullTime) IsDirty() bool {
-	if nt.validNull && nt.shadowValidNull {
+	if !nt.invalidNull && !nt.shadowInvalidNull {
 		return false
-	} else if nt.validNull == false && nt.shadowValidNull == false {
+	} else if nt.invalidNull && nt.shadowInvalidNull {
 		return !nt.Time.Equal(nt.shadow.Time)
 	}
 	return true
@@ -195,7 +187,7 @@ func (nt NullTime) IsSet() bool {
 // ShadowValue return the initial value of this field
 func (nt NullTime) ShadowValue() (driver.Value, error) {
 	if nt.InitDone() {
-		if nt.shadowValidNull {
+		if !nt.shadowInvalidNull {
 			return nil, nil
 		}
 		return nt.shadow.Value()

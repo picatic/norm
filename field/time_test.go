@@ -181,6 +181,27 @@ func TestTime(t *testing.T) {
 }
 
 func TestNullTime(t *testing.T) {
+	Convey("Unscanned", t, func() {
+		Convey("Value should be Null", func() {
+			ns := NullTime{}
+			t, err := ns.Value()
+			So(err, ShouldBeNil)
+			So(t, ShouldBeNil)
+		})
+
+		Convey("IsDirty should be false", func() {
+			ns := NullTime{}
+			So(ns.IsDirty(), ShouldBeFalse)
+		})
+
+		Convey("Marshal should provide json null", func() {
+			ns := NullTime{}
+			v, err := ns.MarshalJSON()
+			So(err, ShouldBeNil)
+			So(string(v), ShouldEqual, "null")
+		})
+	})
+
 	Convey("Scan", t, func() {
 		Convey("Scan should load Time and Shadow field", func() {
 			ns := NullTime{}

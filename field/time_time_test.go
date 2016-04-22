@@ -194,6 +194,13 @@ func TestNullTimeTime(t *testing.T) {
 			ns := NullTimeTime{}
 			So(ns.IsDirty(), ShouldBeFalse)
 		})
+
+		Convey("Marshal should provide json null", func() {
+			ns := NullTimeTime{}
+			v, err := ns.MarshalJSON()
+			So(err, ShouldBeNil)
+			So(string(v), ShouldEqual, "null")
+		})
 	})
 
 	Convey("Scan", t, func() {
