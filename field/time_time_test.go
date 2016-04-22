@@ -181,6 +181,21 @@ func TestTimeTime(t *testing.T) {
 }
 
 func TestNullTimeTime(t *testing.T) {
+
+	Convey("Unscanned", t, func() {
+		Convey("Value should be Null", func() {
+			ns := NullTimeTime{}
+			t, err := ns.Value()
+			So(err, ShouldBeNil)
+			So(t, ShouldBeNil)
+		})
+
+		Convey("IsDirty should be false", func() {
+			ns := NullTimeTime{}
+			So(ns.IsDirty(), ShouldBeFalse)
+		})
+	})
+
 	Convey("Scan", t, func() {
 		Convey("Scan should load Time and Shadow field", func() {
 			ns := NullTimeTime{}
@@ -226,7 +241,6 @@ func TestNullTimeTime(t *testing.T) {
 		Convey("should return scanned nil", func() {
 			ns := &NullTimeTime{}
 			ns.Scan(nil)
-
 			value, err := ns.Value()
 			So(err, ShouldBeNil)
 			So(value, ShouldBeNil)

@@ -96,9 +96,9 @@ func (t *TimeTime) UnmarshalJSON(data []byte) error {
 // NullTime time that can be nil
 type NullTimeTime struct {
 	nullTime
-	validNull       bool
-	shadow          null.Time
-	shadowValidNull bool
+	invalidNull       bool
+	shadow            null.Time
+	shadowInvalidNull bool
 	ShadowInit
 }
 
@@ -108,26 +108,23 @@ func (nt *NullTimeTime) Scan(value interface{}) error {
 	switch v := value.(type) {
 	case time.Time:
 		nt.Time, nt.Valid = v, true
-		nt.validNull = false
-		break
+		nt.invalidNull = true
 	case []byte:
 		nt.Time, err = parseTimeTime(string(v), time.UTC)
 		nt.Valid = (err == nil)
 		if err == nil {
-			nt.validNull = false
+			nt.invalidNull = true
 		}
-		break
 	case string:
 		nt.Time, err = parseTimeTime(v, time.UTC)
 		nt.Valid = (err == nil)
 		if err == nil {
-			nt.validNull = false
+			nt.invalidNull = true
 		}
-		break
 	default:
 		if value == nil {
 			nt.Valid = false
-			nt.validNull = true
+			nt.invalidNull = false
 		} else {
 			err = ErrorCouldNotScan("NullTimeTime", value)
 		}
@@ -136,16 +133,14 @@ func (nt *NullTimeTime) Scan(value interface{}) error {
 	// load shadow on first scan only
 	nt.DoInit(func() {
 		_ = nt.shadow.Scan(nt.Time)
-		if value == nil {
-			nt.shadowValidNull = true
-		}
+		nt.shadowInvalidNull = (value != nil)
 	})
 	return err
 }
 
 // Value return the value of this field
 func (nt NullTimeTime) Value() (driver.Value, error) {
-	if nt.validNull {
+	if !nt.invalidNull {
 		return nil, nil
 	}
 	return nt.Time, nil
@@ -153,9 +148,9 @@ func (nt NullTimeTime) Value() (driver.Value, error) {
 
 // IsDirty if the shadow value does not match the field value
 func (nt *NullTimeTime) IsDirty() bool {
-	if nt.validNull && nt.shadowValidNull {
+	if !nt.invalidNull && !nt.shadowInvalidNull {
 		return false
-	} else if nt.validNull == false && nt.shadowValidNull == false {
+	} else if nt.invalidNull && nt.shadowInvalidNull {
 		return !nt.Time.Equal(nt.shadow.Time)
 	}
 	return true
@@ -169,7 +164,7 @@ func (nt NullTimeTime) IsSet() bool {
 // ShadowValue return the initial value of this field
 func (nt NullTimeTime) ShadowValue() (driver.Value, error) {
 	if nt.InitDone() {
-		if nt.shadowValidNull {
+		if !nt.shadowInvalidNull {
 			return nil, nil
 		}
 		return nt.shadow.Value()
