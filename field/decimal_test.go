@@ -64,4 +64,21 @@ func TestDecimal(t *testing.T) {
 			So(d.Decimal.Precision, ShouldEqual, 2)
 		})
 	})
+
+	Convey("NullDecimal", t, func() {
+		Convey("Scanning null", func() {
+			nd := &NullDecimal{}
+			err := nd.Scan(nil)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Marshal null", func() {
+			nd := &NullDecimal{}
+			nd.Scan(nil)
+			bytes, err := nd.MarshalJSON()
+			So(err, ShouldBeNil)
+			So(bytes, ShouldResemble, []byte("null"))
+		})
+
+	})
 }
