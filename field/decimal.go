@@ -7,6 +7,8 @@ import (
 
 type Decimal struct {
 	Decimal *Dec
+	shadow  *Dec
+	ShadowInit
 }
 
 func (d *Decimal) Scan(value interface{}) (err error) {
@@ -16,9 +18,20 @@ func (d *Decimal) Scan(value interface{}) (err error) {
 		if err != nil {
 			return err
 		}
+	case []byte:
+		d.Decimal, err = NewDec(string(v))
+		if err != nil {
+			return err
+		}
 	default:
 		return errors.New("error")
 	}
+
+	d.DoInit(func() {
+		d.shadow = &Dec{}
+		*d.shadow = *d.Decimal
+	})
+
 	return nil
 }
 
@@ -27,21 +40,21 @@ func (d Decimal) Value() (driver.Value, error) {
 }
 
 func (d Decimal) ShadowValue() (driver.Value, error) {
-	return nil, nil
+	return []byte(d.shadow.String()), nil
 }
 
 func (d Decimal) IsDirty() bool {
-	return false
+	return *d.shadow != *d.Decimal
 }
 
 func (d Decimal) IsSet() bool {
-	return false
+	return d.InitDone()
 }
 
 func (d Decimal) MarshalJSON() ([]byte, error) {
-	return nil, nil
+	return []byte(d.Decimal.String()), nil
 }
 
 func (d *Decimal) UnmarshalJSON(data []byte) error {
-	return nil
+	return d.Scan(data)
 }
