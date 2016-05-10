@@ -63,6 +63,13 @@ func TestDec(t *testing.T) {
 				_, err := NewDec("3.4.5")
 				So(err, ShouldNotBeNil)
 			})
+
+			Convey("no decimal points is valid with precision of 0", func() {
+				d, err := NewDec("450")
+				So(err, ShouldBeNil)
+				So(d.Number, ShouldEqual, 450)
+				So(d.Precision, ShouldEqual, 0)
+			})
 		})
 
 		Convey("String", func() {

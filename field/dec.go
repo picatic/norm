@@ -16,17 +16,26 @@ func NewDec(numStr string) (d *Dec, err error) {
 	d = &Dec{}
 
 	dec := strings.Split(numStr, ".")
-	if len(dec) != 2 {
-		return nil, errors.New("error")
-	}
-	num := strings.Join(dec, "")
+	switch len(dec) {
+	case 1:
+		d.Number, err = strconv.ParseInt(dec[0], 10, 64)
+		if err != nil {
+			return
+		}
+		d.Precision = 0
+		return d, nil
+	case 2:
+		num := strings.Join(dec, "")
 
-	d.Number, err = strconv.ParseInt(num, 10, 64)
-	if err != nil {
-		return
+		d.Number, err = strconv.ParseInt(num, 10, 64)
+		if err != nil {
+			return
+		}
+		d.Precision = uint(len(dec[1]))
+		return d, nil
+	default:
+		return nil, errors.New("Invalid string")
 	}
-	d.Precision = uint(len(dec[1]))
-	return d, nil
 }
 
 func (d Dec) Mul(mul Dec) Dec {
