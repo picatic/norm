@@ -3,6 +3,7 @@ package field
 import (
 	"testing"
 
+	"github.com/picatic/norm/field/decimal"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -61,7 +62,16 @@ func TestDecimal(t *testing.T) {
 			err := d.UnmarshalJSON([]byte("7.60"))
 			So(err, ShouldBeNil)
 			So(d.Decimal.Number, ShouldEqual, 760)
-			So(d.Decimal.Precision, ShouldEqual, 2)
+			So(d.Decimal.Prec, ShouldEqual, 2)
+		})
+
+		Convey("precision should remain the same as initial scan", func() {
+			d := &Decimal{}
+			d.Scan("4.20") //prec of 2
+			d.Decimal = d.Decimal.Mul(decimal.Dec{301, 4})
+			v, err := d.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldResemble, []byte("0.13"))
 		})
 	})
 
@@ -80,5 +90,13 @@ func TestDecimal(t *testing.T) {
 			So(bytes, ShouldResemble, []byte("null"))
 		})
 
+		Convey("precision should remain the same as initial scan", func() {
+			nd := &NullDecimal{}
+			nd.Scan("4.20")
+			nd.Decimal.Dec = nd.Decimal.Dec.Mul(decimal.Dec{301, 4})
+			v, err := nd.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldResemble, []byte("0.13"))
+		})
 	})
 }

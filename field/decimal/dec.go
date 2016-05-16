@@ -1,6 +1,7 @@
-package field
+package decimal
 
 import (
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"strconv"
@@ -8,11 +9,11 @@ import (
 )
 
 type Dec struct {
-	Number    int64
-	Precision uint
+	Number int64
+	Prec   uint
 }
 
-func NewDec(numStr string) (d *Dec, err error) {
+func New(numStr string) (d *Dec, err error) {
 	d = &Dec{}
 
 	dec := strings.Split(numStr, ".")
@@ -22,7 +23,7 @@ func NewDec(numStr string) (d *Dec, err error) {
 		if err != nil {
 			return
 		}
-		d.Precision = 0
+		d.Prec = 0
 		return d, nil
 	case 2:
 		num := strings.Join(dec, "")
@@ -31,7 +32,7 @@ func NewDec(numStr string) (d *Dec, err error) {
 		if err != nil {
 			return
 		}
-		d.Precision = uint(len(dec[1]))
+		d.Prec = uint(len(dec[1]))
 		return d, nil
 	default:
 		return nil, errors.New("Invalid string")
@@ -40,36 +41,37 @@ func NewDec(numStr string) (d *Dec, err error) {
 
 func (d Dec) Mul(mul Dec) Dec {
 	return Dec{
-		Number:    d.Number * mul.Number,
-		Precision: d.Precision + mul.Precision,
+		Number: d.Number * mul.Number,
+		Prec:   d.Prec + mul.Prec,
 	}
 }
 
 func (d Dec) Div(div Dec, prec uint) Dec {
 	var scale int64 = 1
-	scaleFact := int(prec) - int(d.Precision) + int(div.Precision)
+	scaleFact := int(prec) - int(d.Prec) + int(div.Prec)
 	for i := 0; i < scaleFact; i++ {
 		scale *= 10
 	}
 	return Dec{
-		Number:    d.Number * scale / div.Number,
-		Precision: prec,
+		Number: d.Number * scale / div.Number,
+		Prec:   prec,
 	}
 }
 
 func (d Dec) Add(a Dec) Dec {
-	if d.Precision < a.Precision {
+	if d.Prec < a.Prec {
 		d, a = a, d
 	}
 
-	for d.Precision != a.Precision {
-		a.Precision++
+	//get decimals to same precision
+	for d.Prec != a.Prec {
+		a.Prec++
 		a.Number *= 10
 	}
 
 	return Dec{
-		Number:    d.Number + a.Number,
-		Precision: d.Precision,
+		Number: d.Number + a.Number,
+		Prec:   d.Prec,
 	}
 }
 
@@ -79,43 +81,43 @@ func (d Dec) Sub(s Dec) Dec {
 }
 
 func (d Dec) Round(prec uint) Dec {
-	if d.Precision <= prec {
+	if d.Prec <= prec {
 		return d
 	}
 
-	for d.Precision != prec {
-		if d.Precision-prec == 1 {
+	for d.Prec != prec {
+		if d.Prec-prec == 1 {
 			d.Number += 5
 		}
 		d.Number /= 10
-		d.Precision--
+		d.Prec--
 	}
 	return d
 }
 
 func (d Dec) Ceil(prec uint) Dec {
-	if d.Precision <= prec {
+	if d.Prec <= prec {
 		return d
 	}
 
-	for d.Precision != prec {
-		if d.Precision-prec == 1 {
+	for d.Prec != prec {
+		if d.Prec-prec == 1 {
 			d.Number += 10
 		}
 		d.Number /= 10
-		d.Precision--
+		d.Prec--
 	}
 	return d
 }
 
 func (d Dec) Floor(prec uint) Dec {
-	if d.Precision <= prec {
+	if d.Prec <= prec {
 		return d
 	}
 
-	for d.Precision != prec {
+	for d.Prec != prec {
 		d.Number /= 10
-		d.Precision--
+		d.Prec--
 	}
 	return d
 }
@@ -128,14 +130,14 @@ func (d Dec) String() (str string) {
 	}
 
 	str = fmt.Sprintf("%d", d.Number)
-	if d.Precision == 0 {
-	} else if prec := int(d.Precision); len(str) <= prec {
+	if d.Prec == 0 {
+	} else if prec := int(d.Prec); len(str) <= prec {
 		str = fmt.Sprintf("%d", d.Number)
 		zeros := strings.Repeat("0", prec-len(str))
 		str = "0." + zeros + str
 	} else {
 		str = fmt.Sprintf("%d", d.Number)
-		radixAt := uint(len(str)) - d.Precision
+		radixAt := uint(len(str)) - d.Prec
 		str = str[:radixAt] + "." + str[radixAt:]
 	}
 
@@ -143,4 +145,48 @@ func (d Dec) String() (str string) {
 		str = "-" + str
 	}
 	return str
+}
+
+type NullDec struct {
+	Dec   Dec
+	Valid bool
+	Prec  uint
+}
+
+func (nd *NullDec) Scan(value interface{}) (err error) {
+	var dec *Dec
+
+	switch v := value.(type) {
+	case string:
+		nd.Valid = true
+		dec, err = New(v)
+		if err != nil {
+			return err
+		}
+	case []byte:
+		nd.Valid = true
+		dec, err = New(string(v))
+		if err != nil {
+			return err
+		}
+	case nil:
+		nd.Valid = false
+	default:
+		errors.New("could not scan")
+	}
+
+	if nd.Valid {
+		nd.Dec = *dec
+		nd.Prec = dec.Prec
+	}
+	return nil
+}
+
+func (nd NullDec) Value() (driver.Value, error) {
+	if !nd.Valid {
+		return nil, nil
+	}
+
+	dec := nd.Dec.Round(nd.Prec)
+	return []byte(dec.String()), nil
 }

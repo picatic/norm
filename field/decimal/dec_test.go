@@ -1,6 +1,8 @@
-package field
+package decimal
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -25,84 +27,84 @@ func TestDec(t *testing.T) {
 			})
 		})
 
-		Convey("NewDec", func() {
+		Convey("New", func() {
 			Convey("valid decimal should rerender the same", func() {
-				d, err := NewDec("4.50")
+				d, err := New("4.50")
 				So(err, ShouldBeNil)
 				So(d.Number, ShouldEqual, 450)
-				So(d.Precision, ShouldEqual, 2)
+				So(d.Prec, ShouldEqual, 2)
 			})
 
 			Convey("negative number", func() {
-				d, err := NewDec("-2.45")
+				d, err := New("-2.45")
 				So(err, ShouldBeNil)
 				So(d.Number, ShouldEqual, -245)
-				So(d.Precision, ShouldEqual, 2)
+				So(d.Prec, ShouldEqual, 2)
 			})
 
 			Convey("small numbers", func() {
-				d, err := NewDec("0.0245")
+				d, err := New("0.0245")
 				So(err, ShouldBeNil)
 				So(d.Number, ShouldEqual, 245)
-				So(d.Precision, ShouldEqual, 4)
+				So(d.Prec, ShouldEqual, 4)
 			})
 
 			Convey("negative small numbers", func() {
-				d, err := NewDec("-0.000345")
+				d, err := New("-0.000345")
 				So(err, ShouldBeNil)
 				So(d.Number, ShouldEqual, -345)
-				So(d.Precision, ShouldEqual, 6)
+				So(d.Prec, ShouldEqual, 6)
 			})
 
 			Convey("invalid string should return error", func() {
-				_, err := NewDec("abc")
+				_, err := New("abc")
 				So(err, ShouldNotBeNil)
 			})
 
 			Convey("multiple decimal points should return error", func() {
-				_, err := NewDec("3.4.5")
+				_, err := New("3.4.5")
 				So(err, ShouldNotBeNil)
 			})
 
 			Convey("no decimal points is valid with precision of 0", func() {
-				d, err := NewDec("450")
+				d, err := New("450")
 				So(err, ShouldBeNil)
 				So(d.Number, ShouldEqual, 450)
-				So(d.Precision, ShouldEqual, 0)
+				So(d.Prec, ShouldEqual, 0)
 			})
 		})
 
 		Convey("String", func() {
-			d := Dec{Number: 0, Precision: 0}
+			d := Dec{Number: 0, Prec: 0}
 			res := d.String()
 			So(res, ShouldEqual, "0")
 		})
 
 		Convey("Mul", func() {
-			d := Dec{Number: 1234, Precision: 2}
-			m := Dec{Number: 5678, Precision: 2}
+			d := Dec{Number: 1234, Prec: 2}
+			m := Dec{Number: 5678, Prec: 2}
 			res := d.Mul(m).String()
 			So(res, ShouldEqual, "700.6652")
 		})
 
 		Convey("Div", func() {
 			Convey("Same precision", func() {
-				d := Dec{Number: 1234, Precision: 2}
-				m := Dec{Number: 5678, Precision: 2}
+				d := Dec{Number: 1234, Prec: 2}
+				m := Dec{Number: 5678, Prec: 2}
 				res := d.Div(m, 2).String()
 				So(res, ShouldEqual, "0.21")
 			})
 
 			Convey("Different precision", func() {
-				d := Dec{Number: 1234, Precision: 3}
-				m := Dec{Number: 5678, Precision: 2}
+				d := Dec{Number: 1234, Prec: 3}
+				m := Dec{Number: 5678, Prec: 2}
 				res := d.Div(m, 3).String()
 				So(res, ShouldEqual, "0.021")
 			})
 
 			Convey("Larger divide by smaller", func() {
-				d := Dec{Number: 5678, Precision: 2}
-				m := Dec{Number: 1234, Precision: 2}
+				d := Dec{Number: 5678, Prec: 2}
+				m := Dec{Number: 1234, Prec: 2}
 				res := d.Div(m, 6).String()
 				So(res, ShouldEqual, "4.601296")
 			})
@@ -167,3 +169,6 @@ func TestDec(t *testing.T) {
 		})
 	})
 }
+
+var _ sql.Scanner = &NullDec{}
+var _ driver.Valuer = NullDec{}

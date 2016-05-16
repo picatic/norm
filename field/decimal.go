@@ -2,43 +2,40 @@ package field
 
 import (
 	"database/sql/driver"
-	"errors"
+
+	"github.com/picatic/norm/field/decimal"
 )
 
 type Decimal struct {
-	Decimal Dec
-	shadow  Dec
+	Decimal decimal.Dec
+	shadow  decimal.Dec
 	ShadowInit
+	prec uint
 }
 
 func (d *Decimal) Scan(value interface{}) (err error) {
-	var dec *Dec
-	switch v := value.(type) {
-	case string:
-		dec, err = NewDec(v)
-		if err != nil {
-			return err
-		}
-		d.Decimal = *dec
-	case []byte:
-		dec, err = NewDec(string(v))
-		if err != nil {
-			return err
-		}
-		d.Decimal = *dec
-	default:
-		return ErrorCouldNotScan("Decimal", v)
+	tmp := &decimal.NullDec{}
+
+	err = tmp.Scan(value)
+	if err != nil {
+		return err
+	}
+	if !tmp.Valid {
+		ErrorCouldNotScan("Decimal", value)
 	}
 
+	d.Decimal = tmp.Dec
 	d.DoInit(func() {
 		d.shadow = d.Decimal
 	})
 
+	d.prec = d.Decimal.Prec
 	return nil
 }
 
 func (d Decimal) Value() (driver.Value, error) {
-	return []byte(d.Decimal.String()), nil
+	dec := d.Decimal.Round(d.prec)
+	return []byte(dec.String()), nil
 }
 
 func (d Decimal) ShadowValue() (driver.Value, error) {
@@ -62,66 +59,49 @@ func (d *Decimal) UnmarshalJSON(data []byte) error {
 }
 
 type NullDecimal struct {
-	Decimal *Dec
-	shadow  *Dec
+	Decimal decimal.NullDec
+	shadow  decimal.NullDec
 	ShadowInit
 }
 
 func (d *NullDecimal) Scan(value interface{}) (err error) {
-	if value != nil {
-		switch v := value.(type) {
-		case string:
-			d.Decimal, err = NewDec(v)
-			if err != nil {
-				return err
-			}
-		case []byte:
-			d.Decimal, err = NewDec(string(v))
-			if err != nil {
-				return err
-			}
-		default:
-			return errors.New("error")
-		}
-		d.DoInit(func() {
-			d.shadow = &Dec{}
-			*d.shadow = *d.Decimal
-		})
-	} else {
-		d.DoInit(func() {
-			d.shadow = nil
-		})
+	err = d.Decimal.Scan(value)
+	if err != nil {
+		return
 	}
 
+	d.DoInit(func() {
+		d.shadow = d.Decimal
+	})
 	return nil
 }
 
 func (d NullDecimal) Value() (driver.Value, error) {
-	if d.Decimal == nil {
+	if !d.Decimal.Valid {
 		return nil, nil
 	}
 
-	return []byte(d.Decimal.String()), nil
+	return d.Decimal.Value()
 }
 
 func (d NullDecimal) ShadowValue() (driver.Value, error) {
-	if d.shadow == nil {
+	if !d.shadow.Valid {
 		return nil, nil
 	}
 
-	return []byte(d.shadow.String()), nil
+	return d.Decimal.Value()
 }
 
 func (d NullDecimal) IsDirty() bool {
-	if d.shadow == nil && d.Decimal == nil {
+	if !d.shadow.Valid && !d.Decimal.Valid {
 		return false
-	} else if d.shadow == nil && d.Decimal != nil {
+	} else if !d.shadow.Valid && d.Decimal.Valid {
 		return true
-	} else if d.shadow != nil && d.Decimal == nil {
+	} else if d.shadow.Valid && !d.Decimal.Valid {
 		return true
 	}
 
-	return *d.shadow != *d.Decimal
+	return d.shadow != d.Decimal
 }
 
 func (d NullDecimal) IsSet() bool {
@@ -129,10 +109,10 @@ func (d NullDecimal) IsSet() bool {
 }
 
 func (d NullDecimal) MarshalJSON() ([]byte, error) {
-	if d.Decimal == nil {
+	if !d.Decimal.Valid {
 		return []byte("null"), nil
 	}
-	return []byte(d.Decimal.String()), nil
+	return []byte(d.Decimal.Dec.String()), nil
 }
 
 func (d *NullDecimal) UnmarshalJSON(data []byte) error {
