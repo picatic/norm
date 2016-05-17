@@ -93,15 +93,11 @@ func (d NullDecimal) ShadowValue() (driver.Value, error) {
 }
 
 func (d NullDecimal) IsDirty() bool {
-	if !d.shadow.Valid && !d.Decimal.Valid {
-		return false
-	} else if !d.shadow.Valid && d.Decimal.Valid {
-		return true
-	} else if d.shadow.Valid && !d.Decimal.Valid {
-		return true
+	if d.shadow.Valid && d.Decimal.Valid {
+		return d.shadow != d.Decimal
 	}
 
-	return d.shadow != d.Decimal
+	return d.shadow.Valid || d.Decimal.Valid
 }
 
 func (d NullDecimal) IsSet() bool {

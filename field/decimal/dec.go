@@ -129,11 +129,10 @@ func (d Dec) String() (str string) {
 		d.Number *= -1
 	}
 
-	str = fmt.Sprintf("%d", d.Number)
-	if d.Prec != 0 {
-		if prec := int(d.Prec); len(str) <= prec {
-			str = fmt.Sprintf("%0[1]*s", prec+1, str)
-		}
+	if d.Prec == 0 {
+		str = fmt.Sprintf("%d", d.Number)
+	} else {
+		str = fmt.Sprintf("%0[1]*d", int(d.Prec)+1, d.Number)
 		radixAt := uint(len(str)) - d.Prec
 		str = str[:radixAt] + "." + str[radixAt:]
 	}
