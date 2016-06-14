@@ -68,14 +68,14 @@ func TestNames(t *testing.T) {
 			fns2 := Names{"FirstName", "LastName", "Company"}
 			fnsr := fns1.Intersect(fns2)
 			So(len(fnsr), ShouldEqual, 2)
-			So(fnsr, ShouldContain, "FirstName")
-			So(fnsr, ShouldContain, "LastName")
+			So(fnsr, ShouldContain, Name("FirstName"))
+			So(fnsr, ShouldContain, Name("LastName"))
 
 			// and backwords
 			fnsr = fns2.Intersect(fns1)
 			So(len(fnsr), ShouldEqual, 2)
-			So(fnsr, ShouldContain, "FirstName")
-			So(fnsr, ShouldContain, "LastName")
+			So(fnsr, ShouldContain, Name("FirstName"))
+			So(fnsr, ShouldContain, Name("LastName"))
 		})
 
 	})
