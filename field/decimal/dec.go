@@ -165,6 +165,12 @@ func (nd *NullDec) Scan(value interface{}) (err error) {
 		if err != nil {
 			return err
 		}
+	case Dec:
+		nd.Valid = true
+		dec = &v
+	case *Dec:
+		nd.Valid = true
+		dec = v
 	case nil:
 		nd.Valid = false
 	default:

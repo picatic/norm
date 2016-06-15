@@ -168,6 +168,24 @@ func TestDec(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("NullDec", t, func() {
+		Convey("Scan", func() {
+			Convey("Dec", func() {
+				nd := &NullDec{}
+				nd.Scan(Dec{Number: 100, Prec: 2})
+				So(nd.Valid, ShouldBeTrue)
+				So(nd.Dec.String(), ShouldEqual, "1.00")
+			})
+
+			Convey("*Dec", func() {
+				nd := &NullDec{}
+				nd.Scan(&Dec{Number: 100, Prec: 2})
+				So(nd.Valid, ShouldBeTrue)
+				So(nd.Dec.String(), ShouldEqual, "1.00")
+			})
+		})
+	})
 }
 
 var _ sql.Scanner = &NullDec{}
