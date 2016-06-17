@@ -111,7 +111,7 @@ func (d NullDecimal) MarshalJSON() ([]byte, error) {
 	if !d.Decimal.Valid {
 		return []byte("null"), nil
 	}
-	return []byte(d.Decimal.Dec.String()), nil
+	return json.Marshal(d.Decimal.Dec.String())
 }
 
 func (d *NullDecimal) UnmarshalJSON(data []byte) error {
