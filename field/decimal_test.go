@@ -54,7 +54,7 @@ func TestDecimal(t *testing.T) {
 			d.Scan("3.40")
 			bytes, err := d.MarshalJSON()
 			So(err, ShouldBeNil)
-			So(bytes, ShouldResemble, []byte("3.40"))
+			So(bytes, ShouldResemble, []byte(`"3.40"`))
 		})
 
 		Convey("UnmarshalJSON", func() {

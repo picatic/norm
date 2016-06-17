@@ -13,8 +13,8 @@ type Dec struct {
 	Prec   uint
 }
 
-func New(numStr string) (d *Dec, err error) {
-	d = &Dec{}
+func New(numStr string) (d Dec, err error) {
+	d = Dec{}
 
 	dec := strings.Split(numStr, ".")
 	switch len(dec) {
@@ -35,7 +35,7 @@ func New(numStr string) (d *Dec, err error) {
 		d.Prec = uint(len(dec[1]))
 		return d, nil
 	default:
-		return nil, errors.New("Invalid string")
+		return Dec{}, errors.New("Invalid string")
 	}
 }
 
@@ -150,7 +150,7 @@ type NullDec struct {
 }
 
 func (nd *NullDec) Scan(value interface{}) (err error) {
-	var dec *Dec
+	var dec Dec
 
 	switch v := value.(type) {
 	case string:
@@ -167,10 +167,10 @@ func (nd *NullDec) Scan(value interface{}) (err error) {
 		}
 	case Dec:
 		nd.Valid = true
-		dec = &v
+		dec = v
 	case *Dec:
 		nd.Valid = true
-		dec = v
+		dec = *v
 	case nil:
 		nd.Valid = false
 	default:
@@ -178,7 +178,7 @@ func (nd *NullDec) Scan(value interface{}) (err error) {
 	}
 
 	if nd.Valid {
-		nd.Dec = *dec
+		nd.Dec = dec
 		nd.Prec = dec.Prec
 	}
 	return nil
