@@ -59,15 +59,7 @@ func (d Dec) Div(div Dec, prec uint) Dec {
 }
 
 func (d Dec) Add(a Dec) Dec {
-	if d.Prec < a.Prec {
-		d, a = a, d
-	}
-
-	//get decimals to same precision
-	for d.Prec != a.Prec {
-		a.Prec++
-		a.Number *= 10
-	}
+	d, a = makeSamePrec(d, a)
 
 	return Dec{
 		Number: d.Number + a.Number,
@@ -78,6 +70,54 @@ func (d Dec) Add(a Dec) Dec {
 func (d Dec) Sub(s Dec) Dec {
 	s.Number *= -1
 	return d.Add(s)
+}
+
+func (d Dec) Equals(e Dec) bool {
+	return d.Prec == e.Prec && d.Number == e.Number
+}
+
+func (d Dec) Greater(gt Dec) bool {
+	d, gt = makeSamePrec(d, gt)
+
+	return d.Number > gt.Number
+}
+
+func (d Dec) Lesser(lt Dec) bool {
+	d, lt = makeSamePrec(d, lt)
+
+	return d.Number < lt.Number
+}
+
+func (d Dec) GreaterEqual(gte Dec) bool {
+	d, gte = makeSamePrec(d, gte)
+
+	return d.Number >= gte.Number
+}
+
+func (d Dec) LesserEqual(lte Dec) bool {
+	d, lte = makeSamePrec(d, lte)
+
+	return d.Number <= lte.Number
+}
+
+func makeSamePrec(d1 Dec, d2 Dec) (Dec, Dec) {
+	switched := false
+	if d2.Prec < d1.Prec {
+		d1, d2 = d2, d1
+		switched = true
+	}
+
+	//get decimals to same precision
+	for d1.Prec != d2.Prec {
+		d1.Prec++
+		d1.Number *= 10
+	}
+
+	if switched {
+		d1, d2 = d2, d1
+	}
+
+	return d1, d2
 }
 
 func (d Dec) Round(prec uint) Dec {

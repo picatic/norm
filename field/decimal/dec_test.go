@@ -140,6 +140,27 @@ func TestDec(t *testing.T) {
 			})
 		})
 
+		Convey("Lesser", func() {
+			d1 := Dec{123, 2}
+			d2 := Dec{234, 3}
+
+			So(d1.Lesser(d2), ShouldBeFalse)
+		})
+
+		Convey("Greater", func() {
+			d1 := Dec{123, 2}
+			d2 := Dec{234, 3}
+
+			So(d1.Greater(d2), ShouldBeTrue)
+		})
+
+		Convey("Equal", func() {
+			d1 := Dec{123, 2}
+			d2 := Dec{123, 2}
+
+			So(d1.Equals(d2), ShouldBeTrue)
+		})
+
 		Convey("Rounding", func() {
 			Convey("Floor", func() {
 				d := Dec{12345, 3} //12.345
