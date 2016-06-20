@@ -120,6 +120,14 @@ func makeSamePrec(d1 Dec, d2 Dec) (Dec, Dec) {
 	return d1, d2
 }
 
+func (d Dec) Abs() Dec {
+	if d.Number < 0 {
+		d.Number *= -1
+	}
+
+	return d
+}
+
 func (d Dec) Round(prec uint) Dec {
 	if d.Prec <= prec {
 		return d
