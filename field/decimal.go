@@ -58,7 +58,10 @@ func (d Decimal) MarshalJSON() ([]byte, error) {
 }
 
 func (d *Decimal) UnmarshalJSON(data []byte) error {
-	return d.Scan(data)
+	var numStr string
+	json.Unmarshal(data, &numStr)
+
+	return d.Scan(numStr)
 }
 
 type NullDecimal struct {
@@ -115,5 +118,8 @@ func (d NullDecimal) MarshalJSON() ([]byte, error) {
 }
 
 func (d *NullDecimal) UnmarshalJSON(data []byte) error {
-	return d.Scan(data)
+	var numStr string
+	json.Unmarshal(data, &numStr)
+
+	return d.Scan(numStr)
 }

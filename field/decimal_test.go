@@ -59,7 +59,7 @@ func TestDecimal(t *testing.T) {
 
 		Convey("UnmarshalJSON", func() {
 			d := &Decimal{}
-			err := d.UnmarshalJSON([]byte("7.60"))
+			err := d.UnmarshalJSON([]byte(`"7.60"`))
 			So(err, ShouldBeNil)
 			So(d.Dec.Number, ShouldEqual, 760)
 			So(d.Dec.Prec, ShouldEqual, 2)
