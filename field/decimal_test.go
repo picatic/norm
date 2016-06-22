@@ -16,7 +16,7 @@ func TestDecimal(t *testing.T) {
 				So(err, ShouldBeNil)
 				v, err := d.Value()
 				So(err, ShouldBeNil)
-				So(v, ShouldResemble, []byte("4.50"))
+				So(v, ShouldResemble, "4.50")
 			})
 
 			Convey("Invalid scan", func() {
@@ -71,7 +71,7 @@ func TestDecimal(t *testing.T) {
 			d.Dec = d.Dec.Mul(decimal.Dec{301, 4})
 			v, err := d.Value()
 			So(err, ShouldBeNil)
-			So(v, ShouldResemble, []byte("0.13"))
+			So(v, ShouldResemble, "0.13")
 		})
 	})
 
@@ -96,7 +96,7 @@ func TestDecimal(t *testing.T) {
 			nd.Dec = nd.Dec.Mul(decimal.Dec{301, 4})
 			v, err := nd.Value()
 			So(err, ShouldBeNil)
-			So(v, ShouldResemble, []byte("0.13"))
+			So(v, ShouldResemble, "0.13")
 		})
 	})
 }
