@@ -59,7 +59,10 @@ func (d Decimal) MarshalJSON() ([]byte, error) {
 
 func (d *Decimal) UnmarshalJSON(data []byte) error {
 	var numStr string
-	json.Unmarshal(data, &numStr)
+	err := json.Unmarshal(data, &numStr)
+	if err != nil {
+		return d.Scan(data)
+	}
 
 	return d.Scan(numStr)
 }
@@ -118,8 +121,15 @@ func (d NullDecimal) MarshalJSON() ([]byte, error) {
 }
 
 func (d *NullDecimal) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		return d.Scan(nil)
+	}
+
 	var numStr string
-	json.Unmarshal(data, &numStr)
+	err := json.Unmarshal(data, &numStr)
+	if err != nil {
+		return d.Scan(data)
+	}
 
 	return d.Scan(numStr)
 }
