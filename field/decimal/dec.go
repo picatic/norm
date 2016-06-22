@@ -238,5 +238,5 @@ func (nd NullDec) Value() (driver.Value, error) {
 	}
 
 	dec := nd.Dec.Round(nd.Prec)
-	return []byte(dec.String()), nil
+	return dec.String(), nil
 }

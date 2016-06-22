@@ -37,7 +37,7 @@ func (d *Decimal) Scan(value interface{}) (err error) {
 
 func (d Decimal) Value() (driver.Value, error) {
 	dec := d.Dec.Round(d.prec)
-	return []byte(dec.String()), nil
+	return dec.String(), nil
 }
 
 func (d Decimal) ShadowValue() (driver.Value, error) {
