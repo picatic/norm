@@ -1,8 +1,10 @@
-hash: 58c9193dccd462f4832a20a05cd19cd5e294a36bc9851df50bfcfa7882e18c73
-updated: 2016-06-13T16:07:22.440399595-07:00
+hash: 7d1ef260442de5f9fcc2ef5215f9f878ed19665e3238f2dbbb3a85608c584660
+updated: 2016-07-05T15:47:20.653662682-07:00
 imports:
 - name: github.com/AlekSi/reflector
   version: d7aee842efa4a4d10cd04b8cb3fdd65808ebc093
+- name: github.com/asaskevich/govalidator
+  version: 7664702784775e51966f0885f5cd27435916517b
 - name: github.com/DATA-DOG/go-sqlmock
   version: febff80c09712044459f72847e56aaa69c9dad3b
   repo: https://github.com/DATA-DOG/go-sqlmock
@@ -17,6 +19,8 @@ imports:
   - dialect
 - name: github.com/kisielk/sqlstruct
   version: 648daed35d49dac24a4bff253b190a80da3ab6a5
+- name: github.com/satori/go.uuid
+  version: 879c5887cd475cd7864858769793b2ceb0d44feb
 - name: github.com/smartystreets/assertions
   version: 40711f7748186bbf9c99977cd89f21ce1a229447
 - name: github.com/smartystreets/goconvey

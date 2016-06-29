@@ -1,17 +1,19 @@
 package: github.com/picatic/norm
 import:
-  - package: github.com/gocraft/dbr
-    flatten: true
-  - package: github.com/AlekSi/reflector
-  - package: github.com/DATA-DOG/go-sqlmock
-    ref:     v1.0.0
-    repo:    https://github.com/DATA-DOG/go-sqlmock
-    vcs:     git
-  - package: github.com/go-sql-driver/mysql
-    repo:    https://github.com/go-sql-driver/mysql
-    vcs:     git
-  - package: gopkg.in/guregu/null.v3
-  - package: github.com/kisielk/sqlstruct
-  - package: github.com/smartystreets/goconvey
-  - package: github.com/smartystreets/assertions
-    flatten: true
+- package: github.com/gocraft/dbr
+- package: github.com/AlekSi/reflector
+- package: github.com/DATA-DOG/go-sqlmock
+  version: v1.0.0
+  repo: https://github.com/DATA-DOG/go-sqlmock
+  vcs: git
+- package: github.com/go-sql-driver/mysql
+  repo: https://github.com/go-sql-driver/mysql
+  vcs: git
+- package: gopkg.in/guregu/null.v3
+- package: github.com/kisielk/sqlstruct
+- package: github.com/smartystreets/goconvey
+- package: github.com/smartystreets/assertions
+- package: github.com/asaskevich/govalidator
+  version: v4
+- package: github.com/satori/go.uuid
+  version: v1.1.0
