@@ -56,6 +56,11 @@ func (fn Name) SnakeCase() string {
 	return string(newstr)
 }
 
+// implements Locationer from validate
+func (fn Name) Location() string {
+	return string(fn)
+}
+
 // Names A set of Names
 type Names []Name
 

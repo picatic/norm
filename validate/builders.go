@@ -30,7 +30,7 @@ func NotNullable(validator Validator) Validator {
 	})
 }
 
-func Field(fieldName string, validator Validator) Validator {
+func Field(fieldName field.Name, validator Validator) Validator {
 	return ValidatorFunc(func(v interface{}) error {
 		value := reflect.ValueOf(v)
 
@@ -42,10 +42,10 @@ func Field(fieldName string, validator Validator) Validator {
 			return errors.New("value is not a struct")
 		}
 
-		value = value.FieldByName(fieldName)
+		value = value.FieldByName(string(fieldName))
 
 		if !value.IsValid() {
-			return errors.New("struct has no field " + fieldName)
+			return errors.New("struct has no field " + string(fieldName))
 		}
 
 		return validator.Validate(value.Interface())
@@ -53,7 +53,7 @@ func Field(fieldName string, validator Validator) Validator {
 }
 
 //NormField validates an entry in a struct that is a Field type
-func NormField(fieldName string, validator Validator) Validator {
+func NormField(fieldName field.Name, validator Validator) Validator {
 	return Field(fieldName, ValidatorFunc(func(v interface{}) error {
 		//only need field for its driver valuer
 		val, ok := v.(driver.Valuer)
