@@ -262,19 +262,19 @@ func ModelLoadMap(model Model, data map[string]interface{}) error {
 
 // ModelSetDefaults load a map into a model to set default values
 func ModelSetDefaults(model Model, defaults map[string]interface{}) error {
-    for k, v := range defaults {
-        modelField, err := ModelGetField(model, field.NewNameFromSnakeCase(k))
-        if err != nil {
-            continue
-        }
-        if !modelField.IsSet() {
-            err = modelField.Scan(v)
-            if err != nil {
-                return err
-            }
-        }
-    }
-    return nil
+	for k, v := range defaults {
+		modelField, err := ModelGetField(model, field.NewNameFromSnakeCase(k))
+		if err != nil {
+			continue
+		}
+		if !modelField.IsSet() {
+			err = modelField.Scan(v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // ModelDirtyFields return Names of the fields that are dirty

@@ -1,6 +1,7 @@
 package validate
 
 type ValidationError struct {
+	Alias *string
 	Locationer
 	Err error
 }
