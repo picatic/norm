@@ -53,8 +53,8 @@ func Field(fieldName field.Name, validator Validator) Validator {
 }
 
 //NormField validates an entry in a struct that is a Field type
-func NormField(fieldName field.Name, validator Validator) Validator {
-	return Field(fieldName, ValidatorFunc(func(v interface{}) error {
+func NormField(validator Validator) Validator {
+	return ValidatorFunc(func(v interface{}) error {
 		//only need field for its driver valuer
 		val, ok := v.(driver.Valuer)
 		if !ok {
@@ -67,7 +67,7 @@ func NormField(fieldName field.Name, validator Validator) Validator {
 		}
 
 		return validator.Validate(v)
-	}))
+	})
 }
 
 func List(validator Validator) Validator {
@@ -84,6 +84,21 @@ func List(validator Validator) Validator {
 
 		for i := 0; i < value.Len(); i++ {
 			err := validator.Validate(value.Index(i).Interface())
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func IfThen(ifThis Validator, then Validator) Validator {
+	return ValidatorFunc(func(v interface{}) error {
+		valid := ifThis.Validate(v)
+
+		if valid == nil {
+			err := then.Validate(v)
 			if err != nil {
 				return err
 			}
@@ -206,6 +221,16 @@ func LTE(right interface{}) Validator {
 		}
 
 		return fmt.Errorf("%d is not less than or equal to %d", left, right)
+	})
+}
+
+func Equals(right interface{}) Validator {
+	return ValidatorFunc(func(left interface{}) error {
+		if left != right {
+			return fmt.Errorf("%v does not equal %v", left, right)
+		}
+
+		return nil
 	})
 }
 
