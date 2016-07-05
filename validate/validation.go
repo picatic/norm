@@ -27,12 +27,12 @@ var Never ValidatorFunc = func(_ interface{}) error {
 var UUID ValidatorFunc = func(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
-		return errors.New("value is not a string")
+		return ErrNotString
 	}
 
 	valid := govalidator.IsUUID(str)
 	if !valid {
-		return errors.New("the string \"" + str + "\" is not a UUID")
+		return errors.New("the string \"" + str + "\" is not an UUID")
 	}
 
 	return nil
@@ -41,7 +41,7 @@ var UUID ValidatorFunc = func(v interface{}) error {
 var Email ValidatorFunc = func(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
-		return errors.New("value is not a string")
+		return ErrNotString
 	}
 
 	valid := govalidator.IsEmail(str)
@@ -50,4 +50,16 @@ var Email ValidatorFunc = func(v interface{}) error {
 	}
 
 	return nil
+}
+
+var URL ValidatorFunc = func(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return ErrNotString
+	}
+
+	valid := govalidator.IsURL(str)
+	if !valid {
+		return errors.New("the string \"" + str + "\" is not an URL")
+	}
 }

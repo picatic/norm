@@ -8,6 +8,7 @@ import (
 
 	"github.com/picatic/norm"
 	"github.com/picatic/norm/field"
+	"github.com/picatic/norm/field/decimal"
 )
 
 func Nullable(validator Validator) Validator {
@@ -295,6 +296,18 @@ func compare(left, right interface{}) comparison {
 		if l < r {
 			return lt
 		} else if l > r {
+			return gt
+		}
+	case reflect.String:
+		l, err := decimal.New(leftValue.String())
+		r, _ := decimal.New(rightValue.String())
+		if err != nil {
+			panic(err)
+		}
+
+		if l.Lesser(r) {
+			return lt
+		} else if l.Greater(r) {
 			return gt
 		}
 	}

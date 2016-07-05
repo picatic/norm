@@ -1,5 +1,13 @@
 package validate
 
+import (
+	"errors"
+)
+
+var (
+	ErrNotString = errors.New("value is not a string")
+)
+
 type ValidationError struct {
 	Alias *string
 	Locationer
