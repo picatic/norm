@@ -15,6 +15,11 @@ type Bool struct {
 
 // Scan a value into the Bool, error on nil or unparsable
 func (b *Bool) Scan(value interface{}) error {
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	tmp := null.Bool{}
 	tmp.Scan(value)
 
@@ -73,7 +78,12 @@ type NullBool struct {
 
 // Scan a value into the Bool, error on unparsable
 func (nb *NullBool) Scan(value interface{}) error {
-	err := nb.nullBool.Scan(value)
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
+	err = nb.nullBool.Scan(value)
 	if err != nil {
 		return err
 	}

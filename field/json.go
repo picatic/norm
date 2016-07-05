@@ -17,6 +17,11 @@ type NullJson struct {
 
 // Scan a value into the string, error on nil
 func (j *NullJson) Scan(value interface{}) (err error) {
+	value, err = ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	switch value := value.(type) {
 	case nil:
 		j.NullJson = nil

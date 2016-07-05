@@ -16,6 +16,11 @@ type Decimal struct {
 }
 
 func (d *Decimal) Scan(value interface{}) (err error) {
+	value, err = ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	tmp := &decimal.NullDec{}
 
 	err = tmp.Scan(value)
@@ -74,6 +79,11 @@ type NullDecimal struct {
 }
 
 func (d *NullDecimal) Scan(value interface{}) (err error) {
+	value, err = ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	err = d.NullDec.Scan(value)
 	if err != nil {
 		return
