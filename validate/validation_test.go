@@ -1,6 +1,7 @@
 package validate
 
 import (
+	// "fmt"
 	"testing"
 
 	"github.com/picatic/norm/field"
@@ -39,7 +40,7 @@ func TestValidate(t *testing.T) {
 			Convey("if string is not uuid should return error", func() {
 				str := normFields{}
 				str.String.Scan("steve")
-				err := Field("String", UUID).Validate(str)
+				err := Field("String", NormField(UUID)).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
 		})
@@ -48,7 +49,7 @@ func TestValidate(t *testing.T) {
 			Convey("non email should be invalid", func() {
 				str := normFields{}
 				str.String.Scan("steve")
-				err := Field("String", Email).Validate(str)
+				err := Field("String", NormField(Email)).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
 
@@ -74,12 +75,20 @@ func TestValidate(t *testing.T) {
 			Convey("invalid", func() {
 				str := normFields{}
 				str.String.Scan("12345678")
-				err := Field("String", Length(All(
-					GTE(1),
-					LTE(7),
-				))).Validate(str)
+				err := Field("String", NormField(
+					Length(All(
+						GTE(1),
+						LTE(7),
+					)))).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
+		})
+
+		Convey("Decimal comparison", func() {
+			d := field.Decimal{}
+			d.Scan("4.50")
+			err := NormField(LTE("5.00")).Validate(d)
+			So(err, ShouldBeNil)
 		})
 
 		Convey("List", func() {
@@ -115,6 +124,64 @@ func TestValidate(t *testing.T) {
 				err := Field("List", List(validRawList)).Validate(ll)
 
 				So(err, ShouldNotBeNil)
+			})
+		})
+
+		Convey("Errors", func() {
+			Convey("Embedded", func() {
+				fl := fieldList{
+					Raws: []raw{
+						{Int64: 100},
+						{Int64: 120},
+					},
+				}
+
+				err := Field("Raws", List(Field("Int64", LT(100)))).Validate(fl)
+				ves, ok := err.(ValidationErrors)
+				So(ok, ShouldBeTrue)
+				So(len(ves), ShouldEqual, 2)
+				So(ves[0].Location(), ShouldEqual, "Raws[0].Int64")
+				So(ves[1].Location(), ShouldEqual, "Raws[1].Int64")
+			})
+
+			Convey("List in List", func() {
+				ll := fieldListinList{
+					List: []fieldList{
+						{Raws: []raw{
+							{String: "adam"},
+						}},
+						{Raws: []raw{
+							{String: "adam", Int64: 110},
+						}},
+						{Raws: []raw{
+							{String: "adam", Int64: 110},
+						}},
+					},
+				}
+
+				err := Field("List",
+					All(
+						List(
+							Field("Raws", List(
+								All(
+									Field("String", Email),
+									Field("Int64", LT(100)),
+								),
+							)),
+						),
+						Length(Equals(2)),
+					),
+				).Validate(ll)
+				So(err, ShouldNotBeNil)
+				ves, ok := err.(ValidationErrors)
+				So(ok, ShouldBeTrue)
+				So(len(ves), ShouldEqual, 6)
+				So(ves[0].Location(), ShouldEqual, "List[0].Raws[0].String")
+				So(ves[1].Location(), ShouldEqual, "List[1].Raws[0].String")
+				So(ves[2].Location(), ShouldEqual, "List[1].Raws[0].Int64")
+				So(ves[3].Location(), ShouldEqual, "List[2].Raws[0].String")
+				So(ves[4].Location(), ShouldEqual, "List[2].Raws[0].Int64")
+				So(ves[5].Location(), ShouldEqual, "List")
 			})
 		})
 	})

@@ -24,7 +24,7 @@ func Nullable(validator Validator) Validator {
 func NotNullable(validator Validator) Validator {
 	return ValidatorFunc(func(v interface{}) error {
 		if v == nil {
-			return errors.New("value can not be nil")
+			return NewError("value can not be nil")
 		} else {
 			return validator.Validate(v)
 		}
@@ -40,16 +40,26 @@ func Field(fieldName field.Name, validator Validator) Validator {
 		}
 
 		if value.Kind() != reflect.Struct {
-			return errors.New("value is not a struct")
+			panic(errors.New("value is not a struct"))
 		}
 
 		value = value.FieldByName(string(fieldName))
 
 		if !value.IsValid() {
-			return errors.New("struct has no field " + string(fieldName))
+			panic(errors.New("struct has no field " + string(fieldName)))
 		}
 
-		return validator.Validate(value.Interface())
+		err := validator.Validate(value.Interface())
+
+		switch err := err.(type) {
+		case ValidationError:
+			err.AddLocation(fieldName)
+			return err
+		case ValidationErrors:
+			err.AddLocation(fieldName)
+			return err
+		}
+		return err
 	})
 }
 
@@ -83,11 +93,24 @@ func List(validator Validator) Validator {
 			return errors.New("value is not a slice")
 		}
 
+		var ves ValidationErrors = []*ValidationError{}
 		for i := 0; i < value.Len(); i++ {
 			err := validator.Validate(value.Index(i).Interface())
+
 			if err != nil {
-				return err
+				switch err := err.(type) {
+				case ValidationError:
+					err.AddLocation(Index(i))
+					ves.AddError(err)
+				case ValidationErrors:
+					err.AddLocation(Index(i))
+					ves.AddError(err)
+				}
 			}
+		}
+
+		if len(ves) != 0 {
+			return ves
 		}
 
 		return nil
@@ -111,12 +134,6 @@ func IfThen(ifThis Validator, then Validator) Validator {
 
 func Length(validator Validator) Validator {
 	return ValidatorFunc(func(v interface{}) (err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = errors.New("value does not have length")
-			}
-		}()
-
 		value := reflect.ValueOf(v)
 
 		return validator.Validate(value.Len())
@@ -125,23 +142,48 @@ func Length(validator Validator) Validator {
 
 func All(validators ...Validator) Validator {
 	return ValidatorFunc(func(v interface{}) error {
+		var errs ValidationErrors = []*ValidationError{}
 		for _, validator := range validators {
 			if err := validator.Validate(v); err != nil {
-				return err
+				errs.AddError(err)
 			}
+		}
+
+		if len(errs) != 0 {
+			return errs
 		}
 
 		return nil
 	})
 }
 
-// func And(v1 Validator, v2 Validator) Validator {
-// 	return ValidatorFunc(func(v interface{}) error {
-// 		e1 := v1.Validate(v)
-// 		e2 := v2.Validate(v)
+func Any(validators ...Validator) Validator {
+	return ValidatorFunc(func(v interface{}) error {
+		var errs ValidationErrors = []*ValidationError{}
+		for _, validator := range validators {
+			err := validator.Validate(v)
+			if err == nil {
+				return nil
+			}
+			// error is not nil
+			errs.AddError(err)
+		}
 
-// 		})
-// }
+		return errs
+	})
+}
+
+func InList(list ...interface{}) Validator {
+	return ValidatorFunc(func(v interface{}) error {
+		for _, item := range list {
+			if v == item {
+				return nil
+			}
+		}
+
+		return NewError(fmt.Sprintf("%v is not in list %s", v, list))
+	})
+}
 
 //NormFieldValidator this is meant as a wrapper to allow us to transition to better validation
 func NormFieldValidator(fieldName field.Name, alias string, validator Validator) norm.FieldValidator {
@@ -152,13 +194,27 @@ func NormFieldValidator(fieldName field.Name, alias string, validator Validator)
 	return norm.NewFieldValidator(fieldName, alias, vFunc)
 }
 
+//Strings
+func String(valName string, validator func(string) bool) Validator {
+	return ValidatorFunc(func(v interface{}) error {
+		str := v.(string)
+
+		valid := validator(str)
+		if !valid {
+			return NewError("the string \"" + str + "\" is not a " + valName)
+		}
+
+		return nil
+	})
+}
+
 //Comparisons
 type comparison int
 
 const (
-	equal comparison = 1 << iota
-	gt
+	equal comparison = iota
 	lt
+	gt
 )
 
 func GT(right interface{}) Validator {
@@ -166,14 +222,14 @@ func GT(right interface{}) Validator {
 		c := compare(left, right)
 
 		if c == 0 {
-			return errors.New("value is not compareable")
+			return NewError("value is not compareable")
 		}
 
 		if c == gt {
 			return nil
 		}
 
-		return fmt.Errorf("%d is not greater than %d", left, right)
+		return NewError(fmt.Sprintf("%d is not greater than %d", left, right))
 	})
 }
 
@@ -182,14 +238,14 @@ func LT(right interface{}) Validator {
 		c := compare(left, right)
 
 		if c == 0 {
-			return errors.New("value is not compareable")
+			return NewError("value is not compareable")
 		}
 
 		if c == lt {
 			return nil
 		}
 
-		return fmt.Errorf("%d is not less than %d", left, right)
+		return NewError(fmt.Sprintf("%d is not less than %d", left, right))
 	})
 }
 
@@ -198,30 +254,29 @@ func GTE(right interface{}) Validator {
 		c := compare(left, right)
 
 		if c == 0 {
-			return errors.New("value is not compareable")
+			return NewError("value is not compareable")
 		}
 
 		if c == gt || c == equal {
 			return nil
 		}
 
-		return fmt.Errorf("%d is not greater than or equal to %d", left, right)
+		return NewError(fmt.Sprintf("%d is not greater than or equal to %d", left, right))
 	})
 }
 
 func LTE(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		c := compare(left, right)
-
 		if c == 0 {
-			return errors.New("value is not compareable")
+			return NewError("value is not compareable")
 		}
 
 		if c == lt || c == equal {
 			return nil
 		}
 
-		return fmt.Errorf("%d is not less than or equal to %d", left, right)
+		return NewError(fmt.Sprintf("%d is not less than or equal to %d", left, right))
 	})
 }
 
