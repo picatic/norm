@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/norm/field"
+	"github.com/picatic/norm/validate"
 	"reflect"
 )
 
@@ -296,6 +297,10 @@ func ModelDirtyFields(model Model) (field.Names, error) {
 
 // ModelValidate fields provided on model, if no fields validate all fields
 func ModelValidate(sess Session, model Model, fields field.Names) error {
+	if validator, ok := model.(validate.ModelValidator); ok {
+		return validator.Validator().Fields(fields).Validate(model)
+	}
+
 	validators := sess.Connection().ValidatorCache()
 	if fields == nil {
 		fields = ModelFields(model)

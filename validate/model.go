@@ -4,6 +4,10 @@ import (
 	"github.com/picatic/norm/field"
 )
 
+type ModelValidator interface {
+	Validator() MapValidator
+}
+
 //MapValidator provides a way to build validators from a select list of validators
 //kind of like All except you can select which fields get validated
 type MapValidator map[field.Name]Validator
