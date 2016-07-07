@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/picatic/norm"
 	"github.com/picatic/norm/field"
 	"github.com/picatic/norm/field/decimal"
 )
@@ -207,15 +206,6 @@ func NotInList(list ...string) Validator {
 
 		return nil
 	})
-}
-
-//NormFieldValidator this is meant as a wrapper to allow us to transition to better validation
-func NormFieldValidator(fieldName field.Name, alias string, validator Validator) norm.FieldValidator {
-	vFunc := func(sess norm.Session, model norm.Model, value field.Field, args ...interface{}) error {
-		return validator.Validate(model)
-	}
-
-	return norm.NewFieldValidator(fieldName, alias, vFunc)
 }
 
 //Strings
