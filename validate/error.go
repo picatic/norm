@@ -9,7 +9,7 @@ var (
 )
 
 type ValidationError struct {
-	Alias *string
+	Alias string
 	Locationer
 	Err string
 }
@@ -64,7 +64,10 @@ func Alias(alias string, validator Validator) Validator {
 		err := validator.Validate(v)
 		if err != nil {
 			ve := err.(ValidationError) //should only Alias single error otherwise panic
-			ve.Alias = &alias
+			if ve.Alias != "" {
+				panic("error should not be aliased already")
+			}
+			ve.Alias = alias
 			return ve
 		}
 
