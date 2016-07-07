@@ -173,7 +173,19 @@ func Any(validators ...Validator) Validator {
 	})
 }
 
-func InList(list ...interface{}) Validator {
+func First(validators ...Validator) Validator {
+	return ValidatorFunc(func(v interface{}) error {
+		for _, validator := range validators {
+			if err := validator.Validate(v); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func InList(list ...string) Validator {
 	return ValidatorFunc(func(v interface{}) error {
 		for _, item := range list {
 			if v == item {
@@ -181,7 +193,19 @@ func InList(list ...interface{}) Validator {
 			}
 		}
 
-		return NewError(fmt.Sprintf("%v is not in list %s", v, list))
+		return NewError(fmt.Sprintf("%s is not in list %s", v, list))
+	})
+}
+
+func NotInList(list ...string) Validator {
+	return ValidatorFunc(func(v interface{}) error {
+		for _, item := range list {
+			if v == item {
+				return NewError(fmt.Sprintf("%s is in list %s", v, list))
+			}
+		}
+
+		return nil
 	})
 }
 
@@ -212,7 +236,8 @@ func String(valName string, validator func(string) bool) Validator {
 type comparison int
 
 const (
-	equal comparison = iota
+	incomparable comparison = iota
+	equal
 	lt
 	gt
 )
@@ -221,7 +246,7 @@ func GT(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		c := compare(left, right)
 
-		if c == 0 {
+		if c == incomparable {
 			return NewError("value is not compareable")
 		}
 
@@ -237,7 +262,7 @@ func LT(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		c := compare(left, right)
 
-		if c == 0 {
+		if c == incomparable {
 			return NewError("value is not compareable")
 		}
 
@@ -253,8 +278,8 @@ func GTE(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		c := compare(left, right)
 
-		if c == 0 {
-			return NewError("value is not compareable")
+		if c == incomparable {
+			return NewError(fmt.Sprintf("%v value is not compareable", left))
 		}
 
 		if c == gt || c == equal {
@@ -268,7 +293,7 @@ func GTE(right interface{}) Validator {
 func LTE(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		c := compare(left, right)
-		if c == 0 {
+		if c == incomparable {
 			return NewError("value is not compareable")
 		}
 
@@ -310,7 +335,7 @@ func compare(left, right interface{}) comparison {
 		case reflect.Float32, reflect.Float64:
 			r = int64(rightValue.Float())
 		default:
-			return comparison(0)
+			return incomparable
 		}
 		if l < r {
 			return lt
@@ -328,7 +353,7 @@ func compare(left, right interface{}) comparison {
 		case reflect.Float32, reflect.Float64:
 			r = uint64(rightValue.Float())
 		default:
-			return comparison(0)
+			return incomparable
 		}
 		if l < r {
 			return lt
@@ -346,7 +371,7 @@ func compare(left, right interface{}) comparison {
 		case reflect.Float32, reflect.Float64:
 			r = rightValue.Float()
 		default:
-			return comparison(0)
+			return incomparable
 		}
 		if l < r {
 			return lt
@@ -367,5 +392,5 @@ func compare(left, right interface{}) comparison {
 		}
 	}
 
-	return comparison(0)
+	return incomparable
 }
