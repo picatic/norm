@@ -13,13 +13,37 @@ type ModelValidator interface {
 type MapValidator map[field.Name]Validator
 
 func (mv MapValidator) Fields(fields field.Names) Validator {
+	if fields == nil {
+		return ValidatorFunc(func(model interface{}) error {
+			var errs ValidationErrors = []*ValidationError{}
+			for _, validator := range mv {
+				err := validator.Validate(model)
+
+				if err != nil {
+					errs.AddError(err)
+				}
+			}
+
+			if len(errs) != 0 {
+				return errs
+			}
+
+			return nil
+		})
+	}
+
 	return ValidatorFunc(func(model interface{}) error {
+		var errs ValidationErrors = []*ValidationError{}
 		for _, fieldName := range fields {
 			err := mv[fieldName].Validate(model)
 
 			if err != nil {
-				return err
+				errs.AddError(err)
 			}
+		}
+
+		if len(errs) != 0 {
+			return errs
 		}
 
 		return nil
