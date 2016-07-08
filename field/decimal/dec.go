@@ -73,7 +73,9 @@ func (d Dec) Sub(s Dec) Dec {
 }
 
 func (d Dec) Equals(e Dec) bool {
-	return d.Prec == e.Prec && d.Number == e.Number
+	d, e = makeSamePrec(d, e)
+
+	return d.Number == e.Number
 }
 
 func (d Dec) Greater(gt Dec) bool {

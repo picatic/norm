@@ -155,10 +155,26 @@ func TestDec(t *testing.T) {
 		})
 
 		Convey("Equal", func() {
-			d1 := Dec{123, 2}
-			d2 := Dec{123, 2}
+			Convey("same precision number should equal", func() {
+				d1 := Dec{123, 2}
+				d2 := Dec{123, 2}
 
-			So(d1.Equals(d2), ShouldBeTrue)
+				So(d1.Equals(d2), ShouldBeTrue)
+			})
+
+			Convey("27.00 should equal 27.000", func() {
+				d1 := Dec{2700, 2}
+				d2 := Dec{27000, 3}
+
+				So(d1.Equals(d2), ShouldBeTrue)
+			})
+
+			Convey("27.01 should not equal 27.009", func() {
+				d1 := Dec{2701, 2}
+				d2 := Dec{27009, 3}
+
+				So(d1.Equals(d2), ShouldBeFalse)
+			})
 		})
 
 		Convey("Rounding", func() {
