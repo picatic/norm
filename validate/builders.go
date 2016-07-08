@@ -2,7 +2,6 @@ package validate
 
 import (
 	"database/sql/driver"
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -39,13 +38,13 @@ func Field(fieldName field.Name, validator Validator) Validator {
 		}
 
 		if value.Kind() != reflect.Struct {
-			panic(errors.New("value is not a struct"))
+			panic("value is not a struct")
 		}
 
 		value = value.FieldByName(string(fieldName))
 
 		if !value.IsValid() {
-			panic(errors.New("struct has no field " + string(fieldName)))
+			panic("struct has no field " + string(fieldName))
 		}
 
 		err := validator.Validate(value.Interface())
@@ -68,12 +67,12 @@ func NormField(validator Validator) Validator {
 		//only need field for its driver valuer
 		val, ok := v.(driver.Valuer)
 		if !ok {
-			return errors.New("field is not a norm.field")
+			panic("field is not a norm.field")
 		}
 
 		v, err := val.Value()
 		if err != nil {
-			return err
+			panic(err)
 		}
 
 		return validator.Validate(v)
@@ -89,7 +88,7 @@ func List(validator Validator) Validator {
 		}
 
 		if value.Kind() != reflect.Slice {
-			return errors.New("value is not a slice")
+			panic("value is not a slice")
 		}
 
 		var ves ValidationErrors = []*ValidationError{}
