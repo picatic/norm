@@ -330,6 +330,8 @@ func compare(left, right interface{}) comparison {
 			return lt
 		} else if l > r {
 			return gt
+		} else if l == r {
+			return equal
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		l := leftValue.Uint()
@@ -348,6 +350,8 @@ func compare(left, right interface{}) comparison {
 			return lt
 		} else if l > r {
 			return gt
+		} else if l == r {
+			return equal
 		}
 	case reflect.Float32, reflect.Float64:
 		l := leftValue.Float()
@@ -366,6 +370,8 @@ func compare(left, right interface{}) comparison {
 			return lt
 		} else if l > r {
 			return gt
+		} else if l == r {
+			return equal
 		}
 	case reflect.String:
 		l, err := decimal.New(leftValue.String())
