@@ -236,14 +236,14 @@ func GT(right interface{}) Validator {
 		c := compare(left, right)
 
 		if c == incomparable {
-			return NewError("value is not compareable")
+			return NewError(fmt.Sprintf("%T and %T cannot be compared", left, right))
 		}
 
 		if c == gt {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%d is not greater than %d", left, right))
+		return NewError(fmt.Sprintf("%v is not greater than %v", left, right))
 	})
 }
 
@@ -252,14 +252,14 @@ func LT(right interface{}) Validator {
 		c := compare(left, right)
 
 		if c == incomparable {
-			return NewError("value is not compareable")
+			return NewError(fmt.Sprintf("%T and %T cannot be compared", left, right))
 		}
 
 		if c == lt {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%d is not less than %d", left, right))
+		return NewError(fmt.Sprintf("%v is not less than %v", left, right))
 	})
 }
 
@@ -268,14 +268,14 @@ func GTE(right interface{}) Validator {
 		c := compare(left, right)
 
 		if c == incomparable {
-			return NewError(fmt.Sprintf("%v value is not compareable", left))
+			return NewError(fmt.Sprintf("%T and %T cannot be compared", left, right))
 		}
 
 		if c == gt || c == equal {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%d is not greater than or equal to %d", left, right))
+		return NewError(fmt.Sprintf("%v is not greater than or equal to %v", left, right))
 	})
 }
 
@@ -283,14 +283,14 @@ func LTE(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		c := compare(left, right)
 		if c == incomparable {
-			return NewError("value is not compareable")
+			return NewError(fmt.Sprintf("%T and %T cannot be compared", left, right))
 		}
 
 		if c == lt || c == equal {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%d is not less than or equal to %d", left, right))
+		return NewError(fmt.Sprintf("%v is not less than or equal to %v", left, right))
 	})
 }
 
@@ -378,6 +378,8 @@ func compare(left, right interface{}) comparison {
 			return lt
 		} else if l.Greater(r) {
 			return gt
+		} else if l.Equals(r) {
+			return equal
 		}
 	}
 
