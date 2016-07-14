@@ -13,6 +13,8 @@ type Dec struct {
 	Prec   uint
 }
 
+var Zero = Dec{0, 0}
+
 func New(numStr string) (d Dec, err error) {
 	d = Dec{}
 
