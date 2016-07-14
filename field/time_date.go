@@ -17,7 +17,11 @@ type TimeDate struct {
 
 // Scan a value into the Time, error on nil or unparsable
 func (t *TimeDate) Scan(value interface{}) error {
-	var err error
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	if value == nil {
 		t.Time = time.Time{}
 	}
@@ -104,7 +108,11 @@ type NullTimeDate struct {
 
 // Scan a value into the Time, error on unparsable
 func (nt *NullTimeDate) Scan(value interface{}) error {
-	var err error
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	switch v := value.(type) {
 	case time.Time:
 		if v.IsZero() {

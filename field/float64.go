@@ -18,6 +18,11 @@ type Float64 struct {
 
 //Scan a value into the float64, error on nil or unparseable
 func (f *Float64) Scan(value interface{}) error {
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	tmp := sql.NullFloat64{}
 	tmp.Scan(value)
 
@@ -79,8 +84,12 @@ type NullFloat64 struct {
 
 //Scan a value into the NullFloat64, error on unparseable
 func (nf *NullFloat64) Scan(value interface{}) error {
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
 
-	err := nf.NullFloat64.Scan(value)
+	err = nf.NullFloat64.Scan(value)
 	if err != nil {
 		return err
 	}

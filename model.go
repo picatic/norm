@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gocraft/dbr"
 	"github.com/picatic/norm/field"
+	"github.com/picatic/norm/validate"
 	"reflect"
 )
 
@@ -262,19 +263,19 @@ func ModelLoadMap(model Model, data map[string]interface{}) error {
 
 // ModelSetDefaults load a map into a model to set default values
 func ModelSetDefaults(model Model, defaults map[string]interface{}) error {
-    for k, v := range defaults {
-        modelField, err := ModelGetField(model, field.NewNameFromSnakeCase(k))
-        if err != nil {
-            continue
-        }
-        if !modelField.IsSet() {
-            err = modelField.Scan(v)
-            if err != nil {
-                return err
-            }
-        }
-    }
-    return nil
+	for k, v := range defaults {
+		modelField, err := ModelGetField(model, field.NewNameFromSnakeCase(k))
+		if err != nil {
+			continue
+		}
+		if !modelField.IsSet() {
+			err = modelField.Scan(v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // ModelDirtyFields return Names of the fields that are dirty
@@ -296,6 +297,10 @@ func ModelDirtyFields(model Model) (field.Names, error) {
 
 // ModelValidate fields provided on model, if no fields validate all fields
 func ModelValidate(sess Session, model Model, fields field.Names) error {
+	if validator, ok := model.(validate.ModelValidator); ok {
+		return validator.Validator().Fields(fields).Validate(model)
+	}
+
 	validators := sess.Connection().ValidatorCache()
 	if fields == nil {
 		fields = ModelFields(model)

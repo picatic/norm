@@ -17,6 +17,11 @@ type Int64 struct {
 
 // Scan a value into the Int64, error on nil or unparsable
 func (i *Int64) Scan(value interface{}) error {
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	tmp := sql.NullInt64{}
 	tmp.Scan(value)
 
@@ -78,8 +83,12 @@ type NullInt64 struct {
 
 // Scan a value into the Int64, error on unparsable
 func (ni *NullInt64) Scan(value interface{}) error {
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
 
-	err := ni.NullInt64.Scan(value)
+	err = ni.NullInt64.Scan(value)
 	if err != nil {
 		return err
 	}

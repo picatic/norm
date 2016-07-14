@@ -16,6 +16,11 @@ type String struct {
 
 // Scan a value into the string, error on nil
 func (s *String) Scan(value interface{}) error {
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
+
 	tmp := null.String{}
 	tmp.Scan(value)
 
@@ -85,8 +90,12 @@ type NullString struct {
 
 // Scan a value into the string
 func (ns *NullString) Scan(value interface{}) error {
+	value, err := ScanValuer(value)
+	if err != nil {
+		return err
+	}
 
-	err := ns.NullString.Scan(value)
+	err = ns.NullString.Scan(value)
 	if err != nil {
 		return err
 	}
