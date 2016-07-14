@@ -11,12 +11,8 @@ func Sum(arg interface{}) Dec {
 	sum := Dec{Number: 0, Prec: 0}
 	for i := 0; i < slice.Len(); i++ {
 		dec := slice.Index(i).Interface().(Dec)
-		fmt.Printf("Adding %s\n", dec)
 		sum = sum.Add(dec)
-		fmt.Println("New Sum: ", dec.String())
 	}
-
-	fmt.Println("Total Sum: ", sum.String())
 
 	return sum
 }
