@@ -3,7 +3,6 @@ package field
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"fmt"
 
 	"github.com/picatic/norm/field/decimal"
 )
@@ -58,7 +57,6 @@ func (d Decimal) IsSet() bool {
 }
 
 func (d Decimal) MarshalJSON() ([]byte, error) {
-	fmt.Println("Marshaling:", d.Dec.String())
 	return json.Marshal(d.Dec.String())
 }
 
