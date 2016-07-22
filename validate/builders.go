@@ -62,8 +62,16 @@ func Field(fieldName field.Name, validator Validator) Validator {
 }
 
 //NormField validates an entry in a struct that is a Field type
-func NormField(validator Validator) Validator {
-	return ValidatorFunc(func(v interface{}) error {
+func NormField(fieldName field.Name, nullable bool, validator Validator) Validator {
+	var builder func(Validator) Validator
+
+	if nullable {
+		builder = Nullable
+	} else {
+		builder = NotNullable
+	}
+
+	return Field(fieldName, ValidatorFunc(func(v interface{}) error {
 		//only need field for its driver valuer
 		val, ok := v.(driver.Valuer)
 		if !ok {
@@ -75,8 +83,8 @@ func NormField(validator Validator) Validator {
 			panic(err)
 		}
 
-		return validator.Validate(v)
-	})
+		return builder(validator).Validate(v)
+	}))
 }
 
 func List(validator Validator) Validator {
