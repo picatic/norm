@@ -4,15 +4,17 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"reflect"
+
 	"github.com/gocraft/dbr"
 	"github.com/picatic/norm/field"
 	"github.com/picatic/norm/validate"
-	"reflect"
 )
 
 var (
-	fieldType = reflect.TypeOf((*field.Field)(nil)).Elem()
-	modelType = reflect.TypeOf((*Model)(nil)).Elem()
+	fieldType       = reflect.TypeOf((*field.Field)(nil)).Elem()
+	modelType       = reflect.TypeOf((*Model)(nil)).Elem()
+	NameNotFoundErr = errors.New("Name not found")
 )
 
 // Model This interface provides basic information to help with building queries and behaviours in dbr.
@@ -156,7 +158,7 @@ func modelGetField(model interface{}, fieldName field.Name) (field.Field, error)
 			}
 		}
 	}
-	return nil, errors.New("Name not found")
+	return nil, NameNotFoundErr
 }
 
 // ModelGetSetFields is named poorly but returns all the fields on a model that have been set.
@@ -317,4 +319,41 @@ func ModelValidate(sess Session, model Model, fields field.Names) error {
 		return nil
 	}
 	return err
+}
+
+//MapFields makes a copy from a origin model to a destination model fields with the same name or
+//provided by a mapping table
+func MapFields(originModel Model, destinationModel Model, mappings map[field.Name]field.Name) error {
+	originFieldNames := ModelFields(originModel)
+	for _, originFieldName := range originFieldNames {
+		var (
+			destinationFieldName field.Name
+			ok                   bool
+		)
+
+		if destinationFieldName, ok = mappings[originFieldName]; !ok {
+			destinationFieldName = originFieldName
+		}
+
+		originField, err := ModelGetField(originModel, originFieldName)
+		if err != nil {
+			if err == NameNotFoundErr {
+				continue
+			} else {
+				return err
+			}
+		}
+
+		destinationField, err := ModelGetField(destinationModel, destinationFieldName)
+		if err != nil {
+			if err == NameNotFoundErr {
+				continue
+			} else {
+				return err
+			}
+		}
+		destinationField.Scan(originField)
+	}
+
+	return nil
 }
