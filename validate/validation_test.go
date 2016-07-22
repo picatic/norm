@@ -15,7 +15,7 @@ func TestValidate(t *testing.T) {
 			Convey("scanning nil should return an error", func() {
 				nf := &normFields{}
 				nf.NullString.Scan(nil)
-				err := NormField("NullString", false, Always).Validate(nf)
+				err := NormField("NullString", true, Always).Validate(nf)
 				So(err, ShouldNotBeNil)
 			})
 		})
@@ -33,14 +33,14 @@ func TestValidate(t *testing.T) {
 			Convey("if string is uuid should not return error", func() {
 				str := normFields{}
 				str.String.Scan(uuid.NewV4().String())
-				err := NormField("String", false, UUID).Validate(str)
+				err := NormField("String", true, UUID).Validate(str)
 				So(err, ShouldBeNil)
 			})
 
 			Convey("if string is not uuid should return error", func() {
 				str := normFields{}
 				str.String.Scan("steve")
-				err := NormField("String", false, UUID).Validate(str)
+				err := NormField("String", true, UUID).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
 		})
@@ -49,14 +49,14 @@ func TestValidate(t *testing.T) {
 			Convey("non email should be invalid", func() {
 				str := normFields{}
 				str.String.Scan("steve")
-				err := NormField("String", false, Email).Validate(str)
+				err := NormField("String", true, Email).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
 
 			Convey("email should be valid", func() {
 				str := normFields{}
 				str.String.Scan("steve@gmail.com")
-				err := NormField("String", false, Email).Validate(str)
+				err := NormField("String", true, Email).Validate(str)
 				So(err, ShouldBeNil)
 			})
 		})
@@ -65,7 +65,7 @@ func TestValidate(t *testing.T) {
 			Convey("valid", func() {
 				str := normFields{}
 				str.String.Scan("123456")
-				err := NormField("String", false, Length(All(
+				err := NormField("String", true, Length(All(
 					GTE(1),
 					LTE(7),
 				))).Validate(str)
@@ -75,7 +75,7 @@ func TestValidate(t *testing.T) {
 			Convey("invalid", func() {
 				str := normFields{}
 				str.String.Scan("12345678")
-				err := NormField("String", false,
+				err := NormField("String", true,
 					Length(All(
 						GTE(1),
 						LTE(7),

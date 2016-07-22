@@ -62,13 +62,13 @@ func Field(fieldName field.Name, validator Validator) Validator {
 }
 
 //NormField validates an entry in a struct that is a Field type
-func NormField(fieldName field.Name, nullable bool, validator Validator) Validator {
+func NormField(fieldName field.Name, required bool, validator Validator) Validator {
 	var builder func(Validator) Validator
 
-	if nullable {
-		builder = Nullable
-	} else {
+	if required {
 		builder = NotNullable
+	} else {
+		builder = Nullable
 	}
 
 	return Field(fieldName, ValidatorFunc(func(v interface{}) error {
