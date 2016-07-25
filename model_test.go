@@ -1,18 +1,25 @@
 package norm
 
 import (
+	"testing"
+
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/picatic/norm/field"
 	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 )
 
 // Mock Model for testing
 type MockModel struct {
-	Id        field.NullString `json:"id",sql:"id"`
-	FirstName field.NullString `json:"first_name",sql:"first_name"`
-	Org       field.NullString `json:"org",sql:"org"`
+	Id        field.NullString `json:"id" sql:"id"`
+	FirstName field.NullString `json:"first_name" sql:"first_name"`
+	Org       field.NullString `json:"org" sql:"org"`
 	Ignore    string
+}
+
+type MockModelDTO struct {
+	ModelId   field.String `json:"model_id" sql:"model_id"`
+	FirstName field.String `json:"first_name" sql:"first_name"`
+	Org       field.String `json:"org" sql:"org"`
 }
 
 type MockModelEmbedded struct {
@@ -53,6 +60,18 @@ func (*MockModelCustomPrimaryKey) PrimaryKey() PrimaryKeyer {
 		f.Scan("abc-123-xyz-789")
 		return field.Names{"Id"}, nil
 	})
+}
+
+func (*MockModelDTO) TableName() string {
+	return ""
+}
+
+func (*MockModelDTO) IsNew() bool {
+	return false
+}
+
+func (*MockModelDTO) PrimaryKey() PrimaryKeyer {
+	return nil
 }
 
 func TestModel(t *testing.T) {
@@ -257,6 +276,29 @@ func TestModel(t *testing.T) {
 				So(err, ShouldBeNil)
 			})
 
+		})
+
+		Convey("MapFields", func() {
+			originModel := &MockModel{}
+			destModel := &MockModelDTO{}
+
+			originModel.Id.Scan("1")
+			originModel.FirstName.Scan("Joe")
+			originModel.Org.Scan("Picatic")
+
+			Convey("Without mapping", func() {
+				MapFields(originModel, destModel, map[field.Name]field.Name{})
+				So(destModel.ModelId.String, ShouldEqual, "")
+				So(destModel.FirstName.String, ShouldEqual, originModel.FirstName.String)
+				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
+			})
+
+			Convey("With mapping", func() {
+				MapFields(originModel, destModel, map[field.Name]field.Name{"Id": "ModelId"})
+				So(destModel.ModelId.String, ShouldEqual, originModel.Id.String)
+				So(destModel.FirstName.String, ShouldEqual, originModel.FirstName.String)
+				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
+			})
 		})
 	})
 }
