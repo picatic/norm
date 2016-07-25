@@ -117,7 +117,8 @@ func modelFields(model interface{}) field.Names {
 	return fields
 }
 
-// ModelGetField Get a field on a model by name
+// ModelGetField Get a field on a model by name.
+// This function  will just returns field.Field or NameNotFoundErr error
 func ModelGetField(model Model, fieldName field.Name) (field.Field, error) {
 	modelType := reflect.TypeOf(model)
 	if modelType.Kind() != reflect.Ptr {
@@ -323,7 +324,7 @@ func ModelValidate(sess Session, model Model, fields field.Names) error {
 
 //MapFields makes a copy from a origin model to a destination model fields with the same name or
 //provided by a mapping table
-func MapFields(originModel Model, destinationModel Model, mappings map[field.Name]field.Name) error {
+func MapFields(originModel Model, destinationModel Model, mappings map[field.Name]field.Name) {
 	originFieldNames := ModelFields(originModel)
 	for _, originFieldName := range originFieldNames {
 		var (
@@ -336,24 +337,14 @@ func MapFields(originModel Model, destinationModel Model, mappings map[field.Nam
 		}
 
 		originField, err := ModelGetField(originModel, originFieldName)
-		if err != nil {
-			if err == NameNotFoundErr {
-				continue
-			} else {
-				return err
-			}
+		if err == NameNotFoundErr {
+			continue
 		}
 
 		destinationField, err := ModelGetField(destinationModel, destinationFieldName)
-		if err != nil {
-			if err == NameNotFoundErr {
-				continue
-			} else {
-				return err
-			}
+		if err == NameNotFoundErr {
+			continue
 		}
 		destinationField.Scan(originField)
 	}
-
-	return nil
 }

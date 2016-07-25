@@ -287,17 +287,14 @@ func TestModel(t *testing.T) {
 			originModel.Org.Scan("Picatic")
 
 			Convey("Without mapping", func() {
-
-				err := MapFields(originModel, destModel, map[field.Name]field.Name{})
-				So(err, ShouldBeNil)
+				MapFields(originModel, destModel, map[field.Name]field.Name{})
 				So(destModel.ModelId.String, ShouldEqual, "")
 				So(destModel.FirstName.String, ShouldEqual, originModel.FirstName.String)
 				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
 			})
 
 			Convey("With mapping", func() {
-				err := MapFields(originModel, destModel, map[field.Name]field.Name{"Id": "ModelId"})
-				So(err, ShouldBeNil)
+				MapFields(originModel, destModel, map[field.Name]field.Name{"Id": "ModelId"})
 				So(destModel.ModelId.String, ShouldEqual, originModel.Id.String)
 				So(destModel.FirstName.String, ShouldEqual, originModel.FirstName.String)
 				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
