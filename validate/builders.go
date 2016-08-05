@@ -13,9 +13,9 @@ func Nullable(validator Validator) Validator {
 	return ValidatorFunc(func(v interface{}) error {
 		if v == nil {
 			return nil
-		} else {
-			return validator.Validate(v)
 		}
+
+		return validator.Validate(v)
 	})
 }
 
@@ -251,7 +251,7 @@ func GT(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%v is not greater than %v", left, right))
+		return NewError(fmt.Sprintf("value is not greater than %v", right))
 	})
 }
 
@@ -267,7 +267,7 @@ func LT(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%v is not less than %v", left, right))
+		return NewError(fmt.Sprintf("value is not less than %v", right))
 	})
 }
 
@@ -283,7 +283,7 @@ func GTE(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%v is not greater than or equal to %v", left, right))
+		return NewError(fmt.Sprintf("value is not greater than or equal to %v", right))
 	})
 }
 
@@ -298,14 +298,14 @@ func LTE(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("%v is not less than or equal to %v", left, right))
+		return NewError(fmt.Sprintf("value is not less than or equal to %v", right))
 	})
 }
 
 func Equals(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		if left != right {
-			return fmt.Errorf("%v does not equal %v", left, right)
+			return fmt.Errorf("value does not equal %v", right)
 		}
 
 		return nil
