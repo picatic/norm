@@ -348,3 +348,32 @@ func MapFields(originModel Model, destinationModel Model, mappings map[field.Nam
 		destinationField.Scan(originField)
 	}
 }
+
+//MapSetFields makes a copy from a origin model to a destination model fields that are set with the same name or
+//provided by a mapping table
+func MapSetFields(originModel Model, destinationModel Model, mappings map[field.Name]field.Name) {
+	originFieldNames := ModelFields(originModel)
+	for _, originFieldName := range originFieldNames {
+		var (
+			destinationFieldName field.Name
+			ok                   bool
+		)
+
+		if destinationFieldName, ok = mappings[originFieldName]; !ok {
+			destinationFieldName = originFieldName
+		}
+
+		originField, err := ModelGetField(originModel, originFieldName)
+		if err == NameNotFoundErr {
+			continue
+		}
+
+		if originField.IsSet() {
+			destinationField, err := ModelGetField(destinationModel, destinationFieldName)
+			if err == NameNotFoundErr {
+				continue
+			}
+			destinationField.Scan(originField)
+		}
+	}
+}
