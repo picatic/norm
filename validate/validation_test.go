@@ -15,7 +15,7 @@ func TestValidate(t *testing.T) {
 			Convey("scanning nil should return an error", func() {
 				nf := &normFields{}
 				nf.NullString.Scan(nil)
-				err := Field("NullString", NormField(NotNullable(Always))).Validate(nf)
+				err := NormField("NullString", true, Always).Validate(nf)
 				So(err, ShouldNotBeNil)
 			})
 		})
@@ -33,14 +33,14 @@ func TestValidate(t *testing.T) {
 			Convey("if string is uuid should not return error", func() {
 				str := normFields{}
 				str.String.Scan(uuid.NewV4().String())
-				err := Field("String", NormField(UUID)).Validate(str)
+				err := NormField("String", true, UUID).Validate(str)
 				So(err, ShouldBeNil)
 			})
 
 			Convey("if string is not uuid should return error", func() {
 				str := normFields{}
 				str.String.Scan("steve")
-				err := Field("String", NormField(UUID)).Validate(str)
+				err := NormField("String", true, UUID).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
 		})
@@ -49,14 +49,14 @@ func TestValidate(t *testing.T) {
 			Convey("non email should be invalid", func() {
 				str := normFields{}
 				str.String.Scan("steve")
-				err := Field("String", NormField(Email)).Validate(str)
+				err := NormField("String", true, Email).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
 
 			Convey("email should be valid", func() {
 				str := normFields{}
 				str.String.Scan("steve@gmail.com")
-				err := Field("String", NormField(Email)).Validate(str)
+				err := NormField("String", true, Email).Validate(str)
 				So(err, ShouldBeNil)
 			})
 		})
@@ -65,21 +65,21 @@ func TestValidate(t *testing.T) {
 			Convey("valid", func() {
 				str := normFields{}
 				str.String.Scan("123456")
-				err := Field("String", NormField(Length(All(
+				err := NormField("String", true, Length(All(
 					GTE(1),
 					LTE(7),
-				)))).Validate(str)
+				))).Validate(str)
 				So(err, ShouldBeNil)
 			})
 
 			Convey("invalid", func() {
 				str := normFields{}
 				str.String.Scan("12345678")
-				err := Field("String", NormField(
+				err := NormField("String", true,
 					Length(All(
 						GTE(1),
 						LTE(7),
-					)))).Validate(str)
+					))).Validate(str)
 				So(err, ShouldNotBeNil)
 			})
 		})
@@ -87,7 +87,7 @@ func TestValidate(t *testing.T) {
 		Convey("Decimal comparison", func() {
 			d := field.Decimal{}
 			d.Scan("4.50")
-			err := NormField(LTE("5.00")).Validate(d)
+			err := LTE("5.00").Validate(d.Dec.String())
 			So(err, ShouldBeNil)
 		})
 
