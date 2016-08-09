@@ -300,5 +300,31 @@ func TestModel(t *testing.T) {
 				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
 			})
 		})
+
+		Convey("MapSetFields", func() {
+			originModel := &MockModel{}
+			destModel := &MockModelDTO{}
+
+			//not scanning id
+			originModel.FirstName.Scan("Joe")
+			originModel.Org.Scan("Picatic")
+
+			Convey("Without mapping", func() {
+				MapFields(originModel, destModel, map[field.Name]field.Name{})
+				So(destModel.ModelId.String, ShouldEqual, "")
+				So(destModel.FirstName.String, ShouldEqual, originModel.FirstName.String)
+				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
+			})
+
+			Convey("With mapping", func() {
+				MapFields(originModel, destModel, map[field.Name]field.Name{"Id": "ModelId"})
+
+				So(originModel.Id.IsSet(), ShouldBeFalse)
+				So(destModel.ModelId.IsSet(), ShouldBeFalse)
+
+				So(destModel.FirstName.String, ShouldEqual, originModel.FirstName.String)
+				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
+			})
+		})
 	})
 }
