@@ -190,28 +190,35 @@ func TestValidate(t *testing.T) {
 						gt5 := GT(5)
 						err := gt5.Validate(5)
 						ve := err.(ValidationError)
-						So(ve.Err, ShouldEqual, "value is not greater than 5")
+						So(ve.Err, ShouldEqual, "property is not greater than 5")
 					})
 
 					Convey("GTE", func() {
 						gte5 := GTE(5)
 						err := gte5.Validate(4)
 						ve := err.(ValidationError)
-						So(ve.Err, ShouldEqual, "value is not greater than or equal to 5")
+						So(ve.Err, ShouldEqual, "property is not greater than or equal to 5")
 					})
 
 					Convey("LT", func() {
 						lt5 := LT(5)
 						err := lt5.Validate(5)
 						ve := err.(ValidationError)
-						So(ve.Err, ShouldEqual, "value is not less than 5")
+						So(ve.Err, ShouldEqual, "property is not less than 5")
 					})
 
 					Convey("LTE", func() {
 						lte5 := LTE(5)
 						err := lte5.Validate(6)
 						ve := err.(ValidationError)
-						So(ve.Err, ShouldEqual, "value is not less than or equal to 5")
+						So(ve.Err, ShouldEqual, "property is not less than or equal to 5")
+					})
+
+					Convey("Length", func() {
+						lengthlt5 := Length(LT(5))
+						err := lengthlt5.Validate("hello")
+						ve := err.(ValidationError)
+						So(ve.Err, ShouldEqual, "length property is not less than 5")
 					})
 				})
 			})
