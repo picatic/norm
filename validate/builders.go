@@ -22,7 +22,7 @@ func Nullable(validator Validator) Validator {
 func NotNullable(validator Validator) Validator {
 	return ValidatorFunc(func(v interface{}) error {
 		if v == nil {
-			return NewError("property can not be nil")
+			return NewError("value can not be nil")
 		} else {
 			return validator.Validate(v)
 		}
@@ -96,7 +96,7 @@ func List(validator Validator) Validator {
 		}
 
 		if value.Kind() != reflect.Slice {
-			panic("property should be a slice")
+			panic("value is not a slice")
 		}
 
 		var ves ValidationErrors = []*ValidationError{}
@@ -263,7 +263,7 @@ func GT(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("property should be greater than %v", right))
+		return NewError(fmt.Sprintf("property is not greater than %v", right))
 	})
 }
 
@@ -279,7 +279,7 @@ func LT(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("property should be less than %v", right))
+		return NewError(fmt.Sprintf("property is not less than %v", right))
 	})
 }
 
@@ -295,7 +295,7 @@ func GTE(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("property should be greater or equal to %v", right))
+		return NewError(fmt.Sprintf("property is not greater than or equal to %v", right))
 	})
 }
 
@@ -310,14 +310,14 @@ func LTE(right interface{}) Validator {
 			return nil
 		}
 
-		return NewError(fmt.Sprintf("property should be less or equal to %v", right))
+		return NewError(fmt.Sprintf("property is not less than or equal to %v", right))
 	})
 }
 
 func Equals(right interface{}) Validator {
 	return ValidatorFunc(func(left interface{}) error {
 		if left != right {
-			return NewError(fmt.Sprintf("value should be equal to %v", right))
+			return NewError(fmt.Sprintf("value does not equal %v", right))
 		}
 
 		return nil
