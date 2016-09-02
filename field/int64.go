@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+
 	"gopkg.in/guregu/null.v3"
 )
 
@@ -90,6 +91,7 @@ func (ni *NullInt64) Scan(value interface{}) error {
 
 	err = ni.NullInt64.Scan(value)
 	if err != nil {
+		ni.NullInt64.Valid = false
 		return err
 	}
 

@@ -2,8 +2,9 @@ package field
 
 import (
 	"encoding/json"
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestBool(t *testing.T) {
@@ -41,6 +42,17 @@ func TestBool(t *testing.T) {
 			So(s.IsSet(), ShouldBeFalse)
 			s.Scan(true)
 			So(s.IsSet(), ShouldBeTrue)
+		})
+
+		Convey("empty string", func() {
+			s := &NullBool{}
+
+			err := s.Scan("")
+			So(err, ShouldNotBeNil)
+
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldBeNil)
 		})
 	})
 
