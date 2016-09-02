@@ -27,6 +27,46 @@ func TestValidate(t *testing.T) {
 				err := Field("String", Always).Validate(str)
 				So(err, ShouldBeNil)
 			})
+
+			Convey("Zero Values", func() {
+				fields := &normFields{}
+
+				Convey("Int64", func() {
+					validator := NormField("NullInt64", false, Never)
+
+					fields.NullInt64.Scan("")
+
+					err := validator.Validate(fields)
+					So(err, ShouldBeNil)
+				})
+
+				Convey("Float64", func() {
+					validator := NormField("NullFloat64", false, Never)
+
+					fields.NullFloat64.Scan("")
+
+					err := validator.Validate(fields)
+					So(err, ShouldBeNil)
+				})
+
+				Convey("String", func() {
+					validator := NormField("NullString", false, Never)
+
+					fields.NullString.Scan("")
+
+					err := validator.Validate(fields)
+					So(err, ShouldBeNil)
+				})
+
+				Convey("Bool", func() {
+					validator := NormField("NullBool", false, Never)
+
+					fields.NullBool.Scan("")
+
+					err := validator.Validate(fields)
+					So(err, ShouldBeNil)
+				})
+			})
 		})
 
 		Convey("IsStringUUID", func() {
