@@ -84,15 +84,8 @@ func NormField(fieldName field.Name, required bool, validator Validator) Validat
 		}
 
 		if !required {
-			switch v := v.(type) {
-			case string:
-				if v == "" {
-					return nil
-				}
-			case int64:
-				if v == 0 {
-					return nil
-				}
+			if str, ok := v.(string); ok && str == "" {
+				return nil
 			}
 		}
 

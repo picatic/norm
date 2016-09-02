@@ -27,6 +27,17 @@ func TestFloat64(t *testing.T) {
 			So(s.shadow, ShouldEqual, 12.34)
 			So(s.IsSet(), ShouldBeTrue)
 		})
+
+		Convey("empty string", func() {
+			s := &NullFloat64{}
+
+			err := s.Scan("")
+			So(err, ShouldNotBeNil)
+
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldBeNil)
+		})
 	})
 
 	Convey("Value", t, func() {

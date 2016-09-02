@@ -2,8 +2,9 @@ package field
 
 import (
 	"encoding/json"
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestInt64(t *testing.T) {
@@ -25,6 +26,17 @@ func TestInt64(t *testing.T) {
 			So(s.Int64, ShouldEqual, 5678)
 			So(s.shadow, ShouldEqual, 1234)
 			So(s.IsSet(), ShouldBeTrue)
+		})
+
+		Convey("empty string", func() {
+			s := &NullInt64{}
+
+			err := s.Scan("")
+			So(err, ShouldNotBeNil)
+
+			v, err := s.Value()
+			So(err, ShouldBeNil)
+			So(v, ShouldBeNil)
 		})
 	})
 
