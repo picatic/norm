@@ -55,7 +55,7 @@ func TestValidate(t *testing.T) {
 					fields.NullString.Scan("")
 
 					err := validator.Validate(fields)
-					So(err, ShouldBeNil)
+					So(err, ShouldNotBeNil)
 				})
 
 				Convey("Bool", func() {

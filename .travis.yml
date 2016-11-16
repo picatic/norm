@@ -1,12 +1,9 @@
 language: go
 
 go:
-  - 1.5
-env:
-  - GO15VENDOREXPERIMENT=1
+  - 1.7
 install:
   - go get github.com/Masterminds/glide
   - glide install
-  - go get ./vendor/...
 script:
   - make test-ci

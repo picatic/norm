@@ -377,3 +377,87 @@ func MapSetFields(originModel Model, destinationModel Model, mappings map[field.
 		}
 	}
 }
+
+func getAllFields(model interface{}) map[field.Name]reflect.Value {
+	fields := map[field.Name]reflect.Value{}
+
+	// Value of model
+	modelValue := reflect.ValueOf(model)
+	if modelValue.Kind() == reflect.Ptr {
+		modelValue = modelValue.Elem()
+	}
+
+	// Type of Model
+	modelType := reflect.TypeOf(model)
+	if modelType.Kind() == reflect.Ptr {
+		modelType = modelType.Elem()
+	}
+
+	for i := 0; i < modelType.NumField(); i++ {
+		v := modelValue.Field(i)
+
+		// Straight up struct field of type field.Field
+		if v.CanAddr() == true && v.Addr().Type().Implements(fieldType) == true {
+			fieldName := field.Name(modelType.Field(i).Name)
+			fields[fieldName] = modelValue.Field(i)
+		} else if v.Kind() == reflect.Struct {
+			//t := modelType.Field(i)
+			// Embedded Struct with potential field.Field fields
+			fieldName := field.Name(modelType.Field(i).Name)
+			fields[fieldName] = modelValue.Field(i)
+		}
+	}
+
+	return fields
+}
+
+//ModelToMap return a map with Model fields
+func ModelToMap(model interface{}, fields field.Names, mapEmbedded bool) (map[string]interface{}, error) {
+	return modelToMap(model, fields, mapEmbedded)
+}
+
+func modelToMap(model interface{}, fields field.Names, mapEmbedded bool) (map[string]interface{}, error) {
+	resultMap := map[string]interface{}{}
+	allFields := getAllFields(model)
+
+	if fields == nil {
+		allFieldsKeys := reflect.ValueOf(allFields).MapKeys()
+		fields = make(field.Names, len(allFieldsKeys))
+		for i, key := range allFieldsKeys {
+			fields[i] = key.Interface().(field.Name)
+		}
+	}
+
+	for _, fieldName := range fields {
+		fieldValue, ok := allFields[fieldName]
+		if !ok {
+			return nil, fmt.Errorf("Field name '%s' not found", fieldName)
+		}
+		//if it's a norm fields return the value
+		if fieldValue.CanSet() == true && fieldValue.CanAddr() == true &&
+			fieldValue.Addr().Type().Implements(fieldType) == true {
+			field := fieldValue.Addr().Interface().(field.Field)
+			value, err := field.Value()
+			if err != nil {
+				return nil, err
+			}
+			resultMap[fieldName.SnakeCase()] = value
+			//if it's a embedded struct/model return the object map recursively
+		} else if fieldValue.CanSet() == true && fieldValue.Kind() == reflect.Struct && mapEmbedded {
+			var valueInterface interface{}
+			if fieldValue.Kind() == reflect.Ptr {
+				valueInterface = fieldValue.Interface()
+			} else {
+				valueInterface = fieldValue.Addr().Interface()
+			}
+			innerMap, err := modelToMap(valueInterface, nil, mapEmbedded)
+			if err != nil {
+				return nil, err
+			}
+			resultMap[fieldName.SnakeCase()] = innerMap
+		}
+
+	}
+
+	return resultMap, nil
+}

@@ -1,5 +1,5 @@
 hash: 7d1ef260442de5f9fcc2ef5215f9f878ed19665e3238f2dbbb3a85608c584660
-updated: 2016-07-05T15:47:20.653662682-07:00
+updated: 2016-10-24T13:17:39.946850376-07:00
 imports:
 - name: github.com/AlekSi/reflector
   version: d7aee842efa4a4d10cd04b8cb3fdd65808ebc093
@@ -23,8 +23,21 @@ imports:
   version: 879c5887cd475cd7864858769793b2ceb0d44feb
 - name: github.com/smartystreets/assertions
   version: 40711f7748186bbf9c99977cd89f21ce1a229447
+  subpackages:
+  - internal/go-render/render
+  - internal/oglematchers
 - name: github.com/smartystreets/goconvey
   version: c53abc99456fa3402dd33c15ee51c3e545e04a3f
+  subpackages:
+  - convey
+  - convey/gotest
+  - convey/reporting
 - name: gopkg.in/guregu/null.v3
   version: 41961cea0328defc5f95c1c473f89ebf0d1813f6
-devImports: []
+testImports:
+- name: github.com/gopherjs/gopherjs
+  version: 6f5a3c4a73badf117936d7d61a046e2fab8e2adb
+  subpackages:
+  - js
+- name: github.com/jtolds/gls
+  version: 8ddce2a84170772b95dd5d576c48d517b22cac63

@@ -2,6 +2,7 @@ package norm
 
 import (
 	"testing"
+	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/picatic/norm/field"
@@ -26,6 +27,13 @@ type MockModelEmbedded struct {
 	MockModel
 	Created  field.Time
 	Modified field.Time
+}
+
+type MockModelEmbeddedField struct {
+	Mock         MockModel
+	Created      field.Time
+	Modified     field.Time
+	privateField field.String
 }
 
 type MockModelInterfaceEmbedded struct {
@@ -324,6 +332,53 @@ func TestModel(t *testing.T) {
 
 				So(destModel.FirstName.String, ShouldEqual, originModel.FirstName.String)
 				So(destModel.Org.String, ShouldEqual, originModel.Org.String)
+			})
+		})
+
+		Convey("ModelToMap", func() {
+			model := &MockModelEmbeddedField{}
+			model.Mock = MockModel{}
+			model.Mock.Id.Scan("1")
+			model.Mock.FirstName.Scan("Joe")
+			model.Mock.Org.Scan("Picatic")
+			model.Created.Scan(time.Now())
+			model.Modified.Scan(time.Now())
+
+			Convey("Return all fields", func() {
+				result, err := ModelToMap(model, nil, true)
+				So(err, ShouldBeNil)
+				So(result["created"], ShouldNotBeEmpty)
+				So(result["modified"], ShouldNotBeEmpty)
+				mockObjectResult := result["mock"].(map[string]interface{})
+				So(mockObjectResult["id"], ShouldEqual, model.Mock.Id.String)
+				So(mockObjectResult["first_name"], ShouldEqual, model.Mock.FirstName.String)
+				So(mockObjectResult["org"], ShouldEqual, model.Mock.Org.String)
+			})
+
+			Convey("Return just not embedded fields", func() {
+				result, err := ModelToMap(model, nil, false)
+				So(err, ShouldBeNil)
+				So(result["created"], ShouldNotBeEmpty)
+				So(result["modified"], ShouldNotBeEmpty)
+				So(result["mock"], ShouldBeNil)
+			})
+
+			Convey("Return informed fields", func() {
+				result, err := ModelToMap(model, field.NewNamesFromSnakeCase([]string{"mock"}), true)
+				So(err, ShouldBeNil)
+				mockObjectResult := result["mock"].(map[string]interface{})
+				So(mockObjectResult["id"], ShouldEqual, model.Mock.Id.String)
+				So(mockObjectResult["first_name"], ShouldEqual, model.Mock.FirstName.String)
+				So(mockObjectResult["org"], ShouldEqual, model.Mock.Org.String)
+				So(mockObjectResult["created"], ShouldBeNil)
+				So(mockObjectResult["modified"], ShouldBeNil)
+			})
+
+			Convey("Return error when informed field doesn't exists", func() {
+				_, err := ModelToMap(model, field.NewNamesFromSnakeCase([]string{"notfound"}), true)
+
+				So(err, ShouldNotBeNil)
+
 			})
 		})
 	})
