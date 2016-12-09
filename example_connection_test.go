@@ -15,7 +15,7 @@ func ExampleConnection_selectBySql() {
 	// Mock Database Connection to expect a query and return row data
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		log.Fatal("an error'%s' was not expected while open mock database", err)
+		log.Fatal(fmt.Printf("an error'%s' was not expected while open mock database", err))
 	}
 
 	rows := sqlmock.NewRows([]string{"id"}).AddRow("5432")
@@ -51,7 +51,7 @@ func ExampleConnection_newSelect() {
 	// Mock Database Connection to expect a query and return row data
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		log.Fatal("an error'%s' was not expected while open mock database", err)
+		log.Fatal(fmt.Printf("an error'%s' was not expected while open mock database", err))
 	}
 
 	rows := sqlmock.NewRows([]string{"id", "email"}).AddRow(5432, "soup@example.com")

@@ -64,7 +64,7 @@ func ExampleNewUpdate() {
 	updateSql, updateArgs := updateBuilder.ToSql()
 
 	fmt.Println("DML:", updateSql)
-	fmt.Printf("ARGS: ")
+	fmt.Print("ARGS: ")
 	outputJson(updateArgs)
 
 	// https://github.com/picatic/norm/issues/4
@@ -88,7 +88,7 @@ func ExampleNewInsert() {
 	insertSql, insertArgs := insertBuilder.ToSql()
 
 	fmt.Println("DML:", insertSql)
-	fmt.Printf("ARGS: ")
+	fmt.Print("ARGS: ")
 	outputJson(insertArgs)
 
 	// Output:
@@ -109,7 +109,7 @@ func ExampleNewDelete() {
 	deleteSql, deleteArgs := deleteBuilder.ToSql()
 
 	fmt.Println("DML:", deleteSql)
-	fmt.Printf("ARGS: ")
+	fmt.Print("ARGS: ")
 	outputJson(deleteArgs)
 
 	// Output:
@@ -141,7 +141,7 @@ func ExampleModelDirtyFields() {
 
 	dirtyFields, err := norm.ModelDirtyFields(user)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		fmt.Print(err.Error())
 		return
 	}
 
@@ -151,7 +151,7 @@ func ExampleModelDirtyFields() {
 
 	dirtyFields, err = norm.ModelDirtyFields(user)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		fmt.Print(err.Error())
 		return
 	}
 

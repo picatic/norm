@@ -226,7 +226,7 @@ func (nd *NullDec) Scan(value interface{}) (err error) {
 	case nil:
 		nd.Valid = false
 	default:
-		errors.New("could not scan")
+		err = errors.New("could not scan")
 	}
 
 	if nd.Valid {
