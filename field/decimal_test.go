@@ -68,7 +68,7 @@ func TestDecimal(t *testing.T) {
 		Convey("precision should remain the same as initial scan", func() {
 			d := &Decimal{}
 			d.Scan("4.20") //prec of 2
-			d.Dec = d.Dec.Mul(decimal.Dec{301, 4})
+			d.Dec = d.Dec.Mul(decimal.Dec{Number: 301, Prec: 4})
 			v, err := d.Value()
 			So(err, ShouldBeNil)
 			So(v, ShouldResemble, "0.13")
@@ -93,7 +93,7 @@ func TestDecimal(t *testing.T) {
 		Convey("precision should remain the same as initial scan", func() {
 			nd := &NullDecimal{}
 			nd.Scan("4.20")
-			nd.Dec = nd.Dec.Mul(decimal.Dec{301, 4})
+			nd.Dec = nd.Dec.Mul(decimal.Dec{Number: 301, Prec: 4})
 			v, err := nd.Value()
 			So(err, ShouldBeNil)
 			So(v, ShouldResemble, "0.13")
