@@ -1,33 +1,26 @@
-hash: 7d1ef260442de5f9fcc2ef5215f9f878ed19665e3238f2dbbb3a85608c584660
-updated: 2016-10-24T13:17:39.946850376-07:00
+hash: d64c6e1daffa1d65fd8bcbadd5fbab9b6c5dbdcc1720aabae70dd799d35c39f2
+updated: 2016-12-16T15:21:03.534670756-08:00
 imports:
 - name: github.com/AlekSi/reflector
   version: d7aee842efa4a4d10cd04b8cb3fdd65808ebc093
 - name: github.com/asaskevich/govalidator
-  version: 7664702784775e51966f0885f5cd27435916517b
+  version: 7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877
 - name: github.com/DATA-DOG/go-sqlmock
-  version: febff80c09712044459f72847e56aaa69c9dad3b
+  version: d4cd2ca2ad1cc2130bba385aab072218f131f636
   repo: https://github.com/DATA-DOG/go-sqlmock
   vcs: git
 - name: github.com/go-sql-driver/mysql
-  version: 3654d25ec346ee8ce71a68431025458d52a38ac0
+  version: ce924a41eea897745442daaa1739089b0f3f561d
   repo: https://github.com/go-sql-driver/mysql
   vcs: git
 - name: github.com/gocraft/dbr
-  version: 78b5b74da0b8bcbe167cc4c55d3383b6893848c3
+  version: 10fa49bf1ee63a0f822283ef9805d818f9e84742
   subpackages:
   - dialect
-- name: github.com/kisielk/sqlstruct
-  version: 648daed35d49dac24a4bff253b190a80da3ab6a5
 - name: github.com/satori/go.uuid
   version: 879c5887cd475cd7864858769793b2ceb0d44feb
-- name: github.com/smartystreets/assertions
-  version: 40711f7748186bbf9c99977cd89f21ce1a229447
-  subpackages:
-  - internal/go-render/render
-  - internal/oglematchers
 - name: github.com/smartystreets/goconvey
-  version: c53abc99456fa3402dd33c15ee51c3e545e04a3f
+  version: 9d1f119b4c758f57339d56a1cc8f2e156c0e79ba
   subpackages:
   - convey
   - convey/gotest
@@ -36,8 +29,13 @@ imports:
   version: 41961cea0328defc5f95c1c473f89ebf0d1813f6
 testImports:
 - name: github.com/gopherjs/gopherjs
-  version: 6f5a3c4a73badf117936d7d61a046e2fab8e2adb
+  version: e34a5cd6a1bc7c4fde759f2d3039852fc68b5fcc
   subpackages:
   - js
 - name: github.com/jtolds/gls
   version: 8ddce2a84170772b95dd5d576c48d517b22cac63
+- name: github.com/smartystreets/assertions
+  version: 2063fd1cc7c975db70502811a34b06ad034ccdf2
+  subpackages:
+  - internal/go-render/render
+  - internal/oglematchers
