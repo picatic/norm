@@ -24,6 +24,9 @@ type connection struct {
 
 // NewConnection return a Connection as configured
 func NewConnection(db *sql.DB, database string, log dbr.EventReceiver) Connection {
+	if log == nil {
+		log = &dbr.NullEventReceiver{}
+	}
 	conn := &dbr.Connection{}
 	conn.DB = db
 	conn.Dialect = dialect.MySQL
