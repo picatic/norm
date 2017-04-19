@@ -7,6 +7,7 @@ import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/picatic/norm/field"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/gocraft/dbr"
 )
 
 // Mock Model for testing
@@ -85,7 +86,7 @@ func (*MockModelDTO) PrimaryKey() PrimaryKeyer {
 func TestModel(t *testing.T) {
 	Convey("Model", t, func() {
 		db, mock, _ := sqlmock.New()
-		conn := NewConnection(db, "mock_db", nil)
+		conn := NewConnection(db, "mock_db", &dbr.NullEventReceiver{})
 
 		model := &MockModel{}
 		model.Id.Scan("1")

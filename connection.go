@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gocraft/dbr"
+	"github.com/gocraft/dbr/dialect"
 )
 
 // Connection initialized with a database
@@ -23,7 +24,14 @@ type connection struct {
 
 // NewConnection return a Connection as configured
 func NewConnection(db *sql.DB, database string, log dbr.EventReceiver) Connection {
-	return &connection{Connection: dbr.NewConnection(db, log), database: database, validatorCache: make(ValidatorCache, 0)}
+	if log == nil {
+		log = &dbr.NullEventReceiver{}
+	}
+	conn := &dbr.Connection{}
+	conn.DB = db
+	conn.Dialect = dialect.MySQL
+	conn.EventReceiver = log
+	return &connection{Connection: conn, database: database, validatorCache: make(ValidatorCache, 0)}
 }
 
 // Database returns name of database

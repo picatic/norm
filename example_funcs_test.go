@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/picatic/norm"
 	"github.com/picatic/norm/field"
+	"github.com/gocraft/dbr"
+	"github.com/gocraft/dbr/dialect"
 )
 
 func ExampleModelFields() {
@@ -22,6 +24,7 @@ func ExampleModelGetField_() {
 	modelField, err := norm.ModelGetField(user, field.Name("Id"))
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	}
 	outputJson(modelField)
 
@@ -33,26 +36,28 @@ func ExampleNewSelect() {
 
 	cnx := norm.NewConnection(nil, "norm_mysql", nil)
 	dbrSess := cnx.NewSession(nil)
-
+	buf := dbr.NewBuffer()
 	user := &User{}
 	user.Id.Scan(1)
 
 	selectBuilder := norm.NewSelect(dbrSess, user, nil)
-	selectSql, selectArgs := selectBuilder.ToSql()
-
-	fmt.Println("DML:", selectSql)
-	fmt.Println("ARGS:", selectArgs)
+	err := selectBuilder.Build(dialect.MySQL, buf)
+	if err!=nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("DML:", buf)
 
 	// Output:
 	// DML: SELECT `id`, `first_name`, `last_name`, `email` FROM norm_mysql.norm_users
-	// ARGS: []
 
 }
 
-func ExampleNewUpdate() {
+func SkipExampleNewUpdate() {
 
 	cnx := norm.NewConnection(nil, "norm_mysql", nil)
 	dbrSess := cnx.NewSession(nil)
+	buf := dbr.NewBuffer()
 
 	user := &User{}
 	user.Id.Scan(1)
@@ -61,16 +66,21 @@ func ExampleNewUpdate() {
 	user.Email.Scan("zh@example.com")
 
 	updateBuilder := norm.NewUpdate(dbrSess, user, nil).Where("id = ?", user.Id.Int64)
-	updateSql, updateArgs := updateBuilder.ToSql()
-
-	fmt.Println("DML:", updateSql)
+	err := updateBuilder.Build(dialect.MySQL, buf)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("DML:", buf.String())
 	fmt.Print("ARGS: ")
-	outputJson(updateArgs)
+	outputJson(buf.Value())
 
 	// https://github.com/picatic/norm/issues/4
-	// Unstable Field Order Output:
+	// Unstable Field Order
+
+	// Output:
 	// DML: UPDATE norm_mysql.norm_users SET `first_name` = ?, `last_name` = ?, `email` = ? WHERE (id = ?)
-	// ARGS:["Zim","Ham","zh@example.com",1]
+	// ARGS: ["Zim","Ham","zh@example.com",1]
 
 }
 
@@ -78,18 +88,22 @@ func ExampleNewInsert() {
 
 	cnx := norm.NewConnection(nil, "norm_mysql", nil)
 	dbrSess := cnx.NewSession(nil)
-
+	buf := dbr.NewBuffer()
 	user := &User{}
 	user.FirstName.Scan("Zim")
 	user.LastName.Scan("Ham")
 	user.Email.Scan("zh@example.com")
 
 	insertBuilder := norm.NewInsert(dbrSess, user, nil).Record(user)
-	insertSql, insertArgs := insertBuilder.ToSql()
+	err := insertBuilder.Build(dialect.MySQL, buf)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
-	fmt.Println("DML:", insertSql)
+	fmt.Println("DML:", buf.String())
 	fmt.Print("ARGS: ")
-	outputJson(insertArgs)
+	outputJson(buf.Value())
 
 	// Output:
 	// DML: INSERT INTO `norm_mysql`.`norm_users` (`first_name`,`last_name`,`email`) VALUES (?,?,?)
@@ -101,16 +115,19 @@ func ExampleNewDelete() {
 
 	cnx := norm.NewConnection(nil, "norm_mysql", nil)
 	dbrSess := cnx.NewSession(nil)
-
+	buf := dbr.NewBuffer()
 	user := &User{}
 	user.Id.Scan(5432)
 
 	deleteBuilder := norm.NewDelete(dbrSess, user).Where("id = ?", user.Id.Int64)
-	deleteSql, deleteArgs := deleteBuilder.ToSql()
-
-	fmt.Println("DML:", deleteSql)
+	err := deleteBuilder.Build(dialect.MySQL, buf)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	fmt.Println("DML:", buf.String())
 	fmt.Print("ARGS: ")
-	outputJson(deleteArgs)
+	outputJson(buf.Value())
 
 	// Output:
 	// DML: DELETE FROM `norm_mysql`.`norm_users` WHERE (id = ?)

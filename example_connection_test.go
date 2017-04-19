@@ -6,6 +6,7 @@ import (
 	"github.com/picatic/norm"
 	"github.com/picatic/norm/field"
 	"log"
+	"github.com/gocraft/dbr"
 )
 
 func ExampleConnection_selectBySql() {
@@ -23,7 +24,7 @@ func ExampleConnection_selectBySql() {
 	mock.ExpectQuery("SELECT 1").WillReturnRows(rows)
 
 	// Create norm Connection and Session for sqlmock
-	connection := norm.NewConnection(db, "norm_database", nil)
+	connection := norm.NewConnection(db, "norm_database", &dbr.NullEventReceiver{})
 	session := connection.NewSession(nil)
 
 	// Query and load mocked result into Model
@@ -60,7 +61,7 @@ func ExampleConnection_newSelect() {
 	mock.ExpectQuery("SELECT `id`, `email` FROM norm_database.norm_users WHERE \\(id = 5432\\)").WillReturnRows(rows)
 
 	// Create norm Connection and Session for sqlmock
-	connection := norm.NewConnection(db, "norm_database", nil)
+	connection := norm.NewConnection(db, "norm_database", &dbr.NullEventReceiver{})
 	session := connection.NewSession(nil)
 
 	// Perform and load mocked result into Model

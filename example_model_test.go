@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	Id        field.Int64  `json:"id",sql:"id"`
+	Id        field.Int64  `json:"id" sql:"id"`
 	FirstName field.String `json:"first_name"`
 	LastName  field.String `json:"last_name"`
 	Email     field.String `json:"email"`
