@@ -70,8 +70,7 @@ func (d Dec) Add(a Dec) Dec {
 }
 
 func (d Dec) Sub(s Dec) Dec {
-	s.Number *= -1
-	return d.Add(s)
+	return d.Add(s.Neg())
 }
 
 func (d Dec) Equals(e Dec) bool {
@@ -126,9 +125,15 @@ func makeSamePrec(d1 Dec, d2 Dec) (Dec, Dec) {
 
 func (d Dec) Abs() Dec {
 	if d.Number < 0 {
-		d.Number *= -1
+		return d.Neg()
 	}
 
+	return d
+}
+
+// Neg inverts the sign
+func (d Dec) Neg() Dec {
+	d.Number *= -1
 	return d
 }
 

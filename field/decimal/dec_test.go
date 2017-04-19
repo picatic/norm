@@ -117,6 +117,34 @@ func TestDec(t *testing.T) {
 			So(res, ShouldEqual, "158.017")
 		})
 
+		Convey("Abs", func() {
+			Convey("positive = positive", func() {
+				d := Dec{12345, 2}
+				res := d.Abs().String()
+				So(res, ShouldEqual, "123.45")
+			})
+
+			Convey("negative = positive", func() {
+				d := Dec{-12345, 2}
+				res := d.Abs().String()
+				So(res, ShouldEqual, "123.45")
+			})
+		})
+
+		Convey("Neg", func() {
+			Convey("positive = negative", func() {
+				d := Dec{12345, 2}
+				res := d.Neg().String()
+				So(res, ShouldEqual, "-123.45")
+			})
+
+			Convey("negative = positive", func() {
+				d := Dec{-12345, 2}
+				res := d.Neg().String()
+				So(res, ShouldEqual, "123.45")
+			})
+		})
+
 		Convey("Sub", func() {
 			Convey("positive - positive = positive", func() {
 				d := Dec{12345, 2}
