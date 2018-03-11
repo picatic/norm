@@ -16,8 +16,8 @@
 [[projects]]
   name = "github.com/asaskevich/govalidator"
   packages = ["."]
-  revision = "7b3beb6df3c42abd3509abfc3bcacc0fbfb7c877"
-  version = "v5"
+  revision = "4918b99a7cb949bb295f3c7bbaf24b577d806e35"
+  version = "v6"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
@@ -48,6 +48,12 @@
   version = "v4.2.1"
 
 [[projects]]
+  name = "github.com/philhofer/fwd"
+  packages = ["."]
+  revision = "bb6d471dc95d4fe11e432687f8b70ff496cf3136"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
@@ -74,6 +80,12 @@
   version = "1.6.3"
 
 [[projects]]
+  name = "github.com/tinylib/msgp"
+  packages = ["msgp"]
+  revision = "b2b6a672cf1e5b90748f79b8b81fc8c5cf0571a1"
+  version = "1.0.2"
+
+[[projects]]
   name = "gopkg.in/guregu/null.v3"
   packages = ["."]
   revision = "e81d6d8d57747b34d7c5fe0d20ebf57692f04ea9"
@@ -82,6 +94,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d98f17be5afaee97163658e7677963cd98eba4affba854cd5e37c01ffbe3b5b6"
+  inputs-digest = "a3f04a81bc5881fa491043ea4f44fedf634c2a6ae39a2d6e4d6c8dcc5d873bd0"
   solver-name = "gps-cdcl"
   solver-version = 1

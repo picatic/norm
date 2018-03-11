@@ -30,7 +30,7 @@
 
 [[constraint]]
   name = "github.com/asaskevich/govalidator"
-  version = "5.0.0"
+  version = "v6"
 
 [[constraint]]
   branch = "context"
