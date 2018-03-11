@@ -2,10 +2,10 @@ package norm_test
 
 import (
 	"fmt"
-	"github.com/picatic/norm"
-	"github.com/picatic/norm/field"
 	"github.com/gocraft/dbr"
 	"github.com/gocraft/dbr/dialect"
+	"github.com/picatic/norm"
+	"github.com/picatic/norm/field"
 )
 
 func ExampleModelFields() {
@@ -17,7 +17,7 @@ func ExampleModelFields() {
 
 }
 
-func ExampleModelGetField_() {
+func ExampleModelGetField() {
 
 	user := &User{}
 	user.Id.Scan(1234)
@@ -42,7 +42,7 @@ func ExampleNewSelect() {
 
 	selectBuilder := norm.NewSelect(dbrSess, user, nil)
 	err := selectBuilder.Build(dialect.MySQL, buf)
-	if err!=nil {
+	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}

@@ -3,10 +3,10 @@ package norm_test
 import (
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/gocraft/dbr"
 	"github.com/picatic/norm"
 	"github.com/picatic/norm/field"
 	"log"
-	"github.com/gocraft/dbr"
 )
 
 func ExampleConnection_selectBySql() {

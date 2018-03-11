@@ -5,9 +5,9 @@ import (
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/gocraft/dbr"
 	"github.com/picatic/norm/field"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/gocraft/dbr"
 )
 
 // Mock Model for testing

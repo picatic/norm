@@ -3,8 +3,17 @@ package field
 import (
 	"database/sql"
 	"database/sql/driver"
+	"github.com/tinylib/msgp/msgp"
 	"unicode"
 )
+
+type Msgp interface {
+	msgp.Encodable
+	msgp.Decodable
+	msgp.Marshaler
+	msgp.Unmarshaler
+	msgp.Sizer
+}
 
 // Shadower Support for shadow fields. Allows us to determine if a field has been altered or not.
 type Shadower interface {

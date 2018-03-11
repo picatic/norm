@@ -20,7 +20,7 @@ else
 	git push --tags
 endif
 test:
-	go test -v -cpu 1,4 $(shell glide novendor)
+	go test -v -cpu 1,4 ./...
 
 test-ci:
-	go test -v -covermode=count  -bench . -cpu 1,4 $(shell glide novendor)
+	go test -v -covermode=count  -bench . -cpu 1,4 ./...
