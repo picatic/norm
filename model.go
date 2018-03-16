@@ -9,9 +9,11 @@ import (
 	"github.com/gocraft/dbr"
 	"github.com/picatic/norm/field"
 	"github.com/picatic/norm/validate"
+	"github.com/picatic/norm/atomiccache"
 )
 
 var (
+	modelFieldsCache atomiccache.Cache
 	fieldType       = reflect.TypeOf((*field.Field)(nil)).Elem()
 	modelType       = reflect.TypeOf((*Model)(nil)).Elem()
 	NameNotFoundErr = errors.New("Name not found")
@@ -19,7 +21,6 @@ var (
 
 // Model This interface provides basic information to help with building queries and behaviours in dbr.
 type Model interface {
-
 	// TableName is the name used in the name used in database.
 	//
 	// Typically implemented to return in storage table name
@@ -71,15 +72,17 @@ type Model interface {
 func ModelFields(model Model) field.Names {
 	modelType := reflect.TypeOf(model)
 
-	if modelType.Kind() != reflect.Ptr {
-		panic("Expected Model to be a Ptr")
-	}
+	return modelFieldsCache.Get(modelType, func() interface{} {
+		if modelType.Kind() != reflect.Ptr {
+			panic("Expected Model to be a Ptr")
+		}
 
-	if modelType.Elem().Kind() != reflect.Struct {
-		panic("Expected Model to be a Ptr to a Struct")
-	}
+		if modelType.Elem().Kind() != reflect.Struct {
+			panic("Expected Model to be a Ptr to a Struct")
+		}
 
-	return modelFields(model)
+		return modelFields(model)
+	}).(field.Names)
 }
 
 func modelFields(model interface{}) field.Names {

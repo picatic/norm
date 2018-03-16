@@ -17,7 +17,7 @@ type Name string
 
 // NewNameFromSnakeCase snake_case to CamelCase
 func NewNameFromSnakeCase(name string) Name {
-	var newstr []rune
+	var newstr = make([]rune, 0, 16)
 	nextCap := true
 
 	for _, chr := range name {
@@ -36,7 +36,7 @@ func NewNameFromSnakeCase(name string) Name {
 
 // SnakeCase Returns a field as SnakeCase
 func (fn Name) SnakeCase() string {
-	var newstr []rune
+	var newstr = make([]rune, 0, 16)
 	lastLower := false
 	for _, chr := range fn {
 		if unicode.IsUpper(chr) {
