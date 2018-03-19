@@ -67,6 +67,11 @@ type Model interface {
 	IsNew() bool
 }
 
+// GetFieldByNamer provides a way to implement explicit GetFieldByName
+type GetFieldByNamer interface {
+	GetFieldByName(field.Name) field.Field
+}
+
 // ModelFields Fetch list of fields on this model via reflection of fields that are from norm/field
 // If model fails to be a Ptr to a Struct we return an error
 func ModelFields(model Model) field.Names {
@@ -123,6 +128,13 @@ func modelFields(model interface{}) field.Names {
 // ModelGetField Get a field on a model by name.
 // This function  will just returns field.Field or NameNotFoundErr error
 func ModelGetField(model Model, fieldName field.Name) (field.Field, error) {
+	if getter, ok := model.(GetFieldByNamer); ok {
+		modelField := getter.GetFieldByName(fieldName)
+		if modelField == nil {
+			return nil, NameNotFoundErr
+		}
+		return modelField, nil
+	}
 	modelType := reflect.TypeOf(model)
 	if modelType.Kind() != reflect.Ptr {
 		panic("Expected Model to be a Ptr")
